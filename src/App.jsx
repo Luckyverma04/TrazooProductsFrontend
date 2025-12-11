@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 // Home Page Sections
 import Navbar from "./components/Navbar";
-import Footer from "./components/footer";
+import Footer from "./components/Footer";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import USPs from "./components/USPs";
