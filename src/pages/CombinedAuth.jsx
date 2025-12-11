@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { User, Mail, Lock, Eye, EyeOff, Sparkles, Shield, Zap } from "lucide-react";
 
+const API = import.meta.env.VITE_API_URL; // ✅ Render backend URL
+
 const CombinedAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -24,10 +26,8 @@ const CombinedAuth = () => {
 
     try {
       if (isLogin) {
-        // --------------------------
         // 🔐 LOGIN
-        // --------------------------
-        const res = await axios.post("http://localhost:5000/api/auth/login", {
+        const res = await axios.post(`${API}/api/auth/login`, {
           email: formData.email,
           password: formData.password,
         });
@@ -37,17 +37,15 @@ const CombinedAuth = () => {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.user));
 
-        // Redirect user by role
         if (res.data.user.role === "admin") {
           window.location.href = "/admin/dashboard";
         } else {
           window.location.href = "/";
         }
+
       } else {
-        // --------------------------
         // 📝 SIGNUP
-        // --------------------------
-        const res = await axios.post("http://localhost:5000/api/auth/register", {
+        const res = await axios.post(`${API}/api/auth/register`, {
           name: formData.name,
           email: formData.email,
           password: formData.password,
@@ -56,6 +54,7 @@ const CombinedAuth = () => {
         alert(res.data.message || "Signup successful! Please verify OTP.");
         window.location.href = "/verify-otp";
       }
+
     } catch (err) {
       alert(err.response?.data?.message || "Something went wrong!");
     }
@@ -72,7 +71,7 @@ const CombinedAuth = () => {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 py-12 relative overflow-hidden">
 
-      {/* Background animation */}
+      {/* Background animations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
@@ -92,7 +91,7 @@ const CombinedAuth = () => {
 
       <div className="w-full max-w-5xl flex bg-white shadow-2xl rounded-3xl overflow-hidden relative z-10">
 
-        {/* LEFT SIDE (Branding) */}
+        {/* LEFT SIDE UI */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-12 flex-col justify-between text-white relative overflow-hidden">
           
           <div className="relative z-10">
@@ -109,19 +108,14 @@ const CombinedAuth = () => {
 
             <p className="text-blue-100 text-lg mb-8">
               {isLogin
-                ? "Login to your dashboard and continue your journey with us."
-                : "Create your account and unlock premium onboarding features."}
+                ? "Login to your dashboard."
+                : "Create your account and enjoy premium experience."}
             </p>
 
             <div className="space-y-6">
-              <Feature icon={Shield} title="Secure Platform"
-                text="Your login and signup are protected with advanced encryption." />
-
-              <Feature icon={Zap} title="Fast & Reliable"
-                text="Experience a smooth and efficient authentication process." />
-
-              <Feature icon={Sparkles} title="Premium Experience"
-                text="Beautiful and seamless UI for the best user journey." />
+              <Feature icon={Shield} title="Secure Platform" text="Your data is protected." />
+              <Feature icon={Zap} title="Fast & Reliable" text="Smooth authentication flow." />
+              <Feature icon={Sparkles} title="Premium UI" text="Beautiful user interface." />
             </div>
           </div>
 
@@ -130,7 +124,7 @@ const CombinedAuth = () => {
           </p>
         </div>
 
-        {/* RIGHT SIDE (FORM) */}
+        {/* RIGHT SIDE FORM */}
         <div className="w-full lg:w-1/2 p-8 sm:p-12">
 
           <div className="mb-8">
@@ -144,36 +138,18 @@ const CombinedAuth = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Name Field (Signup only) */}
             {!isLogin && (
-              <InputField
-                label="Full Name"
-                icon={User}
-                type="text"
-                value={formData.name}
-                onChange={(v) => handleChange("name", v)}
-              />
+              <InputField label="Full Name" icon={User} type="text"
+                value={formData.name} onChange={(v) => handleChange("name", v)} />
             )}
 
-            {/* Email */}
-            <InputField
-              label="Email Address"
-              icon={Mail}
-              type="email"
-              value={formData.email}
-              onChange={(v) => handleChange("email", v)}
-            />
+            <InputField label="Email Address" icon={Mail} type="email"
+              value={formData.email} onChange={(v) => handleChange("email", v)} />
 
-            {/* Password */}
-            <PasswordField
-              label="Password"
-              value={formData.password}
-              show={showPassword}
-              toggle={() => setShowPassword(!showPassword)}
-              onChange={(v) => handleChange("password", v)}
-            />
+            <PasswordField label="Password" value={formData.password}
+              show={showPassword} toggle={() => setShowPassword(!showPassword)}
+              onChange={(v) => handleChange("password", v)} />
 
-            {/* Forgot password (Login only) */}
             {isLogin && (
               <div className="flex justify-end">
                 <a href="/forgot-password" className="text-sm text-indigo-600 font-semibold hover:underline">
@@ -189,25 +165,22 @@ const CombinedAuth = () => {
             >
               {loading ? "Processing..." : isLogin ? "Sign In" : "Create Account"}
             </button>
+
           </form>
 
-          {/* Switch Auth Mode */}
           <p className="text-center mt-6 text-gray-600">
             {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button
-              onClick={toggleMode}
-              className="text-indigo-600 font-semibold hover:underline"
-            >
+            <button onClick={toggleMode} className="text-indigo-600 font-semibold hover:underline">
               {isLogin ? "Create one" : "Sign In"}
             </button>
           </p>
+
         </div>
       </div>
     </div>
   );
 };
 
-// Small reusable components
 const Feature = ({ icon: Icon, title, text }) => (
   <div className="flex items-start gap-4">
     <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
@@ -228,7 +201,7 @@ const InputField = ({ label, icon: Icon, type, value, onChange }) => (
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 pl-12 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-indigo-100 outline-none transition-all"
+        className="w-full p-4 pl-12 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none transition-all"
       />
       <Icon className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
     </div>
@@ -243,14 +216,11 @@ const PasswordField = ({ label, value, show, toggle, onChange }) => (
         type={show ? "text" : "password"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 pl-12 pr-12 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-indigo-100 outline-none transition-all"
+        className="w-full p-4 pl-12 pr-12 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none transition-all"
       />
       <Lock className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
-      <button
-        type="button"
-        onClick={toggle}
-        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-      >
+      <button type="button" onClick={toggle}
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
         {show ? <EyeOff /> : <Eye />}
       </button>
     </div>

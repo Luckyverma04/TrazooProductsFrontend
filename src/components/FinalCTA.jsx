@@ -2,6 +2,8 @@ import { Send, User, Mail, Phone, Building, MapPin, Sparkles, Package } from 'lu
 import { useState, useEffect } from 'react';
 import axios from "axios";
 
+const API = import.meta.env.VITE_API_URL; // ✅ Backend URL from .env
+
 const FinalCTA = () => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -12,7 +14,7 @@ const FinalCTA = () => {
     company: '',
     location: '',
     lookingFor: '',
-    quantity: '' // not sent to backend
+    quantity: ''
   });
 
   const [alert, setAlert] = useState({ type: "", message: "" });
@@ -33,7 +35,8 @@ const FinalCTA = () => {
     setAlert({ type: "", message: "" });
 
     try {
-      const res = await axios.post("http://localhost:5000/api/enquiry", {
+      // ✅ FIXED: No localhost, now using Render API URL
+      const res = await axios.post(`${API}/api/enquiry`, {
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
@@ -42,10 +45,10 @@ const FinalCTA = () => {
         lookingFor: formData.lookingFor
       });
 
-      // Show success modal
+      // Success Modal
       setShowSuccessModal(true);
 
-      // Reset form after success  
+      // Reset form
       setFormData({
         fullName: '',
         email: '',
@@ -59,8 +62,8 @@ const FinalCTA = () => {
     } catch (error) {
       setAlert({ type: "error", message: "Something went wrong. Please try again later." });
       console.error(error);
-      
-      // Auto-clear error alert after 5 seconds
+
+      // Auto-clear message
       setTimeout(() => setAlert({ type: "", message: "" }), 5000);
     } finally {
       setIsLoading(false);
@@ -77,14 +80,14 @@ const FinalCTA = () => {
 
       <div className="max-w-4xl mx-auto relative z-10">
 
-        {/* Top Badge */}
+        {/* Badge */}
         <div
           className={`flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full shadow-lg mb-6 border border-white/30 mx-auto w-fit transition-all duration-700 transform ${
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
           }`}
         >
           <Sparkles className="w-4 h-4 text-white" />
-          <span className="text-sm font-medium text-white">Final CTA / Enquiry Section</span>
+          <span className="text-sm font-medium">Final CTA / Enquiry Section</span>
         </div>
 
         {/* Heading */}
@@ -94,13 +97,13 @@ const FinalCTA = () => {
           </h3>
         </div>
 
-        {/* Sub text */}
+        {/* Subtext */}
         <p className="text-lg text-center max-w-2xl mx-auto opacity-95 leading-relaxed mb-10">
-          Share a few basic details and our team will get back to you with curated kit ideas,
-          timelines and a customised quote.
+          Share a few details and our team will get back to you with curated kit ideas,
+          timelines and a customized quote.
         </p>
 
-        {/* Alert Message */}
+        {/* Alerts */}
         {alert.message && (
           <div
             className={`p-4 text-center rounded-lg mb-6 font-semibold ${
@@ -113,13 +116,13 @@ const FinalCTA = () => {
           </div>
         )}
 
-        {/* Form */}
+        {/* FORM */}
         <div className="bg-white text-gray-900 p-8 md:p-10 rounded-2xl shadow-2xl">
           <form onSubmit={handleSubmit}>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {/* Full Name */}
+              {/* FULL NAME */}
               <div>
                 <label className="font-semibold text-gray-700 flex items-center gap-2 mb-1">
                   <User className="w-4 h-4 text-blue-600" /> Full Name
@@ -133,7 +136,7 @@ const FinalCTA = () => {
                 />
               </div>
 
-              {/* Work Email */}
+              {/* EMAIL */}
               <div>
                 <label className="font-semibold text-gray-700 flex items-center gap-2 mb-1">
                   <Mail className="w-4 h-4 text-blue-600" /> Work Email
@@ -147,7 +150,7 @@ const FinalCTA = () => {
                 />
               </div>
 
-              {/* Phone */}
+              {/* PHONE */}
               <div>
                 <label className="font-semibold text-gray-700 flex items-center gap-2 mb-1">
                   <Phone className="w-4 h-4 text-blue-600" /> Phone Number
@@ -161,7 +164,7 @@ const FinalCTA = () => {
                 />
               </div>
 
-              {/* Company */}
+              {/* COMPANY */}
               <div>
                 <label className="font-semibold text-gray-700 flex items-center gap-2 mb-1">
                   <Building className="w-4 h-4 text-blue-600" /> Company / Institute
@@ -174,7 +177,7 @@ const FinalCTA = () => {
                 />
               </div>
 
-              {/* Location */}
+              {/* LOCATION */}
               <div>
                 <label className="font-semibold text-gray-700 flex items-center gap-2 mb-1">
                   <MapPin className="w-4 h-4 text-blue-600" /> City / Location
@@ -187,7 +190,7 @@ const FinalCTA = () => {
                 />
               </div>
 
-              {/* Looking For */}
+              {/* LOOKING FOR */}
               <div>
                 <label className="font-semibold text-gray-700 flex items-center gap-2 mb-1">
                   <Package className="w-4 h-4 text-blue-600" /> What are you looking for?
@@ -202,16 +205,16 @@ const FinalCTA = () => {
 
             </div>
 
-            {/* Submit Button */}
+            {/* Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-8 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-lg hover:scale-[1.02] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="mt-8 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-lg hover:scale-[1.02] transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-70"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Submitting...</span>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Submitting...
                 </>
               ) : (
                 <>
@@ -229,36 +232,29 @@ const FinalCTA = () => {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl transform animate-[scale-in_0.3s_ease-out] relative">
-            
-            {/* Close Button */}
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
+
+            {/* Close button */}
             <button
               onClick={() => setShowSuccessModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ✕
             </button>
 
-            {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                ✓
               </div>
             </div>
 
-            {/* Success Message */}
             <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">
               Thank You!
             </h3>
-            <p className="text-gray-600 text-center mb-6 leading-relaxed">
-              Your enquiry has been submitted successfully. Our team will contact you soon with curated kit ideas and a customized quote.
+            <p className="text-gray-600 text-center mb-6">
+              Your enquiry has been submitted. Our team will contact you soon.
             </p>
 
-            {/* Action Button */}
             <button
               onClick={() => setShowSuccessModal(false)}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg hover:scale-[1.02] transition-all shadow-lg"
@@ -268,6 +264,7 @@ const FinalCTA = () => {
           </div>
         </div>
       )}
+
     </section>
   );
 };
