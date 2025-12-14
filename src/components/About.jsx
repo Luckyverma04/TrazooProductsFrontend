@@ -41,10 +41,10 @@ const About = () => {
       <div className="max-w-5xl mx-auto relative z-10">
 
         {/* Badge */}
-        <div className={`flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6 border border-purple-100 mx-auto w-fit transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        {/* <div className={`flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6 border border-purple-100 mx-auto w-fit transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <Sparkles className="w-4 h-4 text-purple-600" />
           <span className="text-sm font-medium text-gray-700">About Us / Intro Section</span>
-        </div>
+        </div> */}
 
         {/* Section Title */}
         <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 text-center leading-tight mb-12 transition-all duration-700 delay-100 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>

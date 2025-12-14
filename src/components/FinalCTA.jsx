@@ -81,14 +81,14 @@ const FinalCTA = () => {
       <div className="max-w-4xl mx-auto relative z-10">
 
         {/* Badge */}
-        <div
+        {/* <div
           className={`flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full shadow-lg mb-6 border border-white/30 mx-auto w-fit transition-all duration-700 transform ${
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
           }`}
         >
           <Sparkles className="w-4 h-4 text-white" />
           <span className="text-sm font-medium">Final CTA / Enquiry Section</span>
-        </div>
+        </div> */}
 
         {/* Heading */}
         <div className="text-center mb-6">

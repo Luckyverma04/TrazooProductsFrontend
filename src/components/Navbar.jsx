@@ -16,7 +16,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Home', href: '#hero' },
     { name: 'About Us', href: '#about' },
-    { name: 'Process', href: '#process' },
+    { name: 'Product', href: '#process' },
     { name: 'Why Choose Us', href: '#why-trazoo' },
     { name: 'Contact', href: '#footer' }
   ];

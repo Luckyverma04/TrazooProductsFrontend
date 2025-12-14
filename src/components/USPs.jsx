@@ -70,10 +70,10 @@ const USPs = () => {
       <div className="max-w-6xl mx-auto relative z-10">
 
         {/* Badge */}
-        <div className={`flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6 border border-indigo-100 mx-auto w-fit transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        {/* <div className={`flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6 border border-indigo-100 mx-auto w-fit transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <Sparkles className="w-4 h-4 text-indigo-600" />
           <span className="text-sm font-medium text-gray-700">What Makes Us Unique (USPs Section)</span>
-        </div>
+        </div> */}
 
         {/* Section Title */}
         <h2 className={`text-3xl md:text-4xl lg:text-5xl font-bold text-center text-gray-900 mb-4 transition-all duration-700 delay-100 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
