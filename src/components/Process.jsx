@@ -1,5 +1,11 @@
-import { CheckCircle2, Package, Palette, ClipboardCheck, Truck, Workflow } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import {
+  CheckCircle2,
+  Package,
+  Palette,
+  ClipboardCheck,
+  Truck,
+} from "lucide-react";
+import { useState, useEffect } from "react";
 
 const Process = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -12,104 +18,102 @@ const Process = () => {
     {
       icon: <ClipboardCheck className="w-8 h-8" />,
       title: "Share Your Requirement",
-      description: "Tell us about your audience (employees / students), quantity, locations and budget.",
-      color: "from-blue-50 to-blue-100",
+      description: "Tell us about your audience, quantity, locations and budget.",
       iconBg: "bg-blue-100",
-      iconColor: "text-blue-600"
+      iconColor: "text-blue-600",
     },
     {
       icon: <Package className="w-8 h-8" />,
       title: "Kit Design & Curation",
-      description: "Our team proposes kit options with mockups, product suggestions and pricing.",
-      color: "from-purple-50 to-purple-100",
+      description: "Our team proposes kit options with mockups and pricing.",
       iconBg: "bg-purple-100",
-      iconColor: "text-purple-600"
+      iconColor: "text-purple-600",
     },
     {
       icon: <Palette className="w-8 h-8" />,
       title: "Branding & Finalisation",
-      description: "Once you select a direction, we lock in branding, artwork and packaging details.",
-      color: "from-pink-50 to-pink-100",
+      description: "Branding, artwork and packaging details are locked.",
       iconBg: "bg-pink-100",
-      iconColor: "text-pink-600"
+      iconColor: "text-pink-600",
     },
     {
       icon: <CheckCircle2 className="w-8 h-8" />,
       title: "Production & Quality Check",
-      description: "We source, print and assemble your kits, ensuring each piece meets our quality standards.",
-      color: "from-green-50 to-green-100",
+      description: "Each piece goes through strict quality checks.",
       iconBg: "bg-green-100",
-      iconColor: "text-green-600"
+      iconColor: "text-green-600",
     },
     {
       icon: <Truck className="w-8 h-8" />,
       title: "Dispatch & Delivery",
-      description: "Kits are shipped to your office, campuses or individual addresses, with tracking and support along the way.",
-      color: "from-orange-50 to-orange-100",
+      description: "Pan-India delivery with tracking and support.",
       iconBg: "bg-orange-100",
-      iconColor: "text-orange-600"
-    }
+      iconColor: "text-orange-600",
+    },
   ];
 
   return (
     <section
       id="process"
-      className="py-20 px-6 bg-gradient-to-b from-slate-50 to-white"
+      className="relative py-20 px-6 overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-50"
     >
-      <div className="max-w-6xl mx-auto">
-        {/* Animated Badge */}
-        {/* <div className={`flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md mb-6 border border-purple-100 mx-auto w-fit transition-all duration-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-          <Workflow className="w-4 h-4 text-purple-600" />
-          <span className="text-sm font-medium text-gray-700">How It Works (Process Section)</span>
-        </div> */}
+      {/* 🔥 SAME BG */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500 rounded-full blur-3xl opacity-20 animate-blob" />
+        <div className="absolute top-40 right-10 w-72 h-72 bg-orange-600 rounded-full blur-3xl opacity-15 animate-blob animation-delay-2000" />
+        <div className="absolute bottom-10 left-1/2 w-72 h-72 bg-orange-500 rounded-full blur-3xl opacity-20 animate-blob animation-delay-4000" />
+      </div>
 
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h3 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-            From Brief to Doorstep – Our Simple 5-Step Process
-          </h3>
-        </div>
+      <div className="max-w-6xl mx-auto relative z-10">
 
-        {/* Steps */}
-        <div className="relative">
-          {/* Connection Line */}
-          <div className="hidden md:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-orange-200 opacity-50" 
-               style={{ top: '80px' }}></div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
-            {steps.map((step, index) => (
-              <div key={index} className="relative group">
-                {/* Step Number Badge */}
-                <div className="absolute -top-3 -left-3 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg z-10">
-                  {index + 1}
-                </div>
-                
-                {/* Card */}
-                <div className={`relative bg-gradient-to-br ${step.color} p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 h-full`}>
-                  {/* Icon */}
-                  <div className={`${step.iconBg} ${step.iconColor} w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    {step.icon}
-                  </div>
-                  
-                  {/* Content */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
+        {/* HEADING */}
+        <h3 className="text-4xl md:text-5xl font-bold text-center mb-16">
+          <span className="text-gray-900">From Brief to</span>{" "}
+          <span style={{ color: "#df4607" }}>Doorstep</span>{" "}
+          <span className="text-gray-900">– Our</span>{" "}
+          <span style={{ color: "#df4607" }}>5-Step Process</span>
+        </h3>
+
+        {/* STEPS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              className={`bg-white/90 backdrop-blur p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+              style={{ transitionDelay: `${index * 100}ms` }}
+            >
+              {/* ICON */}
+              <div
+                className={`w-16 h-16 ${step.iconBg} ${step.iconColor} rounded-xl flex items-center justify-center mb-4`}
+              >
+                {step.icon}
               </div>
-            ))}
-          </div>
+
+              {/* TITLE */}
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                {step.title}
+              </h4>
+
+              {/* DESCRIPTION */}
+              <p className="text-gray-700 text-sm leading-relaxed">
+                {step.description}
+              </p>
+            </div>
+          ))}
         </div>
 
-        {/* Bottom CTA hint */}
+        {/* BOTTOM */}
         <div className="mt-16 text-center">
-          <p className="text-gray-600 text-lg">
-            Ready to get started? Let's create something amazing together! ✨
+          <p className="text-lg font-medium">
+            <span className="text-gray-900">Ready to get started?</span>{" "}
+            <span style={{ color: "#df4607" }}>
+              Let’s create something amazing together.
+            </span>
           </p>
         </div>
+
       </div>
     </section>
   );

@@ -1,24 +1,32 @@
-import { Menu, X, Package, LogIn, User, LogOut, LayoutDashboard } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Menu, X, LogOut, LayoutDashboard, Package } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  // Load logged-in user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
+  /* ✅ CUSTOMER NAV ORDER */
   const navLinks = [
-    { name: 'Home', href: '#hero' },
-    { name: 'About Us', href: '#about' },
-    { name: 'Product', href: '#process' },
-    { name: 'Why Choose Us', href: '#why-trazoo' },
-    { name: 'Contact', href: '#footer' }
+    { name: "Home", href: "#hero" },
+
+    { name: "Our Products", href: "#products" },
+
+    { name: "About Us", href: "#about" },
+
+    {
+      name: "Why Choose Us",
+      href: "#why-trazoo", // parent anchor (you can keep this or point to first section)
+    },
+
+    { name: "Contact", href: "#footer" },
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -27,11 +35,15 @@ const Navbar = () => {
     e.preventDefault();
     const element = document.querySelector(href);
     if (element) {
-      const offset = 80;
+      const offset = 80; // navbar height
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - offset;
 
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
     }
     setIsMenuOpen(false);
   };
@@ -44,78 +56,60 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md shadow-lg z-50 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6 py-4">
+    <nav className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md shadow z-50 border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6 py-2">
         <div className="flex justify-between items-center">
 
-          {/* Logo */}
-          <a 
-            href="#hero" 
-            onClick={(e) => scrollToSection(e, '#hero')}
-            className="flex items-center gap-2 group"
+          {/* LOGO */}
+          <a
+            href="#hero"
+            onClick={(e) => scrollToSection(e, "#hero")}
+            className="flex items-center"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              TrazooProducts
-            </h1>
+            <img
+              src={logo}
+              alt="Trazoo Logo"
+              className="w-14 h-14 md:w-16 md:h-16 object-contain"
+            />
           </a>
 
-          {/* Desktop Nav Links */}
+          {/* DESKTOP NAV */}
           <ul className="hidden md:flex gap-8 text-base font-medium">
             {navLinks.map((link, index) => (
               <li key={index}>
-                <a 
+                <a
                   href={link.href}
                   onClick={(e) => scrollToSection(e, link.href)}
-                  className="text-gray-700 hover:text-blue-600 transition-colors relative group"
+                  className="text-gray-700 hover:text-orange-600 relative group"
                 >
                   {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 group-hover:w-full transition-all duration-300" />
                 </a>
               </li>
             ))}
           </ul>
 
-          {/* Desktop Right Section */}
+          {/* DESKTOP RIGHT */}
           <div className="hidden md:flex items-center gap-4">
 
-            {/* If NOT logged in */}
-            {!user && (
-              <a
-                href="/auth"
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all"
-              >
-                <LogIn className="w-4 h-4" />
-                Login
-              </a>
-            )}
+            {/* ENQUIRE NOW */}
+            <button
+              onClick={(e) => scrollToSection(e, "#enquiry")}
+              className="flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold shadow hover:shadow-lg transition-all"
+              style={{
+                backgroundImage: "linear-gradient(to right, #df4607, #e16f30)",
+              }}
+            >
+              <Package className="w-4 h-4" />
+              Enquire Now
+            </button>
 
-            {/* If USER logged in */}
-            {user && user.role === "customer" && (
-              <>
-                <div className="flex items-center gap-2 text-gray-700 font-semibold">
-                  <User className="w-5 h-5 text-blue-600" />
-                  {user.name}
-                </div>
-
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg hover:bg-red-600 transition-all"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </>
-            )}
-
-            {/* If ADMIN logged in */}
-            {user && user.role === "admin" && (
+            {/* ADMIN */}
+            {user?.role === "admin" && (
               <>
                 <button
                   onClick={() => navigate("/admin/dashboard")}
-                  className="flex items-center gap-2 bg-purple-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:shadow-lg hover:bg-purple-700 transition-all"
+                  className="flex items-center gap-2 bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold"
                 >
                   <LayoutDashboard className="w-5 h-5" />
                   Dashboard
@@ -123,7 +117,7 @@ const Navbar = () => {
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-all"
+                  className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold"
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
@@ -132,82 +126,54 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* MOBILE BUTTON */}
           <button
             onClick={toggleMenu}
-            className="md:hidden text-gray-700 hover:text-blue-600 transition-colors"
+            className="md:hidden text-gray-700"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X /> : <Menu />}
           </button>
-
         </div>
 
-        {/* Mobile Menu */}
+        {/* MOBILE MENU */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 py-4 border-t border-gray-100 animate-fadeIn">
-            <ul className="flex flex-col gap-4">
-
+          <div className="md:hidden mt-3 py-3 border-t border-gray-100">
+            <ul className="flex flex-col gap-3">
               {navLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.href}
                     onClick={(e) => scrollToSection(e, link.href)}
-                    className="text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 px-4 rounded-lg hover:bg-blue-50 block"
+                    className="block px-4 py-2 rounded-lg text-gray-700 hover:bg-orange-50"
                   >
                     {link.name}
                   </a>
                 </li>
               ))}
 
-              {/* Mobile Login */}
-              {!user && (
-                <li>
-                  <a
-                    href="/auth"
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
-                  >
-                    <LogIn className="w-4 h-4" />
-                    Login
-                  </a>
-                </li>
-              )}
+              <li className="px-4">
+                <button
+                  onClick={(e) => scrollToSection(e, "#enquiry")}
+                  className="w-full py-2 rounded-lg text-white font-semibold"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(to right, #df4607, #e16f30)",
+                  }}
+                >
+                  Enquire Now
+                </button>
+              </li>
 
-              {/* Mobile USER Section */}
-              {user && user.role === "customer" && (
+              {user && (
                 <li className="px-4">
-                  <div className="flex items-center gap-2 text-gray-800 font-semibold">
-                    <User className="w-5 h-5 text-blue-600" />
-                    {user.name}
-                  </div>
                   <button
                     onClick={handleLogout}
-                    className="mt-3 w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-all"
+                    className="w-full bg-red-500 text-white py-2 rounded-lg font-semibold"
                   >
                     Logout
                   </button>
                 </li>
               )}
-
-              {/* Mobile ADMIN Section */}
-              {user && user.role === "admin" && (
-                <li className="px-4">
-                  <button
-                    onClick={() => navigate("/admin/dashboard")}
-                    className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-all"
-                  >
-                    <LayoutDashboard className="w-5 h-5" />
-                    Dashboard
-                  </button>
-
-                  <button
-                    onClick={handleLogout}
-                    className="mt-3 w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-all"
-                  >
-                    Logout
-                  </button>
-                </li>
-              )}
-
             </ul>
           </div>
         )}

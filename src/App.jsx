@@ -21,9 +21,11 @@ import VerifyOTP from "./pages/VerifyOTP";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminRoute from "./routes/AdminRoute";
 
+import GlobalBackground from "./components/GlobalBackground";
+
 function HomePage() {
   return (
-    <>
+    <GlobalBackground>
       <Navbar />
       <Hero />
       <About />
@@ -35,19 +37,18 @@ function HomePage() {
       <WhoWeServe />
       <FinalCTA />
       <Footer />
-    </>
+    </GlobalBackground>
   );
 }
+
 
 function App() {
   return (
     <Routes>
-      {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/auth" element={<CombinedAuth />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
 
-      {/* Protected Admin Route */}
       <Route
         path="/admin/dashboard"
         element={
@@ -61,3 +62,4 @@ function App() {
 }
 
 export default App;
+

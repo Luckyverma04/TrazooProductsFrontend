@@ -20,89 +20,35 @@ const Hero = () => {
         <div className="absolute -bottom-8 left-1/2 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" style={{ backgroundColor: '#e16f30' }}></div>
       </div>
 
-      <div className={`max-w-4xl mx-auto relative z-10 transition-all duration-1000 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+     {/* Heading + Subheading Wrapper */}
+<div className="max-w-3xl">
 
-       
-    
-
-        {/* Main Headline */}
-     <h1
-  className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
-  style={{ color: '#1a1a1a' }}
->
-  Welcome & Joining Kits <br />
-  That Create a{' '}
-  <span
-    className="text-transparent bg-clip-text"
-    style={{
-      backgroundImage: 'linear-gradient(to right, #df4607, #e16f30)',
-      WebkitBackgroundClip: 'text',
-      backgroundClip: 'text'
-    }}
+  {/* Main Heading */}
+  <h1
+    className="font-bold leading-tight mb-4"
+    style={{ color: "#1a1a1a" }}
   >
-    Lasting First Impression
-  </span>
-</h1>
+    <span className="block text-5xl md:text-6xl lg:text-7xl mb-2">
+      Welcome & Joining Kits
+    </span>
 
+<span
+  className="block text-3xl md:text-4xl lg:text-5xl italic font-semibold whitespace-nowrap"
+  style={{ color: "#df4607" }}
+>
+  That Create a Lasting First Impression
+</span>
 
-        {/* Sub-headline */}
-        <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-4 max-w-3xl mx-auto">
-          Thoughtfully designed, fully customised welcome kits for employees and students –
-          so every new beginning feels special from day one.
-        </p>
+  </h1>
 
-      
+  {/* Sub Heading (Aligned) */}
+  <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+    Thoughtfully designed, fully customised welcome kits for employees and students – 
+    so every new beginning feels special from day one.
+  </p>
 
-        {/* CTA Section */}
-        <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              const element = document.querySelector("#enquiry");
-              if (element) {
-                const offset = 80;
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - offset;
+</div>
 
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: "smooth",
-                });
-              }
-            }}
-            className="group relative px-8 py-4 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2"
-            style={{ 
-              backgroundImage: 'linear-gradient(to right, #df4607, #e16f30)'
-            }}
-          >
-            <Package className="w-5 h-5" />
-            Enquire Now
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-
-          {/* CTA Sub-text */}
-          <p className="text-sm text-gray-600 max-w-md text-center">
-            Share your requirements – we'll respond within 24 hours with ideas & pricing.
-          </p>
-        </div>
-
-        {/* Trust Indicators */}
-        <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-          <div className="text-center">
-            <div className="text-3xl font-bold mb-1" style={{ color: '#df4607' }}>500+</div>
-            <div className="text-sm text-gray-600">Happy Clients</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold mb-1" style={{ color: '#1a1a1a' }}>24hr</div>
-            <div className="text-sm text-gray-600">Quick Response</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold mb-1" style={{ color: '#e16f30' }}>100%</div>
-            <div className="text-sm text-gray-600">Custom Made</div>
-          </div>
-        </div>
-
-      </div>
 
       <style>{`
         @keyframes blob {
