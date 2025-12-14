@@ -57,30 +57,30 @@ const ProductRange = () => {
         "Elegant notebooks, planners and journals that look professional on any desk.",
       gradient: "from-orange-500 to-red-500",
     },
-    {
-      icon: Pen,
-      image:  fifthImg,
-      title: "Pens & Stationery",
-      description:
-        "Smooth-writing pens, bookmarks and other stationery that bring everyday utility to your brand.",
-      gradient: "from-green-500 to-emerald-500",
-    },
-    {
-      icon: ShoppingBag,
-      image:firstImg,
-      title: "Bags & Laptop Sleeves",
-      description:
-        "Backpacks, tote bags or laptop sleeves that combine style, comfort and functionality.",
-      gradient: "from-indigo-500 to-blue-500",
-    },
-    {
-      icon: Gift,
-      image: secondImg,
-      title: "Add-Ons & Goodies",
-      description:
-        "Stickers, badges, welcome letters, ID card holders, lanyards, desk accessories and more.",
-      gradient: "from-pink-500 to-rose-500",
-    },
+   {
+  icon: Pen,
+  image: fifthImg, // First image - Black leather bag with bottles and stationery
+  title: "Pens & Stationery",
+  description:
+    "Smooth-writing pens, bookmarks and other stationery that bring everyday utility to your brand.",
+  gradient: "from-green-500 to-emerald-500",
+},
+{
+  icon: ShoppingBag,
+  image: firstImg, // Second image - Black hoodie with flask and box
+  title: "Bags & Laptop Sleeves",
+  description:
+    "Backpacks, tote bags or laptop sleeves that combine style, comfort and functionality.",
+  gradient: "from-indigo-500 to-blue-500",
+},
+{
+  icon: Gift,
+  image: secondImg, // Third image - Black tote bag with headphones and mug
+  title: "Add-Ons & Goodies",
+  description:
+    "Stickers, badges, welcome letters, ID card holders, lanyards, desk accessories and more.",
+  gradient: "from-pink-500 to-rose-500",
+},
   ];
 
   return (
