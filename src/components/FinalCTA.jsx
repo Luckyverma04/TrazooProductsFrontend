@@ -68,10 +68,10 @@ const FinalCTA = () => {
       className="relative py-20 px-6 overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-50"
     >
       {/* 🔥 SAME GLOBAL ORANGE BG */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500 rounded-full blur-3xl opacity-20 animate-blob" />
-        <div className="absolute top-40 right-10 w-72 h-72 bg-orange-600 rounded-full blur-3xl opacity-15 animate-blob animation-delay-2000" />
-        <div className="absolute bottom-10 left-1/2 w-72 h-72 bg-orange-500 rounded-full blur-3xl opacity-20 animate-blob animation-delay-4000" />
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" style={{ backgroundColor: '#e16f30' }}></div>
+        <div className="absolute top-40 right-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob animation-delay-2000" style={{ backgroundColor: '#df4607' }}></div>
+        <div className="absolute bottom-10 left-1/2 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" style={{ backgroundColor: '#e16f30' }}></div>
       </div>
 
       <div className="max-w-4xl mx-auto relative z-10">
@@ -199,6 +199,17 @@ const FinalCTA = () => {
           </form>
         </div>
       </div>
+
+      <style>{`
+        @keyframes blob {
+          0%,100% { transform: translate(0,0) scale(1); }
+          33% { transform: translate(30px,-50px) scale(1.1); }
+          66% { transform: translate(-20px,20px) scale(0.9); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+      `}</style>
     </section>
   );
 };

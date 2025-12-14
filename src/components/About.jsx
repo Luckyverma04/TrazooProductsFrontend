@@ -23,9 +23,9 @@ const About = () => {
     >
       {/* 🔥 HERO STYLE BACKGROUND */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500 rounded-full blur-3xl opacity-20 animate-blob" />
-        <div className="absolute top-40 right-10 w-72 h-72 bg-orange-600 rounded-full blur-3xl opacity-15 animate-blob animation-delay-2000" />
-        <div className="absolute bottom-10 left-1/2 w-72 h-72 bg-orange-500 rounded-full blur-3xl opacity-20 animate-blob animation-delay-4000" />
+        <div className="absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" style={{ backgroundColor: '#e16f30' }}></div>
+        <div className="absolute top-40 right-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob animation-delay-2000" style={{ backgroundColor: '#df4607' }}></div>
+        <div className="absolute bottom-10 left-1/2 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" style={{ backgroundColor: '#e16f30' }}></div>
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
@@ -73,7 +73,7 @@ const About = () => {
             </div>
             <p className="text-lg text-gray-700 leading-relaxed">
               Every kit is designed to balance utility, aesthetics and brand
-              storytelling – so the gifts are not just “things in a box”, but a
+              storytelling – so the gifts are not just "things in a box", but a
               memorable experience that represents who you are as a brand.
             </p>
           </div>
