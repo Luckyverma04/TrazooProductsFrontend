@@ -53,8 +53,8 @@ const Footer = () => {
             <h5 className="text-lg font-semibold mb-4">Get In Touch</h5>
 
             <div className="space-y-3 text-gray-300">
-              <div className="flex items-center gap-3"><Mail className="w-5 h-5" /> info@trazoo.com</div>
-              <div className="flex items-center gap-3"><Phone className="w-5 h-5" /> +91 XXX XXX XXXX</div>
+              <div className="flex items-center gap-3"><Mail className="w-5 h-5" /> inoslifestyles.com</div>
+              <div className="flex items-center gap-3"><Phone className="w-5 h-5" /> +91 7024804838</div>
               <div className="flex items-center gap-3"><MapPin className="w-5 h-5" /> India</div>
             </div>
 
