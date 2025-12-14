@@ -27,20 +27,19 @@ function HomePage() {
   return (
     <GlobalBackground>
       <Navbar />
-      <Hero />
-      <About />
-      <USPs />
-      <ValueProposition />
-      <ProductRange />
+      <Hero />                    {/* Home */}
+      <ProductRange />            {/* Our Products */}
+      <About />                   {/* About Us */}
+      <USPs />                    {/* Why Choose Us */}
+      <ValueProposition />        {/* Why Choose Us (part 2) */}
       <Branding />
       <Process />
       <WhoWeServe />
-      <FinalCTA />
-      <Footer />
+      <FinalCTA />                {/* Contact form (Enquiry) */}
+      <Footer />                  {/* Contact */}
     </GlobalBackground>
   );
 }
-
 
 function App() {
   return (

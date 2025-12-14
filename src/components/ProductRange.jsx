@@ -35,7 +35,7 @@ const ProductRange = () => {
   const products = [
     {
       icon: Coffee,
-      image: firstImg,
+      image: fourthImg,
       title: "Premium Bottles & Sippers",
       description:
         "Branded, durable and leak-proof bottles that travel with your brand wherever they go.",
@@ -51,7 +51,7 @@ const ProductRange = () => {
     },
     {
       icon: BookOpen,
-      image: secondImg,
+      image: sixthImg,
       title: "Notebooks & Diaries",
       description:
         "Elegant notebooks, planners and journals that look professional on any desk.",
@@ -59,7 +59,7 @@ const ProductRange = () => {
     },
     {
       icon: Pen,
-      image: fourthImg,
+      image:  fifthImg,
       title: "Pens & Stationery",
       description:
         "Smooth-writing pens, bookmarks and other stationery that bring everyday utility to your brand.",
@@ -67,7 +67,7 @@ const ProductRange = () => {
     },
     {
       icon: ShoppingBag,
-      image: fifthImg,
+      image:firstImg,
       title: "Bags & Laptop Sleeves",
       description:
         "Backpacks, tote bags or laptop sleeves that combine style, comfort and functionality.",
@@ -75,7 +75,7 @@ const ProductRange = () => {
     },
     {
       icon: Gift,
-      image: sixthImg,
+      image: secondImg,
       title: "Add-Ons & Goodies",
       description:
         "Stickers, badges, welcome letters, ID card holders, lanyards, desk accessories and more.",
