@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { RoundedBox, Environment, Text } from "@react-three/drei";
 import {
@@ -124,6 +124,8 @@ const ProductCard = ({ product }) => {
 /* ================= MAIN COMPONENT ================= */
 const ProductRange = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const sliderRef = useRef(null);
 
   const products = [
     { icon: Coffee, image: fourthImg, title: "Premium Bottles & Sippers", description: "Branded, durable and leak-proof bottles that travel with your brand." },
@@ -133,6 +135,14 @@ const ProductRange = () => {
     { icon: ShoppingBag, image: firstImg, title: "Bags & Laptop Sleeves", description: "Stylish and functional bags for modern professionals." },
     { icon: Gift, image: secondImg, title: "Add-Ons & Goodies", description: "Stickers, badges, desk accessories and more." },
   ];
+
+  // Auto slide for mobile
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % products.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section className="relative py-32 px-6 bg-gradient-to-br from-orange-50 via-white to-orange-50">
@@ -167,16 +177,8 @@ const ProductRange = () => {
 
             {/* CENTER COLUMN */}
             <div className="flex flex-col items-center justify-center">
-              {/* 3D Product for Desktop */}
+              {/* 3D Product for Desktop Only */}
               <CenterProduct3D isOpen={isOpen} toggleOpen={() => setIsOpen(!isOpen)} />
-              
-              {/* Mobile Button */}
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden w-full max-w-md mx-auto px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              >
-                {isOpen ? "Close Products ✕" : "View Products ↓"}
-              </button>
               
               <p className="mt-6 text-sm text-gray-500 hidden lg:block">
                 Click the product to {isOpen ? "close" : "view"} items inside the kit
@@ -220,13 +222,32 @@ const ProductRange = () => {
             </div>
           </div>
 
-          {/* MOBILE VIEW - Show all products in grid */}
-          <div className={`lg:hidden mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-700 ${
-            isOpen ? "opacity-100" : "opacity-0 max-h-0 overflow-hidden"
-          }`}>
-            {products.map((product, i) => (
-              <ProductCard key={i} product={product} />
-            ))}
+          {/* MOBILE VIEW - Auto Slider */}
+          <div className="lg:hidden mt-12 relative overflow-hidden">
+            <div 
+              ref={sliderRef}
+              className="flex transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {products.map((product, i) => (
+                <div key={i} className="min-w-full px-4">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+            
+            {/* Dots Indicator */}
+            <div className="flex justify-center gap-2 mt-6">
+              {products.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentSlide(i)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    currentSlide === i ? "bg-orange-600 w-8" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
