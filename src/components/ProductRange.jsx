@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { RoundedBox, Environment, Text } from "@react-three/drei";
@@ -136,7 +135,7 @@ const ProductRange = () => {
   ];
 
   return (
-    <section className="relative py-16 md:py-24 lg:py-32 px-6 bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <section id="products" className="relative py-16 md:py-24 lg:py-32 px-6 bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <div className="max-w-7xl mx-auto text-center">
         {/* Heading */}
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 md:mb-12 lg:mb-16">
