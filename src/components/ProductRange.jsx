@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+
+import { useState, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { RoundedBox, Environment, Text } from "@react-three/drei";
 import {
@@ -124,8 +125,6 @@ const ProductCard = ({ product }) => {
 /* ================= MAIN COMPONENT ================= */
 const ProductRange = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const sliderRef = useRef(null);
 
   const products = [
     { icon: Coffee, image: fourthImg, title: "Premium Bottles & Sippers", description: "Branded, durable and leak-proof bottles that travel with your brand." },
@@ -136,29 +135,21 @@ const ProductRange = () => {
     { icon: Gift, image: secondImg, title: "Add-Ons & Goodies", description: "Stickers, badges, desk accessories and more." },
   ];
 
-  // Auto slide for mobile
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % products.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <section className="relative py-32 px-6 bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <section className="relative py-16 md:py-24 lg:py-32 px-6 bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <div className="max-w-7xl mx-auto text-center">
         {/* Heading */}
-        <h2 className="text-4xl md:text-5xl font-bold mb-16">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 md:mb-12 lg:mb-16">
           <span className="text-gray-900">Explore</span>{" "}
           <span style={{ color: "#df4607" }}>Trazoo Kits</span>
         </h2>
 
-        {/* PRODUCTS LAYOUT - Around Center */}
-        <div className="relative">
+        {/* DESKTOP LAYOUT - Around Center */}
+        <div className="hidden lg:block relative">
           {/* Product Cards Around Center */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             {/* LEFT COLUMN */}
-            <div className="space-y-8 hidden lg:block">
+            <div className="space-y-8">
               <div
                 className={`transition-all duration-700 transform ${
                   isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-20 pointer-events-none"
@@ -177,16 +168,15 @@ const ProductRange = () => {
 
             {/* CENTER COLUMN */}
             <div className="flex flex-col items-center justify-center">
-              {/* 3D Product for Desktop Only */}
               <CenterProduct3D isOpen={isOpen} toggleOpen={() => setIsOpen(!isOpen)} />
               
-              <p className="mt-6 text-sm text-gray-500 hidden lg:block">
+              <p className="mt-6 text-sm text-gray-500">
                 Click the product to {isOpen ? "close" : "view"} items inside the kit
               </p>
             </div>
 
             {/* RIGHT COLUMN */}
-            <div className="space-y-8 hidden lg:block">
+            <div className="space-y-8">
               <div
                 className={`transition-all duration-700 transform ${
                   isOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20 pointer-events-none"
@@ -221,34 +211,13 @@ const ProductRange = () => {
               <ProductCard product={products[5]} />
             </div>
           </div>
+        </div>
 
-          {/* MOBILE VIEW - Auto Slider */}
-          <div className="lg:hidden mt-12 relative overflow-hidden">
-            <div 
-              ref={sliderRef}
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {products.map((product, i) => (
-                <div key={i} className="min-w-full px-4">
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
-            
-            {/* Dots Indicator */}
-            <div className="flex justify-center gap-2 mt-6">
-              {products.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    currentSlide === i ? "bg-orange-600 w-8" : "bg-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+        {/* MOBILE VIEW - Simple Grid (Always Visible) */}
+        <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+          {products.map((product, i) => (
+            <ProductCard key={i} product={product} />
+          ))}
         </div>
       </div>
     </section>
