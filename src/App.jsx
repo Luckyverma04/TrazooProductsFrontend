@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { initLenis } from "./utils/lenis";
 
-// Home Page Sections
+/* imports remain SAME */
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
@@ -13,41 +15,40 @@ import Process from "./components/Process";
 import WhoWeServe from "./components/WhoWeServe";
 import FinalCTA from "./components/FinalCTA";
 
-// Authentication Pages
 import CombinedAuth from "./pages/CombinedAuth";
 import VerifyOTP from "./pages/VerifyOTP";
-
-// Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminRoute from "./routes/AdminRoute";
-
 import GlobalBackground from "./components/GlobalBackground";
 
 function HomePage() {
   return (
     <GlobalBackground>
       <Navbar />
-      <Hero />                    {/* Home */}
-      <ProductRange />            {/* Our Products */}
-      <About />                   {/* About Us */}
-      <USPs />                    {/* Why Choose Us */}
-      <ValueProposition />        {/* Why Choose Us (part 2) */}
+      <Hero />
+      <ProductRange />
+      <About />
+      <USPs />
+      <ValueProposition />
       <Branding />
       <Process />
       <WhoWeServe />
-      <FinalCTA />                {/* Contact form (Enquiry) */}
-      <Footer />                  {/* Contact */}
+      <FinalCTA />
+      <Footer />
     </GlobalBackground>
   );
 }
 
 function App() {
+  useEffect(() => {
+    initLenis();   // ✅ Lenis starts here
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/auth" element={<CombinedAuth />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
-
       <Route
         path="/admin/dashboard"
         element={
@@ -61,4 +62,3 @@ function App() {
 }
 
 export default App;
-

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Sparkles, Package, ArrowRight, Star } from "lucide-react";
-
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -16,7 +15,10 @@ const Hero = () => {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
-
+// const scrollToSection = (e, sectionId) => {
+//   e.preventDefault();
+//   scrollTo(sectionId);
+// }
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
