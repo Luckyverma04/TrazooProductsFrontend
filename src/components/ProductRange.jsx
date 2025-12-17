@@ -167,8 +167,18 @@ const ProductRange = () => {
 
             {/* CENTER COLUMN */}
             <div className="flex flex-col items-center justify-center">
+              {/* 3D Product for Desktop */}
               <CenterProduct3D isOpen={isOpen} toggleOpen={() => setIsOpen(!isOpen)} />
-              <p className="mt-6 text-sm text-gray-500">
+              
+              {/* Mobile Button */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden w-full max-w-md mx-auto px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                {isOpen ? "Close Products ✕" : "View Products ↓"}
+              </button>
+              
+              <p className="mt-6 text-sm text-gray-500 hidden lg:block">
                 Click the product to {isOpen ? "close" : "view"} items inside the kit
               </p>
             </div>
