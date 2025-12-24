@@ -2,23 +2,35 @@ import { useNavigate } from "react-router-dom";
 import {
   LogOut,
   Users,
-  Package,
   Settings,
   Activity,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  BarChart3,
   RefreshCw,
-  Home
+  Home,
+  Check,
+  Clock,
+  Search,
+  X,
+  Mail,
+  Phone,
+  Calendar,
+  ArrowLeft,
+  MessageSquare,
+  Shield
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import axios from "axios";
-
+import API from "../../config/api";
 const AdminDashboard = () => {
   const navigate = useNavigate();
+
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("");
+
+  const [allUsers, setAllUsers] = useState([]);
+  const [allLeads, setAllLeads] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [dashboardData, setDashboardData] = useState({
     totalUsers: 0,
@@ -29,8 +41,7 @@ const AdminDashboard = () => {
     activeLeads: 0,
   });
 
-  const [recentLeads, setRecentLeads] = useState([]);
-
+  /* ================= AUTH CHECK ================= */
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user || user.role !== "admin") {
@@ -39,206 +50,175 @@ const AdminDashboard = () => {
     }
     setAdmin(user);
     fetchDashboardData();
+    fetchAllData();
   }, [navigate]);
 
+  /* ================= FETCH ALL DATA ================= */
+  const fetchAllData = async () => {
+    try {
+      const usersRes = await API.get("/api/auth/all");
+      setAllUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
+
+      const leadsRes = await API.get("/api/enquiry");
+      setAllLeads(leadsRes.data.enquiries || []);
+    } catch (error) {
+      console.error("Fetch all data error:", error);
+    }
+  };
+
+  /* ================= DASHBOARD SUMMARY ================= */
   const fetchDashboardData = async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
-
     try {
-      // Example API (replace with your own)
-      const response = await axios.get(
-        "http://localhost:5000/api/leads/dashboard/summary",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await API.get("/api/auth/dashboard/summary");
+
+      console.log("DASHBOARD SUMMARY:", res.data);
 
       setDashboardData({
-        totalUsers: response.data.totalUsers || 0,
-        totalLeads: response.data.totalLeads || 0,
-        totalEnquiries: response.data.totalEnquiries || 0,
-        pendingLeads: response.data.pendingLeads || 0,
-        completedLeads: response.data.completedLeads || 0,
-        activeLeads: response.data.activeLeads || 0,
+        totalUsers: res.data.totalUsers ?? 0,
+        totalLeads: res.data.totalLeads ?? 0,
+        totalEnquiries: res.data.totalEnquiries ?? 0,
+        pendingLeads: res.data.pendingLeads ?? 0,
+        completedLeads: res.data.completedLeads ?? 0,
+        activeLeads: res.data.activeLeads ?? 0,
       });
-
-      // Example for recent leads
-      // setRecentLeads(response.data.recentLeads || []);
-
     } catch (error) {
-      console.error("Error loading dashboard:", error);
+      console.error("Dashboard error:", error);
       if (error.response?.status === 401) logout();
     }
-
     setLoading(false);
   };
 
+  /* ================= LOGOUT ================= */
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    localStorage.clear();
     navigate("/auth");
   };
 
-  const handleRefresh = () => {
-    fetchDashboardData();
+  /* ================= MODAL ================= */
+  const handleCardClick = (type) => {
+    setModalType(type);
+    setModalOpen(true);
+    setSearchTerm("");
   };
 
+  const closeModal = () => {
+    setModalOpen(false);
+    setSearchTerm("");
+  };
+
+  const getFilteredData = () => {
+    const data = modalType === "users" ? allUsers : allLeads;
+    if (!searchTerm) return data;
+
+    const q = searchTerm.toLowerCase();
+    return data.filter((item) =>
+      modalType === "users"
+        ? item.name?.toLowerCase().includes(q) ||
+          item.email?.toLowerCase().includes(q) ||
+          item.role?.toLowerCase().includes(q)
+        : item.name?.toLowerCase().includes(q) ||
+          item.email?.toLowerCase().includes(q) ||
+          item.message?.toLowerCase().includes(q)
+    );
+  };
+
+  const filteredData = getFilteredData();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
-      
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-2xl">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Settings className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Admin Panel
-            </h2>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex">
+      {/* SIDEBAR */}
+      <div className="w-64 bg-white shadow-xl">
+        <div className="p-6 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xl font-bold">
+          Admin Panel
         </div>
-
-        <div className="p-6">
-          <ul className="space-y-2">
-
-            {/* Home Button in Sidebar */}
-            <li
-              className="text-gray-700 font-semibold flex items-center gap-3 cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-all hover:text-blue-600 group"
-              onClick={() => navigate("/")}
-            >
-              <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Home</span>
-            </li>
-
-            <li className="text-gray-700 font-semibold flex items-center gap-3 cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-all hover:text-blue-600 group">
-              <Activity className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Dashboard</span>
-            </li>
-
-            <li className="text-gray-700 font-semibold flex items-center gap-3 cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-all hover:text-blue-600 group">
-              <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Manage Users</span>
-            </li>
-
-            <li className="text-gray-700 font-semibold flex items-center gap-3 cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-all hover:text-blue-600 group">
-              <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>All Leads</span>
-            </li>
-
-            <li className="text-gray-700 font-semibold flex items-center gap-3 cursor-pointer hover:bg-blue-50 p-3 rounded-lg transition-all hover:text-blue-600 group">
-              <BarChart3 className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Analytics</span>
-            </li>
-
-          </ul>
-
-          {/* Logout */}
-          <div className="mt-10 pt-6 border-t border-gray-100">
-            <li
-              className="text-red-600 font-semibold flex items-center gap-3 cursor-pointer hover:bg-red-50 p-3 rounded-lg transition-all list-none group"
-              onClick={logout}
-            >
-              <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Logout</span>
-            </li>
-          </div>
-        </div>
+        <ul className="p-4 space-y-2">
+          <li onClick={() => navigate("/")} className="cursor-pointer flex gap-2">
+            <Home /> Home
+          </li>
+          <li className="text-blue-600 font-semibold flex gap-2">
+            <Activity /> Dashboard
+          </li>
+          <li onClick={logout} className="cursor-pointer text-red-600 flex gap-2">
+            <LogOut /> Logout
+          </li>
+        </ul>
       </div>
 
-      {/* Main Dashboard Content */}
-      <div className="flex-1 p-6 md:p-10 overflow-auto">
-        
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          
+      {/* MAIN */}
+      <div className="flex-1 p-8">
+        <div className="flex justify-between mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              Welcome back, {admin?.name || "Admin"} 👋
+            <h1 className="text-4xl font-bold text-blue-600">
+              Welcome back, {admin?.name} 👋
             </h1>
-            <p className="text-gray-600 mt-2">
-              Here's what's happening with your business today.
-            </p>
+            <p className="text-gray-600">Here’s what’s happening today</p>
           </div>
 
-          <div className="flex gap-3">
-
-            {/* Home Button */}
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow hover:shadow-md transition-all 
-              border border-gray-200 hover:border-green-300"
-            >
-              <Home className="w-4 h-4 text-green-600" />
-              <span className="font-semibold text-green-700">Home</span>
-            </button>
-
-            {/* Refresh */}
-            <button
-              onClick={handleRefresh}
-              className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow hover:shadow-md transition-all 
-              border border-gray-200 hover:border-blue-300"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              <span className="font-semibold">Refresh</span>
-            </button>
-
-          </div>
-
+          <button
+            onClick={() => {
+              fetchDashboardData();
+              fetchAllData();
+            }}
+            className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow"
+          >
+            <RefreshCw size={18} />
+            Refresh
+          </button>
         </div>
 
-        {/* Loader */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-          </div>
+          <div className="text-center">Loading...</div>
         ) : (
-          <>
-            {/* Top Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              
-              {/* Total Users */}
-              <div className="bg-white shadow-lg rounded-2xl p-6 border-l-4 border-blue-500">
-                <div className="flex justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-blue-600" />
-                  </div>
-                </div>
-                <h3 className="text-gray-600 text-sm">Total Users</h3>
-                <p className="text-3xl font-bold">{dashboardData.totalUsers}</p>
-              </div>
-
-              {/* Total Leads */}
-              <div className="bg-white shadow-lg rounded-2xl p-6 border-l-4 border-purple-500">
-                <div className="flex justify-between mb-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <Package className="w-6 h-6 text-purple-600" />
-                  </div>
-                </div>
-                <h3 className="text-gray-600 text-sm">Total Leads</h3>
-                <p className="text-3xl font-bold">{dashboardData.totalLeads}</p>
-              </div>
-
-              {/* Total Enquiries */}
-              <div className="bg-white shadow-lg rounded-2xl p-6 border-l-4 border-indigo-500">
-                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                  <Activity className="w-6 h-6 text-indigo-600" />
-                </div>
-                <h3 className="text-gray-600 text-sm mt-4">Total Enquiries</h3>
-                <p className="text-3xl font-bold">{dashboardData.totalEnquiries}</p>
-              </div>
-
-            </div>
-
-            {/* Recent Leads Placeholder */}
-            <div className="bg-white shadow-lg rounded-2xl p-6">
-              <h2 className="font-bold text-xl mb-4">Recent Leads</h2>
-              <p className="text-gray-500">No recent leads yet</p>
-            </div>
-          </>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCard title="Total Users" value={dashboardData.totalUsers} onClick={() => handleCardClick("users")} />
+            <StatCard title="Total Leads" value={dashboardData.totalLeads} onClick={() => handleCardClick("leads")} />
+            <StatCard title="Pending Leads" value={dashboardData.pendingLeads} />
+            <StatCard title="Completed Leads" value={dashboardData.completedLeads} />
+            <StatCard title="Active Leads" value={dashboardData.activeLeads} />
+          </div>
         )}
       </div>
+
+      {/* MODAL */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+          <div className="bg-white w-3/4 h-3/4 rounded-xl p-6 overflow-y-auto">
+            <div className="flex justify-between mb-4">
+              <h2 className="text-xl font-bold">
+                {modalType === "users" ? "All Users" : "All Leads"}
+              </h2>
+              <button onClick={closeModal}><X /></button>
+            </div>
+
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search..."
+              className="border p-2 w-full mb-4"
+            />
+
+            {filteredData.map((item) => (
+              <div key={item._id} className="border p-3 rounded mb-2">
+                <p className="font-semibold">{item.name}</p>
+                <p className="text-sm text-gray-600">{item.email}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+const StatCard = ({ title, value, onClick }) => (
+  <div
+    onClick={onClick}
+    className="bg-white p-6 rounded-xl shadow cursor-pointer"
+  >
+    <h3 className="text-gray-500">{title}</h3>
+    <p className="text-4xl font-bold">{value}</p>
+  </div>
+);
 
 export default AdminDashboard;
