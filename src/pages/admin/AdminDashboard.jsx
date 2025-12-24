@@ -6,19 +6,15 @@ import {
   Activity,
   RefreshCw,
   Home,
-  Check,
-  Clock,
   Search,
   X,
   Mail,
   Phone,
   Calendar,
-  ArrowLeft,
-  MessageSquare,
-  Shield
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import API from "../../config/api";
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
@@ -35,7 +31,6 @@ const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     totalUsers: 0,
     totalLeads: 0,
-    totalEnquiries: 0,
     pendingLeads: 0,
     completedLeads: 0,
     activeLeads: 0,
@@ -53,11 +48,11 @@ const AdminDashboard = () => {
     fetchAllData();
   }, [navigate]);
 
-  /* ================= FETCH ALL DATA ================= */
+  /* ================= FETCH USERS + LEADS ================= */
   const fetchAllData = async () => {
     try {
       const usersRes = await API.get("/api/auth/all");
-      setAllUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
+      setAllUsers(usersRes.data || []);
 
       const leadsRes = await API.get("/api/enquiry");
       setAllLeads(leadsRes.data.enquiries || []);
@@ -71,22 +66,18 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const res = await API.get("/api/auth/dashboard/summary");
-
-      console.log("DASHBOARD SUMMARY:", res.data);
-
       setDashboardData({
         totalUsers: res.data.totalUsers ?? 0,
         totalLeads: res.data.totalLeads ?? 0,
-        totalEnquiries: res.data.totalEnquiries ?? 0,
         pendingLeads: res.data.pendingLeads ?? 0,
         completedLeads: res.data.completedLeads ?? 0,
         activeLeads: res.data.activeLeads ?? 0,
       });
     } catch (error) {
       console.error("Dashboard error:", error);
-      if (error.response?.status === 401) logout();
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   /* ================= LOGOUT ================= */
@@ -96,7 +87,7 @@ const AdminDashboard = () => {
   };
 
   /* ================= MODAL ================= */
-  const handleCardClick = (type) => {
+  const openModal = (type) => {
     setModalType(type);
     setModalOpen(true);
     setSearchTerm("");
@@ -107,39 +98,41 @@ const AdminDashboard = () => {
     setSearchTerm("");
   };
 
-  const getFilteredData = () => {
-    const data = modalType === "users" ? allUsers : allLeads;
-    if (!searchTerm) return data;
-
-    const q = searchTerm.toLowerCase();
-    return data.filter((item) =>
-      modalType === "users"
-        ? item.name?.toLowerCase().includes(q) ||
-          item.email?.toLowerCase().includes(q) ||
-          item.role?.toLowerCase().includes(q)
-        : item.name?.toLowerCase().includes(q) ||
-          item.email?.toLowerCase().includes(q) ||
-          item.message?.toLowerCase().includes(q)
-    );
-  };
-
-  const filteredData = getFilteredData();
+  const filteredData = (modalType === "users" ? allUsers : allLeads).filter(
+    (item) => {
+      if (!searchTerm) return true;
+      const q = searchTerm.toLowerCase();
+      return (
+        item.name?.toLowerCase().includes(q) ||
+        item.email?.toLowerCase().includes(q) ||
+        item.role?.toLowerCase().includes(q) ||
+        item.message?.toLowerCase().includes(q)
+      );
+    }
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex">
+    <div className="min-h-screen bg-slate-100 flex">
       {/* SIDEBAR */}
-      <div className="w-64 bg-white shadow-xl">
-        <div className="p-6 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xl font-bold">
-          Admin Panel
-        </div>
-        <ul className="p-4 space-y-2">
-          <li onClick={() => navigate("/")} className="cursor-pointer flex gap-2">
+      <div className="w-64 bg-white shadow-lg p-4">
+        <h2 className="text-xl font-bold mb-6 flex gap-2">
+          <Settings /> Admin Panel
+        </h2>
+
+        <ul className="space-y-3">
+          <li
+            onClick={() => navigate("/")}
+            className="cursor-pointer flex gap-2"
+          >
             <Home /> Home
           </li>
-          <li className="text-blue-600 font-semibold flex gap-2">
+          <li className="flex gap-2 text-blue-600 font-semibold">
             <Activity /> Dashboard
           </li>
-          <li onClick={logout} className="cursor-pointer text-red-600 flex gap-2">
+          <li
+            onClick={logout}
+            className="cursor-pointer flex gap-2 text-red-600"
+          >
             <LogOut /> Logout
           </li>
         </ul>
@@ -149,10 +142,10 @@ const AdminDashboard = () => {
       <div className="flex-1 p-8">
         <div className="flex justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-blue-600">
+            <h1 className="text-3xl font-bold text-blue-600">
               Welcome back, {admin?.name} 👋
             </h1>
-            <p className="text-gray-600">Here’s what’s happening today</p>
+            <p className="text-gray-600">Admin dashboard overview</p>
           </div>
 
           <button
@@ -162,17 +155,16 @@ const AdminDashboard = () => {
             }}
             className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow"
           >
-            <RefreshCw size={18} />
-            Refresh
+            <RefreshCw size={18} /> Refresh
           </button>
         </div>
 
         {loading ? (
-          <div className="text-center">Loading...</div>
+          <div className="text-center text-lg">Loading...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <StatCard title="Total Users" value={dashboardData.totalUsers} onClick={() => handleCardClick("users")} />
-            <StatCard title="Total Leads" value={dashboardData.totalLeads} onClick={() => handleCardClick("leads")} />
+            <StatCard title="Total Users" value={dashboardData.totalUsers} onClick={() => openModal("users")} />
+            <StatCard title="Total Leads" value={dashboardData.totalLeads} onClick={() => openModal("leads")} />
             <StatCard title="Pending Leads" value={dashboardData.pendingLeads} />
             <StatCard title="Completed Leads" value={dashboardData.completedLeads} />
             <StatCard title="Active Leads" value={dashboardData.activeLeads} />
@@ -180,30 +172,82 @@ const AdminDashboard = () => {
         )}
       </div>
 
-      {/* MODAL */}
+      {/* ================= MODAL WITH SCROLL FIX ================= */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
-          <div className="bg-white w-3/4 h-3/4 rounded-xl p-6 overflow-y-auto">
-            <div className="flex justify-between mb-4">
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+          <div className="bg-white w-4/5 max-h-[85vh] rounded-xl flex flex-col">
+            {/* HEADER */}
+            <div className="flex justify-between items-center p-5 border-b">
               <h2 className="text-xl font-bold">
                 {modalType === "users" ? "All Users" : "All Leads"}
               </h2>
               <button onClick={closeModal}><X /></button>
             </div>
 
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search..."
-              className="border p-2 w-full mb-4"
-            />
+            {/* SEARCH */}
+            <div className="p-4 border-b relative">
+              <Search className="absolute left-6 top-6 text-gray-400" size={18} />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search..."
+                className="border pl-10 p-2 w-full rounded"
+              />
+            </div>
 
-            {filteredData.map((item) => (
-              <div key={item._id} className="border p-3 rounded mb-2">
-                <p className="font-semibold">{item.name}</p>
-                <p className="text-sm text-gray-600">{item.email}</p>
-              </div>
-            ))}
+            {/* SCROLLABLE CONTENT */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {filteredData.map((item) => (
+                <div key={item._id} className="border rounded-lg p-4 mb-3">
+                  {modalType === "users" ? (
+                    <>
+                      <p className="font-semibold text-lg">{item.name}</p>
+                      <p className="text-sm text-gray-600">{item.email}</p>
+
+                      <div className="flex gap-3 mt-2 text-sm">
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded capitalize">
+                          {item.role}
+                        </span>
+                        <span
+                          className={`px-2 py-1 rounded ${
+                            item.isEmailVerified
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {item.isEmailVerified ? "Verified" : "Not Verified"}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-gray-500 mt-2">
+                        Joined: {new Date(item.createdAt).toLocaleDateString()}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold">{item.name || "No Name"}</p>
+                      <p className="text-sm text-gray-600 flex gap-2 items-center">
+                        <Mail size={14} /> {item.email}
+                      </p>
+                      {item.phone && (
+                        <p className="text-sm flex gap-2 items-center">
+                          <Phone size={14} /> {item.phone}
+                        </p>
+                      )}
+                      {item.message && (
+                        <p className="text-sm mt-2 bg-gray-50 p-2 rounded">
+                          {item.message}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2 flex gap-1 items-center">
+                        <Calendar size={12} />
+                        {new Date(item.createdAt).toLocaleString()}
+                      </p>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -214,10 +258,10 @@ const AdminDashboard = () => {
 const StatCard = ({ title, value, onClick }) => (
   <div
     onClick={onClick}
-    className="bg-white p-6 rounded-xl shadow cursor-pointer"
+    className="bg-white p-6 rounded-xl shadow cursor-pointer hover:shadow-lg transition"
   >
     <h3 className="text-gray-500">{title}</h3>
-    <p className="text-4xl font-bold">{value}</p>
+    <p className="text-4xl font-bold text-gray-800">{value}</p>
   </div>
 );
 
