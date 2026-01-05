@@ -1,20 +1,31 @@
 import { useState } from "react";
 import axios from "axios";
-import { User, Mail, Lock, Eye, EyeOff, Sparkles, Shield, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Sparkles,
+  Shield,
+  Zap,
+} from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL; // ✅ Render backend URL
+const API = import.meta.env.VITE_API_URL;
 
 const CombinedAuth = () => {
+  const navigate = useNavigate();
+
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
   });
-
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -26,37 +37,37 @@ const CombinedAuth = () => {
 
     try {
       if (isLogin) {
-        // 🔐 LOGIN
+        // ================= LOGIN =================
         const res = await axios.post(`${API}/api/auth/login`, {
           email: formData.email,
           password: formData.password,
         });
 
-        alert(res.data.message || "Login successful!");
+        const { token, user } = res.data;
 
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
+        // 🔐 SAVE AUTH DATA
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
 
-        if (res.data.user.role === "admin") {
-          window.location.href = "/admin/dashboard";
+        // 🚀 ROLE BASED REDIRECT (FIXED)
+        if (user.role === "admin") {
+          navigate("/admin/dashboard", { replace: true });
         } else {
-          window.location.href = "/";
+          navigate("/associate", { replace: true });
         }
-
       } else {
-        // 📝 SIGNUP
-        const res = await axios.post(`${API}/api/auth/register`, {
+        // ================= REGISTER =================
+        await axios.post(`${API}/api/auth/register`, {
           name: formData.name,
           email: formData.email,
           password: formData.password,
         });
 
-        alert(res.data.message || "Signup successful! Please verify OTP.");
-        window.location.href = "/verify-otp";
+        alert("Signup successful! Please verify OTP.");
+        navigate("/verify-otp");
       }
-
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong!");
+      alert(err.response?.data?.message || "Something went wrong");
     }
 
     setLoading(false);
@@ -69,32 +80,13 @@ const CombinedAuth = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 py-12 relative overflow-hidden">
+    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 py-12">
 
-      {/* Background animations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
+      <div className="w-full max-w-5xl flex bg-white shadow-2xl rounded-3xl overflow-hidden">
 
-      <style jsx>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-      `}</style>
-
-      <div className="w-full max-w-5xl flex bg-white shadow-2xl rounded-3xl overflow-hidden relative z-10">
-
-        {/* LEFT SIDE UI */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-12 flex-col justify-between text-white relative overflow-hidden">
-          
-          <div className="relative z-10">
+        {/* LEFT INFO */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-12 flex-col justify-between text-white">
+          <div>
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
                 <Sparkles className="w-7 h-7 text-indigo-600" />
@@ -102,125 +94,126 @@ const CombinedAuth = () => {
               <h1 className="text-3xl font-bold">TRAZOO</h1>
             </div>
 
-            <h2 className="text-4xl font-bold mb-4 leading-tight">
-              {isLogin ? "Welcome Back!" : "Join TRAZOO Today"}
+            <h2 className="text-4xl font-bold mb-4">
+              {isLogin ? "Welcome Back!" : "Create Your Account"}
             </h2>
 
-            <p className="text-blue-100 text-lg mb-8">
+            <p className="text-blue-100 mb-8">
               {isLogin
-                ? "Login to your dashboard."
-                : "Create your account and enjoy premium experience."}
+                ? "Login to manage your leads"
+                : "Join TRAZOO CRM today"}
             </p>
 
-            <div className="space-y-6">
-              <Feature icon={Shield} title="Secure Platform" text="Your data is protected." />
-              <Feature icon={Zap} title="Fast & Reliable" text="Smooth authentication flow." />
-              <Feature icon={Sparkles} title="Premium UI" text="Beautiful user interface." />
-            </div>
+            <Feature icon={Shield} title="Secure" />
+            <Feature icon={Zap} title="Fast & Reliable" />
+            <Feature icon={Sparkles} title="Modern UI" />
           </div>
 
-          <p className="relative z-10 text-blue-100 text-sm">
+          <p className="text-blue-100 text-sm">
             © 2025 TRAZOO. All rights reserved.
           </p>
         </div>
 
-        {/* RIGHT SIDE FORM */}
+        {/* RIGHT FORM */}
         <div className="w-full lg:w-1/2 p-8 sm:p-12">
-
-          <div className="mb-8">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-              {isLogin ? "Sign In" : "Create Account"}
-            </h2>
-            <p className="text-gray-600">
-              {isLogin ? "Access your dashboard" : "Start your journey with TRAZOO"}
-            </p>
-          </div>
+          <h2 className="text-3xl font-bold mb-2">
+            {isLogin ? "Sign In" : "Create Account"}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {isLogin
+              ? "Access your dashboard"
+              : "Register and verify OTP"}
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             {!isLogin && (
-              <InputField label="Full Name" icon={User} type="text"
-                value={formData.name} onChange={(v) => handleChange("name", v)} />
+              <InputField
+                label="Full Name"
+                icon={User}
+                value={formData.name}
+                onChange={(v) => handleChange("name", v)}
+              />
             )}
 
-            <InputField label="Email Address" icon={Mail} type="email"
-              value={formData.email} onChange={(v) => handleChange("email", v)} />
+            <InputField
+              label="Email"
+              icon={Mail}
+              value={formData.email}
+              onChange={(v) => handleChange("email", v)}
+            />
 
-            <PasswordField label="Password" value={formData.password}
-              show={showPassword} toggle={() => setShowPassword(!showPassword)}
-              onChange={(v) => handleChange("password", v)} />
-
-            {isLogin && (
-              <div className="flex justify-end">
-                <a href="/forgot-password" className="text-sm text-indigo-600 font-semibold hover:underline">
-                  Forgot Password?
-                </a>
-              </div>
-            )}
+            <PasswordField
+              value={formData.password}
+              show={showPassword}
+              toggle={() => setShowPassword(!showPassword)}
+              onChange={(v) => handleChange("password", v)}
+            />
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-xl font-semibold hover:scale-[1.02] transition-all shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-xl font-semibold"
             >
-              {loading ? "Processing..." : isLogin ? "Sign In" : "Create Account"}
+              {loading ? "Processing..." : isLogin ? "Login" : "Register"}
             </button>
-
           </form>
 
           <p className="text-center mt-6 text-gray-600">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button onClick={toggleMode} className="text-indigo-600 font-semibold hover:underline">
-              {isLogin ? "Create one" : "Sign In"}
+            {isLogin ? "New user?" : "Already have an account?"}{" "}
+            <button
+              onClick={toggleMode}
+              className="text-indigo-600 font-semibold"
+            >
+              {isLogin ? "Create account" : "Login"}
             </button>
           </p>
-
         </div>
       </div>
     </div>
   );
 };
 
-const Feature = ({ icon: Icon, title, text }) => (
-  <div className="flex items-start gap-4">
-    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+const Feature = ({ icon: Icon, title }) => (
+  <div className="flex items-center gap-3 mb-4">
+    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
       <Icon className="w-5 h-5" />
     </div>
-    <div>
-      <h3 className="font-semibold text-lg">{title}</h3>
-      <p className="text-blue-100 text-sm">{text}</p>
-    </div>
+    <span>{title}</span>
   </div>
 );
 
-const InputField = ({ label, icon: Icon, type, value, onChange }) => (
+const InputField = ({ label, icon: Icon, value, onChange }) => (
   <div>
     <label className="text-gray-700 font-semibold">{label}</label>
     <div className="relative mt-1">
       <input
-        type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 pl-12 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none transition-all"
+        className="w-full p-4 pl-12 border rounded-xl"
+        required
       />
-      <Icon className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+      <Icon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
     </div>
   </div>
 );
 
-const PasswordField = ({ label, value, show, toggle, onChange }) => (
+const PasswordField = ({ value, show, toggle, onChange }) => (
   <div>
-    <label className="text-gray-700 font-semibold">{label}</label>
+    <label className="text-gray-700 font-semibold">Password</label>
     <div className="relative mt-1">
       <input
         type={show ? "text" : "password"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 pl-12 pr-12 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none transition-all"
+        className="w-full p-4 pl-12 pr-12 border rounded-xl"
+        required
       />
-      <Lock className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
-      <button type="button" onClick={toggle}
-        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+      <Lock className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+      <button
+        type="button"
+        onClick={toggle}
+        className="absolute right-4 top-1/2 -translate-y-1/2"
+      >
         {show ? <EyeOff /> : <Eye />}
       </button>
     </div>

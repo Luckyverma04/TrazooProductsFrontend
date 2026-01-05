@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 
-const AdminRoute = ({ children }) => {
+const AssociateRoute = ({ children }) => {
   const rawUser = localStorage.getItem("user");
   const token = localStorage.getItem("token");
 
@@ -9,13 +9,16 @@ const AdminRoute = ({ children }) => {
   }
 
   const user = JSON.parse(rawUser);
+
+  // ✅ normalize role (VERY IMPORTANT)
   const role = String(user.role || "").toLowerCase();
 
-  if (role !== "admin") {
-    return <Navigate to="/" replace />;
+  // allow any non-admin logged-in user
+  if (role === "admin") {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   return children;
 };
 
-export default AdminRoute;
+export default AssociateRoute;

@@ -13,171 +13,159 @@ const Navbar = () => {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  /* ✅ CUSTOMER NAV ORDER */
   const navLinks = [
-    { name: "Home", href: "#hero" },
-
-    { name: "Our Products", href: "#products" },
-
-    { name: "About Us", href: "#about" },
-
-    {
-      name: "Why Choose Us",
-      href: "#why-trazoo", // parent anchor (you can keep this or point to first section)
-    },
-
-    { name: "Contact", href: "#footer" },
+    { name: "Home", id: "#hero" },
+    { name: "Our Products", id: "#products" },
+    { name: "About Us", id: "#about" },
+    { name: "Why Choose Us", id: "#why-trazoo" },
+    { name: "Contact", id: "#footer" },
   ];
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  const scrollToSection = (e, href) => {
+  const scrollToSection = (e, id) => {
     e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      const offset = 80; // navbar height
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition =
-        elementPosition + window.pageYOffset - offset;
+    const el = document.querySelector(id);
+    if (!el) return;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
+    const offset = 80;
+    const y = el.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.scrollTo({ top: y, behavior: "smooth" });
     setIsMenuOpen(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    localStorage.clear();
     setUser(null);
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
+  // Get normalized role
+  const userRole = user?.role ? String(user.role).toLowerCase() : null;
+
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md shadow z-50 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6 py-2">
-        <div className="flex justify-between items-center">
+    <nav className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md shadow z-50 border-b">
+      <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
 
-          {/* LOGO */}
-          <a
-            href="#hero"
-            onClick={(e) => scrollToSection(e, "#hero")}
-            className="flex items-center"
-          >
-            <img
-              src={logo}
-              alt="Trazoo Logo"
-              className="w-14 h-14 md:w-16 md:h-16 object-contain"
-            />
-          </a>
+        {/* LOGO (NO href) */}
+        <button
+          onClick={(e) => scrollToSection(e, "#hero")}
+          className="flex items-center"
+        >
+          <img src={logo} alt="Trazoo Logo" className="w-14 h-14 object-contain" />
+        </button>
 
-          {/* DESKTOP NAV */}
-          <ul className="hidden md:flex gap-8 text-base font-medium">
-            {navLinks.map((link, index) => (
-              <li key={index}>
-                <a
-                  href={link.href}
-                  onClick={(e) => scrollToSection(e, link.href)}
-                  className="text-gray-700 hover:text-orange-600 relative group"
-                >
-                  {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-orange-600 group-hover:w-full transition-all duration-300" />
-                </a>
-              </li>
-            ))}
-          </ul>
+        {/* DESKTOP NAV */}
+        <ul className="hidden md:flex gap-8">
+          {navLinks.map((l) => (
+            <li key={l.name}>
+              <button
+                onClick={(e) => scrollToSection(e, l.id)}
+                className="text-gray-700 hover:text-orange-600"
+              >
+                {l.name}
+              </button>
+            </li>
+          ))}
+        </ul>
 
-          {/* DESKTOP RIGHT */}
-          <div className="hidden md:flex items-center gap-4">
-
-            {/* ENQUIRE NOW */}
-            <button
-              onClick={(e) => scrollToSection(e, "#enquiry")}
-              className="flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold shadow hover:shadow-lg transition-all"
-              style={{
-                backgroundImage: "linear-gradient(to right, #df4607, #e16f30)",
-              }}
-            >
-              <Package className="w-4 h-4" />
-              Enquire Now
-            </button>
-
-            {/* ADMIN */}
-            {user?.role === "admin" && (
-              <>
-                <button
-                  onClick={() => navigate("/admin/dashboard")}
-                  className="flex items-center gap-2 bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold"
-                >
-                  <LayoutDashboard className="w-5 h-5" />
-                  Dashboard
-                </button>
-
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* MOBILE BUTTON */}
+        {/* RIGHT */}
+        <div className="hidden md:flex gap-4 items-center">
           <button
-            onClick={toggleMenu}
-            className="md:hidden text-gray-700"
+            onClick={(e) => scrollToSection(e, "#enquiry")}
+            className="flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold"
+            style={{ backgroundImage: "linear-gradient(to right,#df4607,#e16f30)" }}
           >
-            {isMenuOpen ? <X /> : <Menu />}
+            <Package size={16} /> Enquire Now
           </button>
+
+          {/* ADMIN DASHBOARD */}
+          {userRole === "admin" && (
+            <button
+              onClick={() => navigate("/admin/dashboard")}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg flex gap-2 hover:bg-purple-700 transition-colors"
+            >
+              <LayoutDashboard size={16} /> Admin Dashboard
+            </button>
+          )}
+
+          {/* ASSOCIATE/CUSTOMER DASHBOARD */}
+          {(userRole === "associate" || userRole === "customer") && (
+            <button
+              onClick={() => navigate("/associate")}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg flex gap-2 hover:bg-blue-700 transition-colors"
+            >
+              <LayoutDashboard size={16} /> Dashboard
+            </button>
+          )}
+
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg flex gap-2 hover:bg-red-600 transition-colors"
+            >
+              <LogOut size={16} /> Logout
+            </button>
+          )}
         </div>
 
-        {/* MOBILE MENU */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-3 py-3 border-t border-gray-100">
-            <ul className="flex flex-col gap-3">
-              {navLinks.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => scrollToSection(e, link.href)}
-                    className="block px-4 py-2 rounded-lg text-gray-700 hover:bg-orange-50"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+        {/* MOBILE MENU BUTTON */}
+        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden">
+          {isMenuOpen ? <X /> : <Menu />}
+        </button>
+      </div>
 
-              <li className="px-4">
+      {/* MOBILE MENU */}
+      {isMenuOpen && (
+        <div className="md:hidden px-6 py-4 border-t">
+          <ul className="flex flex-col gap-3">
+            {navLinks.map((l) => (
+              <li key={l.name}>
                 <button
-                  onClick={(e) => scrollToSection(e, "#enquiry")}
-                  className="w-full py-2 rounded-lg text-white font-semibold"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(to right, #df4607, #e16f30)",
-                  }}
+                  onClick={(e) => scrollToSection(e, l.id)}
+                  className="w-full text-left text-gray-700"
                 >
-                  Enquire Now
+                  {l.name}
                 </button>
               </li>
+            ))}
+            
+            {/* ADMIN DASHBOARD - Mobile */}
+            {userRole === "admin" && (
+              <button
+                onClick={() => {
+                  navigate("/admin/dashboard");
+                  setIsMenuOpen(false);
+                }}
+                className="bg-purple-600 text-white py-2 rounded flex items-center justify-center gap-2"
+              >
+                <LayoutDashboard size={16} /> Admin Dashboard
+              </button>
+            )}
 
-              {user && (
-                <li className="px-4">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full bg-red-500 text-white py-2 rounded-lg font-semibold"
-                  >
-                    Logout
-                  </button>
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
-      </div>
+            {/* ASSOCIATE/CUSTOMER DASHBOARD - Mobile */}
+            {(userRole === "associate" || userRole === "customer") && (
+              <button
+                onClick={() => {
+                  navigate("/associate");
+                  setIsMenuOpen(false);
+                }}
+                className="bg-blue-600 text-white py-2 rounded flex items-center justify-center gap-2"
+              >
+                <LayoutDashboard size={16} /> Dashboard
+              </button>
+            )}
+
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white py-2 rounded flex items-center justify-center gap-2"
+              >
+                <LogOut size={16} /> Logout
+              </button>
+            )}
+          </ul>
+        </div>
+      )}
     </nav>
   );
 };

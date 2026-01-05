@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { initLenis } from "./utils/lenis";
 
-/* imports remain SAME */
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
@@ -17,13 +16,18 @@ import FinalCTA from "./components/FinalCTA";
 
 import CombinedAuth from "./pages/CombinedAuth";
 import VerifyOTP from "./pages/VerifyOTP";
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AssociateDashboard from "./pages/associate/AssociateDashboard";
+import MyLeads from "./pages/associate/MyLeads";
+import LeadDetail from "./pages/associate/LeadDetail";
+
 import AdminRoute from "./routes/AdminRoute";
-import GlobalBackground from "./components/GlobalBackground";
+import AssociateRoute from "./routes/AssociateRoute";
 
 function HomePage() {
   return (
-    <GlobalBackground>
+    <>
       <Navbar />
       <Hero />
       <ProductRange />
@@ -35,20 +39,23 @@ function HomePage() {
       <WhoWeServe />
       <FinalCTA />
       <Footer />
-    </GlobalBackground>
+    </>
   );
 }
 
 function App() {
   useEffect(() => {
-    initLenis();   // ✅ Lenis starts here
+    initLenis();
   }, []);
 
   return (
     <Routes>
+      {/* PUBLIC */}
       <Route path="/" element={<HomePage />} />
       <Route path="/auth" element={<CombinedAuth />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
+
+      {/* ADMIN */}
       <Route
         path="/admin/dashboard"
         element={
@@ -57,6 +64,35 @@ function App() {
           </AdminRoute>
         }
       />
+
+      {/* ASSOCIATE */}
+      <Route
+        path="/associate"
+        element={
+          <AssociateRoute>
+            <AssociateDashboard />
+          </AssociateRoute>
+        }
+      />
+      <Route
+        path="/associate/leads"
+        element={
+          <AssociateRoute>
+            <MyLeads />
+          </AssociateRoute>
+        }
+      />
+      <Route
+        path="/associate/leads/:id"
+        element={
+          <AssociateRoute>
+            <LeadDetail />
+          </AssociateRoute>
+        }
+      />
+
+      {/* FALLBACK */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
