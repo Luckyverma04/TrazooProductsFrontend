@@ -16,10 +16,10 @@ const Hero = () => {
     });
   };
 
-  // ✅ particles generated ONCE
+  // ✅ Reduced particles from 12 to 8 for better performance
   const particles = useMemo(
     () =>
-      Array.from({ length: 12 }, () => ({
+      Array.from({ length: 8 }, () => ({
         left: Math.random() * 100,
         top: Math.random() * 100,
         delay: Math.random() * 4,
@@ -33,23 +33,39 @@ const Hero = () => {
       id="hero"
       className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 relative overflow-hidden px-4 py-20"
     >
-      {/* Background blobs */}
+      {/* ✅ Optimized background blobs with hardware acceleration */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl opacity-20 animate-blob bg-[#e16f30]" />
-        <div className="absolute top-40 right-10 w-72 h-72 rounded-full blur-3xl opacity-15 animate-blob animation-delay-2000 bg-[#df4607]" />
+        <div 
+          className="absolute top-20 left-10 w-72 h-72 rounded-full opacity-20 bg-[#e16f30]"
+          style={{
+            filter: 'blur(80px)',
+            transform: 'translateZ(0)',
+            animation: 'blob 10s infinite ease-in-out'
+          }}
+        />
+        <div 
+          className="absolute top-40 right-10 w-72 h-72 rounded-full opacity-15 bg-[#df4607]"
+          style={{
+            filter: 'blur(80px)',
+            transform: 'translateZ(0)',
+            animation: 'blob 10s infinite ease-in-out',
+            animationDelay: '2s'
+          }}
+        />
       </div>
 
-      {/* Floating particles */}
+      {/* ✅ Optimized floating particles */}
       <div className="absolute inset-0 pointer-events-none">
         {particles.map((p, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 bg-orange-300 rounded-full opacity-30 animate-float"
+            className="absolute w-2 h-2 bg-orange-300 rounded-full opacity-30"
             style={{
               left: `${p.left}%`,
               top: `${p.top}%`,
+              animation: `float ${p.duration}s linear infinite`,
               animationDelay: `${p.delay}s`,
-              animationDuration: `${p.duration}s`,
+              transform: 'translateZ(0)', // Hardware acceleration
             }}
           />
         ))}
@@ -89,14 +105,14 @@ const Hero = () => {
         >
           <button
             onClick={(e) => scrollToSection(e, "#enquiry")}
-            className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition"
+            className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300"
           >
             Get Started <ArrowRight className="inline w-5 h-5 ml-1" />
           </button>
 
           <button
             onClick={(e) => scrollToSection(e, "#products")}
-            className="px-8 py-4 bg-white text-gray-800 font-semibold rounded-full border-2 border-orange-200 hover:border-orange-400 hover:scale-105 transition"
+            className="px-8 py-4 bg-white text-gray-800 font-semibold rounded-full border-2 border-orange-200 hover:border-orange-400 hover:scale-105 transition-transform duration-300"
           >
             <Package className="inline w-5 h-5 mr-1" />
             View Our Kits
@@ -106,16 +122,21 @@ const Hero = () => {
 
       <style>{`
         @keyframes blob {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50% { transform: translate(20px,-30px) scale(1.1); }
+          0%, 100% { 
+            transform: translate3d(0, 0, 0) scale(1); 
+          }
+          50% { 
+            transform: translate3d(20px, -30px, 0) scale(1.1); 
+          }
         }
         @keyframes float {
-          0%,100% { transform: translateY(0); }
-          50% { transform: translateY(-25px); }
+          0%, 100% { 
+            transform: translate3d(0, 0, 0); 
+          }
+          50% { 
+            transform: translate3d(0, -25px, 0); 
+          }
         }
-        .animate-blob { animation: blob 10s infinite; }
-        .animate-float { animation: float linear infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
       `}</style>
     </section>
   );

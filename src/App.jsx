@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { initLenis } from "./utils/lenis";
+// ❌ REMOVE THIS - It's causing the slow scrolling
+// import { initLenis } from "./utils/lenis";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -44,9 +45,10 @@ function HomePage() {
 }
 
 function App() {
-  useEffect(() => {
-    initLenis();
-  }, []);
+  // ❌ REMOVE THIS - It's initializing Lenis which slows down scrolling
+  // useEffect(() => {
+  //   initLenis();
+  // }, []);
 
   return (
     <Routes>

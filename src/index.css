@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  scroll-behavior: auto !important;
+/* ✅ OPTIMIZED SMOOTH SCROLLING */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Adjust for fixed navbar height */
+}
+
+/* ✅ PERFORMANCE OPTIMIZATIONS */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* ✅ HARDWARE ACCELERATION for animations */
+@layer utilities {
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+}
+
+/* ✅ Optimize blur effects (they can be heavy) */
+.blur-3xl {
+  will-change: transform;
+}
+
+/* ✅ Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
