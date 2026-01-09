@@ -1,39 +1,46 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LogOut,
   Settings,
   Activity,
-  RefreshCw,
   Home,
-  Search,
   X,
-  Mail,
-  Phone,
-  Calendar,
-  Menu,
+  Users,
+  FileText,
+  UserPlus,
+  Check,
+  Loader2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import API from "../../config/api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-
+  
   const [admin, setAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
-
+  
   const [allUsers, setAllUsers] = useState([]);
   const [allLeads, setAllLeads] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Bulk Assign States
+  const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState([]);
+  const [selectedAssociate, setSelectedAssociate] = useState("");
+  const [bulkSearchTerm, setBulkSearchTerm] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [loadingLeads, setLoadingLeads] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [hoveringCard, setHoveringCard] = useState(null);
 
   const [dashboardData, setDashboardData] = useState({
     totalUsers: 0,
     totalLeads: 0,
     pendingLeads: 0,
-    completedLeads: 0,
     activeLeads: 0,
   });
 
@@ -45,18 +52,35 @@ const AdminDashboard = () => {
     }
     setAdmin(user);
     fetchDashboardData();
-    fetchAllData();
+    fetchAllUsers();
   }, [navigate]);
 
-  const fetchAllData = async () => {
+  const fetchAllUsers = async () => {
+    setLoadingUsers(true);
     try {
       const usersRes = await API.get("/api/auth/all");
       setAllUsers(usersRes.data || []);
+    } catch (error) {
+      console.error("Fetch users error:", error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
-      const leadsRes = await API.get("/api/enquiry");
+  const fetchLeads = async (search = "") => {
+    setLoadingLeads(true);
+    try {
+      const params = {};
+      if (search) {
+        params.search = search;
+      }
+      
+      const leadsRes = await API.get("/api/enquiry", { params });
       setAllLeads(leadsRes.data.enquiries || []);
     } catch (error) {
-      console.error("Fetch all data error:", error);
+      console.error("Fetch leads error:", error);
+    } finally {
+      setLoadingLeads(false);
     }
   };
 
@@ -68,7 +92,6 @@ const AdminDashboard = () => {
         totalUsers: res.data.totalUsers ?? 0,
         totalLeads: res.data.totalLeads ?? 0,
         pendingLeads: res.data.pendingLeads ?? 0,
-        completedLeads: res.data.completedLeads ?? 0,
         activeLeads: res.data.activeLeads ?? 0,
       });
     } catch (error) {
@@ -87,6 +110,11 @@ const AdminDashboard = () => {
     setModalType(type);
     setModalOpen(true);
     setSearchTerm("");
+    if (type === "users") {
+      fetchAllUsers();
+    } else if (type === "leads") {
+      fetchLeads();
+    }
   };
 
   const closeModal = () => {
@@ -94,268 +122,427 @@ const AdminDashboard = () => {
     setSearchTerm("");
   };
 
-  const filteredData = (modalType === "users" ? allUsers : allLeads).filter(
-    (item) => {
-      if (!searchTerm) return true;
-      const q = searchTerm.toLowerCase();
-      return (
-        item.name?.toLowerCase().includes(q) ||
-        item.email?.toLowerCase().includes(q) ||
-        item.role?.toLowerCase().includes(q) ||
-        item.message?.toLowerCase().includes(q)
-      );
+  const openBulkAssign = () => {
+    setBulkAssignOpen(true);
+    setSelectedLeads([]);
+    setSelectedAssociate("");
+    setBulkSearchTerm("");
+    setSuccessMessage("");
+    fetchLeads();
+  };
+
+  const closeBulkAssign = () => {
+    setBulkAssignOpen(false);
+    setSelectedLeads([]);
+    setSelectedAssociate("");
+    setBulkSearchTerm("");
+  };
+
+  const handleSelectLead = (leadId) => {
+    setSelectedLeads(prev =>
+      prev.includes(leadId)
+        ? prev.filter(id => id !== leadId)
+        : [...prev, leadId]
+    );
+  };
+
+  const handleSearchLeads = (searchValue) => {
+    setBulkSearchTerm(searchValue);
+    fetchLeads(searchValue);
+  };
+
+  const handleBulkAssign = async () => {
+    if (!selectedAssociate || selectedLeads.length === 0) {
+      alert("Please select leads and an associate!");
+      return;
     }
+
+    try {
+      setLoading(true);
+      await API.post("/api/enquiry/assign/bulk", {
+        leadIds: selectedLeads,
+        associateId: selectedAssociate,
+      });
+
+      setSuccessMessage(`Successfully assigned ${selectedLeads.length} leads!`);
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+      
+      setSelectedLeads([]);
+      setSelectedAssociate("");
+      fetchLeads(bulkSearchTerm);
+    } catch (error) {
+      console.error("Bulk assign error:", error);
+      alert("Failed to assign leads. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredData =
+    modalType === "users"
+      ? allUsers.filter((u) =>
+          searchTerm
+            ? u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+            : true
+        )
+      : allLeads.filter((l) =>
+          searchTerm
+            ? l.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              l.email?.toLowerCase().includes(searchTerm.toLowerCase())
+            : true
+        );
+
+  const bulkFilteredLeads = allLeads.filter(lead =>
+    bulkSearchTerm
+      ? lead.fullName?.toLowerCase().includes(bulkSearchTerm.toLowerCase()) ||
+        lead.email?.toLowerCase().includes(bulkSearchTerm.toLowerCase())
+      : true
   );
+
+  const associates = allUsers.filter(u => u.role === "associate");
+  const selectedAssociateName = associates.find(a => a._id === selectedAssociate)?.name;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-teal-50 flex">
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
       {/* SIDEBAR */}
-      <div
-        className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
-      >
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent flex items-center gap-2">
-              <Settings className="text-cyan-600" size={24} />
-              Admin Panel
-            </h2>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-gray-500 hover:text-gray-700"
-            >
-              <X size={24} />
-            </button>
-          </div>
+      <div className="w-64 bg-white shadow-xl hidden lg:block">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Settings className="text-cyan-600" size={24} />
+            <span>Admin Panel</span>
+          </h2>
         </div>
-
         <ul className="p-4 space-y-2">
-          <li
-            onClick={() => {
-              navigate("/");
-              setSidebarOpen(false);
-            }}
-            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gradient-to-r hover:from-cyan-50 hover:to-teal-50 transition-all duration-200 text-gray-700 hover:text-cyan-700"
+          <li 
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-cyan-50 transition"
           >
-            <Home size={20} />
-            <span className="font-medium">Home</span>
+            <Home size={18} />
+            <span>Home</span>
           </li>
-          <li className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-cyan-100 to-teal-100 text-cyan-700 font-semibold">
-            <Activity size={20} />
+          <li className="flex items-center gap-3 p-3 rounded-lg bg-cyan-100 font-semibold text-cyan-700">
+            <Activity size={18} />
             <span>Dashboard</span>
           </li>
-          <li
+          <li 
             onClick={logout}
-            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-red-50 transition-all duration-200 text-gray-700 hover:text-red-600"
+            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-red-50 text-red-600 transition"
           >
-            <LogOut size={20} />
-            <span className="font-medium">Logout</span>
+            <LogOut size={18} />
+            <span>Logout</span>
           </li>
         </ul>
       </div>
 
-      {/* MAIN */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Header */}
-        <div className="lg:hidden bg-white shadow-md sticky top-0 z-10 px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <Menu size={24} className="text-gray-700" />
-          </button>
-          <h1 className="text-lg font-bold text-gray-900">Admin Dashboard</h1>
-          <button
-            onClick={() => {
-              fetchDashboardData();
-              fetchAllData();
-            }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <RefreshCw size={20} className="text-gray-700" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          {/* Desktop Header */}
-          <div className="hidden lg:flex justify-between items-start mb-8">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
-                Welcome back, {admin?.name} 👋
-              </h1>
-              <p className="text-gray-600 mt-1">Admin dashboard overview</p>
-            </div>
-
-            <button
-              onClick={() => {
-                fetchDashboardData();
-                fetchAllData();
-              }}
-              className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-100"
-            >
-              <RefreshCw size={18} className="text-cyan-600" />
-              <span className="font-medium text-gray-700">Refresh</span>
-            </button>
+      {/* MAIN CONTENT */}
+      <div className="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* HEADER */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Welcome back, {admin?.name} 👋
+            </h1>
+            <p className="text-gray-600">Here's what's happening today</p>
           </div>
 
-          {/* Mobile Welcome */}
-          <div className="lg:hidden mb-6 bg-gradient-to-r from-cyan-600 to-teal-600 rounded-2xl p-5 text-white shadow-lg">
-            <p className="text-sm font-medium opacity-90 mb-1">Welcome back</p>
-            <h2 className="text-2xl font-bold">{admin?.name} 👋</h2>
+          {/* STATS GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <StatCard
+              title="Total Users"
+              value={dashboardData.totalUsers}
+              icon={<Users className="text-blue-600" size={28} />}
+              gradient="from-blue-50 to-blue-100"
+              onClick={() => openModal("users")}
+              onHover={() => setHoveringCard("users")}
+              onLeave={() => setHoveringCard(null)}
+              isHovering={hoveringCard === "users"}
+            />
+            <StatCard
+              title="Total Leads"
+              value={dashboardData.totalLeads}
+              icon={<FileText className="text-green-600" size={28} />}
+              gradient="from-green-50 to-green-100"
+              onClick={() => openModal("leads")}
+              onHover={() => setHoveringCard("leads")}
+              onLeave={() => setHoveringCard(null)}
+              isHovering={hoveringCard === "leads"}
+            />
+            <StatCard
+              title="Pending Leads"
+              value={dashboardData.pendingLeads}
+              icon={<Activity className="text-yellow-600" size={28} />}
+              gradient="from-yellow-50 to-yellow-100"
+            />
+            <StatCard
+              title="Active Leads"
+              value={dashboardData.activeLeads}
+              icon={<Activity className="text-purple-600" size={28} />}
+              gradient="from-purple-50 to-purple-100"
+            />
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="w-12 h-12 border-4 border-cyan-200 border-t-cyan-600 rounded-full animate-spin"></div>
+          {/* BULK ASSIGN SECTION */}
+          <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl shadow-lg p-6 mb-10 border-2 border-purple-300">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <UserPlus className="text-purple-600" size={32} />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Bulk Assign Leads</h2>
+                  <p className="text-gray-600 text-sm">Select multiple leads and assign to an associate</p>
+                </div>
+              </div>
+              <button
+                onClick={openBulkAssign}
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition shadow-lg"
+              >
+                Start Bulk Assign
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <StatCard
-                title="Total Users"
-                value={dashboardData.totalUsers}
+          </div>
+
+          {/* QUICK ACTIONS */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
                 onClick={() => openModal("users")}
-                gradient="from-cyan-500 to-blue-500"
-                icon="👥"
-              />
-              <StatCard
-                title="Total Leads"
-                value={dashboardData.totalLeads}
+                className="flex items-center gap-3 p-4 border-2 border-cyan-200 rounded-lg hover:bg-cyan-50 transition"
+              >
+                <Users className="text-cyan-600" size={24} />
+                <span className="font-semibold">View All Users</span>
+              </button>
+              <button
                 onClick={() => openModal("leads")}
-                gradient="from-teal-500 to-emerald-500"
-                icon="📊"
-              />
-              <StatCard
-                title="Pending Leads"
-                value={dashboardData.pendingLeads}
-                gradient="from-amber-500 to-orange-500"
-                icon="⏳"
-              />
-              <StatCard
-                title="Completed Leads"
-                value={dashboardData.completedLeads}
-                gradient="from-green-500 to-emerald-500"
-                icon="✅"
-              />
-              <StatCard
-                title="Active Leads"
-                value={dashboardData.activeLeads}
-                gradient="from-purple-500 to-pink-500"
-                icon="🔥"
-              />
+                className="flex items-center gap-3 p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 transition"
+              >
+                <FileText className="text-green-600" size={24} />
+                <span className="font-semibold">View All Leads</span>
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* MODAL */}
+      {/* VIEW MODAL (Users/Leads) */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white w-full sm:w-11/12 lg:w-4/5 max-w-4xl h-[90vh] sm:h-auto sm:max-h-[85vh] rounded-t-3xl sm:rounded-2xl flex flex-col shadow-2xl">
-            {/* HEADER */}
-            <div className="flex justify-between items-center p-5 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-teal-50">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl">
+            <div className="flex justify-between items-center p-5 border-b bg-gradient-to-r from-cyan-500 to-teal-500 text-white">
+              <h2 className="text-xl font-bold">
                 {modalType === "users" ? "All Users" : "All Leads"}
               </h2>
-              <button
-                onClick={closeModal}
-                className="p-2 hover:bg-white rounded-lg transition-colors"
-              >
-                <X size={24} className="text-gray-600" />
+              <button onClick={closeModal} className="hover:bg-white/20 p-2 rounded-full transition">
+                <X size={24} />
               </button>
             </div>
 
-            {/* SEARCH */}
-            <div className="p-4 sm:p-5 border-b border-gray-100 bg-white">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search..."
-                  className="border border-gray-200 pl-12 pr-4 py-3 w-full rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-base"
-                />
-              </div>
+            <div className="p-5 border-b bg-gray-50">
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={`Search ${modalType} by name or email...`}
+                className="border-2 border-gray-300 p-3 w-full rounded-lg focus:border-cyan-500 focus:outline-none"
+              />
             </div>
 
-            {/* SCROLLABLE CONTENT */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5">
-              <div className="space-y-3">
-                {filteredData.map((item) => (
-                  <div
-                    key={item._id}
-                    className="border border-gray-200 rounded-xl p-4 sm:p-5 bg-white hover:shadow-md transition-shadow"
-                  >
-                    {modalType === "users" ? (
-                      <>
-                        <p className="font-semibold text-lg text-gray-900 mb-2">{item.name}</p>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                          <Mail size={14} />
-                          <span className="break-all">{item.email}</span>
-                        </div>
+            <div className="p-5 max-h-[60vh] overflow-y-auto">
+              {(modalType === "users" && loadingUsers) || (modalType === "leads" && loadingLeads) ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="animate-spin text-cyan-600" size={40} />
+                </div>
+              ) : filteredData.length === 0 ? (
+                <div className="text-center py-10">
+                  <p className="text-gray-500 text-lg">No {modalType} found</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filteredData.map((item) => (
+                    <div key={item._id} className="border-2 border-gray-200 p-4 rounded-lg hover:border-cyan-400 transition">
+                      <p className="font-semibold text-lg">{item.name || item.fullName}</p>
+                      <p className="text-sm text-gray-600">{item.email}</p>
+                      {item.phone && (
+                        <p className="text-sm text-gray-500">{item.phone}</p>
+                      )}
+                      {item.role && (
+                        <span className="inline-block mt-2 px-3 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-semibold">
+                          {item.role}
+                        </span>
+                      )}
+                      {item.status && (
+                        <span className="inline-block mt-2 ml-2 px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-semibold">
+                          {item.status}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          <span className="bg-gradient-to-r from-cyan-100 to-teal-100 text-cyan-700 px-3 py-1 rounded-full text-xs font-medium capitalize">
-                            {item.role}
-                          </span>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              item.isEmailVerified
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {item.isEmailVerified ? "Verified" : "Not Verified"}
-                          </span>
-                        </div>
+      {/* BULK ASSIGN MODAL */}
+      {bulkAssignOpen && (
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
+          <div className="bg-white w-full max-w-6xl rounded-xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+            {/* HEADER */}
+            <div className="flex justify-between items-center p-5 border-b bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <UserPlus size={28} />
+                Bulk Assign Leads
+              </h2>
+              <button onClick={closeBulkAssign} className="hover:bg-white/20 p-2 rounded-full transition">
+                <X size={24} />
+              </button>
+            </div>
 
-                        <p className="text-xs text-gray-500 flex items-center gap-1">
-                          <Calendar size={12} />
-                          Joined: {new Date(item.createdAt).toLocaleDateString()}
-                        </p>
-                      </>
+            {/* SUCCESS MESSAGE */}
+            {successMessage && (
+              <div className="p-4 bg-green-100 border-b-2 border-green-500 text-green-800 flex items-center gap-3">
+                <Check size={24} />
+                <span className="font-semibold">{successMessage}</span>
+              </div>
+            )}
+
+            {/* CONTENT */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="grid lg:grid-cols-3 gap-6 p-6">
+                {/* LEADS SELECTION */}
+                <div className="lg:col-span-2">
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <input
+                      value={bulkSearchTerm}
+                      onChange={(e) => handleSearchLeads(e.target.value)}
+                      placeholder="Search leads by name or email..."
+                      className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-purple-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="mb-4 bg-purple-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-600">
+                      <strong>Note:</strong> Select leads individually by clicking on them. 
+                      (Select All disabled for large datasets - {dashboardData.totalLeads.toLocaleString()} total leads)
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                    {loadingLeads ? (
+                      <div className="flex justify-center items-center py-20">
+                        <Loader2 className="animate-spin text-purple-600" size={40} />
+                      </div>
+                    ) : bulkFilteredLeads.length === 0 ? (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500">No leads found</p>
+                      </div>
                     ) : (
-                      <>
-                        <p className="font-semibold text-lg text-gray-900 mb-2">{item.name || "No Name"}</p>
-                        <div className="space-y-2 mb-3">
-                          <p className="text-sm text-gray-600 flex items-center gap-2">
-                            <Mail size={14} className="text-gray-400 flex-shrink-0" />
-                            <span className="break-all">{item.email}</span>
-                          </p>
-                          {item.phone && (
-                            <p className="text-sm text-gray-600 flex items-center gap-2">
-                              <Phone size={14} className="text-gray-400 flex-shrink-0" />
-                              <span>{item.phone}</span>
-                            </p>
-                          )}
+                      bulkFilteredLeads.map((lead) => (
+                        <div
+                          key={lead._id}
+                          onClick={() => handleSelectLead(lead._id)}
+                          className={`border-2 p-4 rounded-lg cursor-pointer transition ${
+                            selectedLeads.includes(lead._id)
+                              ? "border-purple-500 bg-purple-50"
+                              : "border-gray-200 hover:border-purple-300"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedLeads.includes(lead._id)}
+                              onChange={() => {}}
+                              className="mt-1 w-5 h-5 cursor-pointer"
+                            />
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-800">{lead.fullName}</p>
+                              <p className="text-sm text-gray-600">{lead.email}</p>
+                              {lead.phone && (
+                                <p className="text-sm text-gray-500">{lead.phone}</p>
+                              )}
+                              {lead.status && (
+                                <span className="inline-block mt-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                  {lead.status}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        {item.message && (
-                          <p className="text-sm bg-gray-50 p-3 rounded-lg mb-3 text-gray-700">
-                            {item.message}
-                          </p>
-                        )}
-                        <p className="text-xs text-gray-500 flex items-center gap-1">
-                          <Calendar size={12} />
-                          {new Date(item.createdAt).toLocaleString()}
-                        </p>
-                      </>
+                      ))
                     )}
                   </div>
-                ))}
-                {filteredData.length === 0 && (
-                  <div className="text-center py-12 text-gray-500">
-                    <p className="text-lg">No results found</p>
+                </div>
+
+                {/* ASSIGNMENT PANEL */}
+                <div>
+                  <div className="sticky top-0">
+                    <div className="bg-purple-100 p-4 rounded-lg mb-4">
+                      <p className="text-sm text-gray-600">Selected Leads</p>
+                      <p className="text-4xl font-bold text-purple-600">{selectedLeads.length}</p>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Choose Associate
+                      </label>
+                      {loadingUsers ? (
+                        <div className="flex justify-center items-center p-4">
+                          <Loader2 className="animate-spin text-purple-600" size={24} />
+                        </div>
+                      ) : (
+                        <select
+                          value={selectedAssociate}
+                          onChange={(e) => setSelectedAssociate(e.target.value)}
+                          className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                        >
+                          <option value="">-- Select Associate --</option>
+                          {associates.map((associate) => (
+                            <option key={associate._id} value={associate._id}>
+                              {associate.name} ({associate.email})
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+
+                    {selectedLeads.length > 0 && selectedAssociate && (
+                      <div className="mb-4 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                        <p className="text-sm font-semibold text-gray-700 mb-1">Ready to assign:</p>
+                        <p className="text-sm">{selectedLeads.length} leads → <strong>{selectedAssociateName}</strong></p>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleBulkAssign}
+                      disabled={!selectedAssociate || selectedLeads.length === 0 || loading}
+                      className={`w-full py-3 rounded-lg font-bold transition ${
+                        !selectedAssociate || selectedLeads.length === 0 || loading
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg"
+                      }`}
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="animate-spin" size={20} />
+                          Assigning...
+                        </span>
+                      ) : (
+                        `Assign ${selectedLeads.length} Leads`
+                      )}
+                    </button>
+
+                    {selectedLeads.length > 0 && (
+                      <button
+                        onClick={() => setSelectedLeads([])}
+                        className="w-full mt-3 py-2 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50"
+                      >
+                        Clear Selection
+                      </button>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -365,19 +552,23 @@ const AdminDashboard = () => {
   );
 };
 
-const StatCard = ({ title, value, onClick, gradient, icon }) => (
+const StatCard = ({ title, value, icon, gradient, onClick, onHover, onLeave, isHovering }) => (
   <div
     onClick={onClick}
-    className={`bg-gradient-to-br ${gradient} p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 text-white`}
+    onMouseEnter={onHover}
+    onMouseLeave={onLeave}
+    className={`bg-gradient-to-br ${gradient} p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-200 relative`}
   >
-    <div className="flex items-start justify-between mb-4">
-      <h3 className="text-white/90 text-sm font-medium">{title}</h3>
-      <span className="text-3xl">{icon}</span>
+    {isHovering && (
+      <div className="absolute inset-0 bg-black/10 rounded-xl flex items-center justify-center">
+        <Loader2 className="animate-spin text-white" size={32} />
+      </div>
+    )}
+    <div className="flex items-center justify-between mb-3">
+      <p className="text-sm font-semibold text-gray-700 uppercase">{title}</p>
+      {icon}
     </div>
-    <p className="text-4xl sm:text-5xl font-bold">{value}</p>
-    <div className="mt-3 text-xs text-white/80 flex items-center">
-      <span>Tap to view details</span>
-    </div>
+    <p className="text-4xl font-bold text-gray-800">{value.toLocaleString()}</p>
   </div>
 );
 
