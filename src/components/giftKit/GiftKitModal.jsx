@@ -36,7 +36,7 @@ const GiftKitModal = ({ isOpen, onClose }) => {
           ...prev,
           userDetails: res.data.user,
         }));
-      } catch (error) {
+      } catch {
         console.log("Guest user");
       }
     };
@@ -48,25 +48,19 @@ const GiftKitModal = ({ isOpen, onClose }) => {
      STEP 1: BUDGET
   ====================== */
   const handleBudgetSubmit = async (budget, quantity) => {
-    try {
-      const res = await API.get(
-        `/api/kit/suggestions?budget=${budget}`
-      );
+    const res = await API.get(`/api/kit/suggestions?budget=${budget}`);
 
-      setKitData((prev) => ({
-        ...prev,
-        budget,
-        quantity,
-        box: res.data.box,
-        products: res.data.categories,
-        selectedProducts: null,
-        logo: null,
-      }));
+    setKitData((prev) => ({
+      ...prev,
+      budget,
+      quantity,
+      box: res.data.box,
+      products: res.data.categories,
+      selectedProducts: null,
+      logo: null,
+    }));
 
-      setStep(2);
-    } catch (error) {
-      alert("Failed to load kit suggestions");
-    }
+    setStep(2);
   };
 
   if (!isOpen) return null;
@@ -76,29 +70,10 @@ const GiftKitModal = ({ isOpen, onClose }) => {
       <div className="bg-white w-full max-w-6xl rounded-xl p-6 relative">
 
         {/* CLOSE */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-black"
-        >
-          ✕
-        </button>
-
-        {/* PROGRESS */}
-        <div className="flex gap-2 mb-6">
-          {[1, 2, 3, 4, 5].map((s) => (
-            <div
-              key={s}
-              className={`flex-1 h-1 rounded ${
-                step >= s ? "bg-black" : "bg-gray-200"
-              }`}
-            />
-          ))}
-        </div>
+        <button onClick={onClose} className="absolute top-4 right-4">✕</button>
 
         {/* STEP 1 */}
-        {step === 1 && (
-          <StepBudget onSubmit={handleBudgetSubmit} />
-        )}
+        {step === 1 && <StepBudget onSubmit={handleBudgetSubmit} />}
 
         {/* STEP 2 */}
         {step === 2 && (
@@ -106,76 +81,51 @@ const GiftKitModal = ({ isOpen, onClose }) => {
             kitData={kitData}
             onBack={() => setStep(1)}
             onNext={(selectedProducts) => {
-              setKitData((prev) => ({
-                ...prev,
-                selectedProducts,
-              }));
+              setKitData((p) => ({ ...p, selectedProducts }));
               setStep(3);
             }}
           />
         )}
 
-        {/* STEP 3 */}
+        {/* STEP 3 → ALWAYS PREVIEW */}
         {step === 3 && (
           <StepLogo
             onBack={() => setStep(2)}
-            onNext={(logoUrl) => {
-              setKitData((prev) => ({
-                ...prev,
-                logo: logoUrl,
-              }));
-
-              // 🔥 SKIP USER DETAILS IF LOGGED IN
-              if (kitData.userDetails) {
-                setStep(5);
-              } else {
-                setStep(4);
-              }
+            onNext={(logo) => {
+              setKitData((p) => ({ ...p, logo }));
+              setStep(4);
             }}
           />
         )}
 
-        {/* STEP 4 - USER DETAILS */}
+        {/* STEP 4 → PREVIEW */}
         {step === 4 && (
-          <StepUserDetails
-            initialData={kitData.userDetails}
-            onBack={() => setStep(3)}
-            onNext={(details) => {
-              setKitData((prev) => ({
-                ...prev,
-                userDetails: details,
-              }));
-              setStep(5);
-            }}
-          />
-        )}
-
-        {/* STEP 5 - PREVIEW */}
-        {step === 5 && (
           <StepPreview
             kitData={kitData}
-            onBack={() =>
-              kitData.userDetails ? setStep(3) : setStep(4)
-            }
+            onBack={() => setStep(3)}
+            onNeedUserDetails={() => setStep(5)}
             onSuccess={() => setStep(6)}
-            onClose={onClose}
           />
         )}
 
-        {/* STEP 6 - SUCCESS */}
+        {/* STEP 5 → USER DETAILS (ONLY FOR GUEST) */}
+        {step === 5 && (
+          <StepUserDetails
+            initialData={kitData.userDetails}
+            onBack={() => setStep(4)}
+            onNext={(details) => {
+              setKitData((p) => ({ ...p, userDetails: details }));
+              setStep(4); // 👈 back to preview, auto submit happens
+            }}
+          />
+        )}
+
+        {/* STEP 6 → SUCCESS */}
         {step === 6 && (
           <div className="text-center py-20">
-            <h2 className="text-3xl font-bold mb-4">
-              🎉 Enquiry Submitted!
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Our team will contact you shortly.
-            </p>
-
-            <button
-              onClick={onClose}
-              className="bg-black text-white px-6 py-3 rounded-lg"
-            >
+            <h2 className="text-3xl font-bold">🎉 Enquiry Submitted!</h2>
+            <p className="text-gray-600 mt-2">Our team will contact you shortly.</p>
+            <button onClick={onClose} className="mt-6 bg-black text-white px-6 py-3 rounded-lg">
               Close
             </button>
           </div>
