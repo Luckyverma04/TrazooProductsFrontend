@@ -76,7 +76,7 @@ const FinalCTA = () => {
       className="py-20 px-6 bg-gradient-to-br from-orange-50 to-orange-100"
     >
       {/* ================= BUILD KIT BUTTON ================= */}
-      <div className="flex justify-center mb-12">
+      {/* <div className="flex justify-center mb-12">
         <button
           onClick={() => setShowModal(true)}
           className="group flex items-center gap-3 bg-black text-white px-10 py-5 rounded-2xl font-semibold text-lg
@@ -86,7 +86,7 @@ const FinalCTA = () => {
           <Sparkles className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12" />
           Build Your Gift Kit
         </button>
-      </div>
+      </div> */}
 
       {/* ================= GIFT KIT MODAL ================= */}
       <GiftKitModal isOpen={showModal} onClose={() => setShowModal(false)} />
