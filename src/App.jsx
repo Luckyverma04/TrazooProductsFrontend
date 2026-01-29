@@ -1,7 +1,4 @@
-import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-// ❌ REMOVE THIS - It's causing the slow scrolling
-// import { initLenis } from "./utils/lenis";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -19,6 +16,9 @@ import CombinedAuth from "./pages/CombinedAuth";
 import VerifyOTP from "./pages/VerifyOTP";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import KitEnquiries from "./pages/admin/KitEnquiries";
+import ProductsManager from "./pages/admin/ProductsManager";
+
 import AssociateDashboard from "./pages/associate/AssociateDashboard";
 import MyLeads from "./pages/associate/MyLeads";
 import LeadDetail from "./pages/associate/LeadDetail";
@@ -45,19 +45,14 @@ function HomePage() {
 }
 
 function App() {
-  // ❌ REMOVE THIS - It's initializing Lenis which slows down scrolling
-  // useEffect(() => {
-  //   initLenis();
-  // }, []);
-
   return (
     <Routes>
-      {/* PUBLIC */}
+      {/* PUBLIC ROUTES */}
       <Route path="/" element={<HomePage />} />
       <Route path="/auth" element={<CombinedAuth />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
 
-      {/* ADMIN */}
+      {/* ADMIN ROUTES */}
       <Route
         path="/admin/dashboard"
         element={
@@ -67,7 +62,25 @@ function App() {
         }
       />
 
-      {/* ASSOCIATE */}
+      <Route
+        path="/admin/products"
+        element={
+          <AdminRoute>
+            <ProductsManager />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/kit-enquiries"
+        element={
+          <AdminRoute>
+            <KitEnquiries />
+          </AdminRoute>
+        }
+      />
+
+      {/* ASSOCIATE ROUTES */}
       <Route
         path="/associate"
         element={
@@ -76,6 +89,7 @@ function App() {
           </AssociateRoute>
         }
       />
+
       <Route
         path="/associate/leads"
         element={
@@ -84,6 +98,7 @@ function App() {
           </AssociateRoute>
         }
       />
+
       <Route
         path="/associate/leads/:id"
         element={
@@ -93,8 +108,8 @@ function App() {
         }
       />
 
-      {/* FALLBACK */}
-      <Route path="*" element={<Navigate to="/" />} />
+      {/* FALLBACK - 404 */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

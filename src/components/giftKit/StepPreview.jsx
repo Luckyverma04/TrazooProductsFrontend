@@ -1,20 +1,9 @@
 import { useEffect, useState } from "react";
 import {
-  ShoppingCart,
-  Package,
-  IndianRupee,
-  User,
-  Mail,
-  Phone,
-  Image,
-  CheckCircle2,
   ArrowLeft,
   Send,
   Loader2,
-  Receipt,
-  Sparkles,
 } from "lucide-react";
-
 import API from "../../config/api";
 
 const StepPreview = ({
@@ -30,7 +19,7 @@ const StepPreview = ({
 
   const {
     quantity,
-    selectedProducts,
+    selectedProducts = {},
     logo,
     budget,
     userDetails,
@@ -40,7 +29,10 @@ const StepPreview = ({
      LOGO PREVIEW
   ====================== */
   useEffect(() => {
-    if (!logo) return;
+    if (!logo) {
+      setLogoPreview(null);
+      return;
+    }
 
     if (logo instanceof File || logo instanceof Blob) {
       const reader = new FileReader();
@@ -59,13 +51,12 @@ const StepPreview = ({
       try {
         const res = await API.post("/api/kit/calculate-price", {
           quantity,
-          selectedProducts: Object.values(selectedProducts).map(
-            (p) => ({
-              productId: p._id,
-              brandingType: "logo",
-            })
-          ),
+          selectedProducts: Object.values(selectedProducts).map((p) => ({
+            productId: p._id,
+            brandingType: "logo",
+          })),
         });
+
         setPricing(res.data);
       } catch (err) {
         alert("Failed to calculate price");
@@ -74,16 +65,17 @@ const StepPreview = ({
       }
     };
 
-    calculatePrice();
+    if (quantity && Object.keys(selectedProducts).length) {
+      calculatePrice();
+    }
   }, [quantity, selectedProducts]);
 
   /* ======================
      SUBMIT HANDLER
   ====================== */
   const handleSubmit = async () => {
-    // 🔥 Guest → Ask details
     if (!userDetails) {
-      onNeedUserDetails();
+      onNeedUserDetails(); // Guest → open form
       return;
     }
 
@@ -97,15 +89,13 @@ const StepPreview = ({
         budget,
         quantity,
         brandLogo: logoPreview,
-        selectedProducts: Object.values(selectedProducts).map(
-          (p) => ({
-            productId: p._id,
-            category: p.category,
-            price: p.unitPrice,
-          })
-        ),
-        perKitPrice: pricing.perKitPrice,
-        totalPrice: pricing.totalPrice,
+        selectedProducts: Object.values(selectedProducts).map((p) => ({
+          productId: p._id,
+          category: p.category,
+          price: p.unitPrice,
+        })),
+        perKitPrice: pricing?.perKitPrice || 0,
+        totalPrice: pricing?.totalPrice || 0,
       };
 
       await API.post("/api/kit-enquiry", payload);
@@ -120,7 +110,7 @@ const StepPreview = ({
   /* ======================
      LOADING
   ====================== */
-  if (loading) {
+  if (loading || !pricing) {
     return (
       <div className="flex items-center justify-center h-96">
         <Loader2 className="w-10 h-10 animate-spin text-purple-600" />
@@ -164,17 +154,13 @@ const StepPreview = ({
         <div className="bg-white rounded-lg p-4 mb-6">
           <h3 className="font-semibold mb-2">Brand Logo</h3>
           {logoPreview ? (
-            <img
-              src={logoPreview}
-              alt="Logo"
-              className="h-20"
-            />
+            <img src={logoPreview} alt="Logo" className="h-20" />
           ) : (
             <p className="text-gray-500">No logo uploaded</p>
           )}
         </div>
 
-        {/* USER DETAILS (IF AVAILABLE) */}
+        {/* USER DETAILS */}
         {userDetails && (
           <div className="bg-white rounded-lg p-4 mb-6">
             <h3 className="font-semibold mb-2">Contact Details</h3>
@@ -187,16 +173,23 @@ const StepPreview = ({
         {/* PRICING */}
         <div className="bg-white rounded-lg p-4 mb-6">
           <p className="flex justify-between">
+            <span>Budget</span>
+            <span>₹{budget}</span>
+          </p>
+          <p className="flex justify-between">
             <span>Quantity</span>
             <span>{quantity}</span>
           </p>
           <p className="flex justify-between">
             <span>Per Kit</span>
-            <span>₹{pricing.perKitPrice}</span>
+            <span>₹{pricing.perKitPrice.toLocaleString("en-IN")}</span>
           </p>
           <p className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span>₹{pricing.totalPrice}</span>
+            <span>₹{pricing.totalPrice.toLocaleString("en-IN")}</span>
+          </p>
+          <p className="text-xs text-gray-500 mt-2">
+            GST will be applicable separately
           </p>
         </div>
 

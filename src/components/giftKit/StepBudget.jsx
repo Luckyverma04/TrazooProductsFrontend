@@ -15,10 +15,10 @@ const StepBudget = ({ onSubmit, onClose }) => {
   const [loading, setLoading] = useState(false);
 
   const budgetOptions = [
-    { value: 300, label: "Basic", icon: "💼", description: "Essential items" },
-    { value: 500, label: "Standard", icon: "⭐", description: "Quality selection" },
-    { value: 800, label: "Premium", icon: "💎", description: "High-end products" },
-    { value: 1000, label: "Luxury", icon: "👑", description: "Executive collection" }
+    { value: 500, label: "Basic", icon: "💼", description: "Essential items" },
+    { value: 800, label: "Standard", icon: "⭐", description: "Quality selection" },
+    { value: 1200, label: "Premium", icon: "💎", description: "High-end products" },
+    { value: 1500, label: "Luxury", icon: "👑", description: "Executive collection" }
   ];
 
   const handleNext = async () => {

@@ -11,6 +11,8 @@ import {
   UserPlus,
   Check,
   Loader2,
+  Package,
+  ClipboardList,
 } from "lucide-react";
 import API from "../../config/api";
 
@@ -228,6 +230,20 @@ const AdminDashboard = () => {
             <span>Dashboard</span>
           </li>
           <li 
+            onClick={() => navigate("/admin/products")}
+            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-cyan-50 transition"
+          >
+            <Package size={18} />
+            <span>Products</span>
+          </li>
+          <li 
+            onClick={() => navigate("/admin/kit-enquiries")}
+            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-cyan-50 transition"
+          >
+            <ClipboardList size={18} />
+            <span>Kit Enquiries</span>
+          </li>
+          <li 
             onClick={logout}
             className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-red-50 text-red-600 transition"
           >
@@ -320,6 +336,20 @@ const AdminDashboard = () => {
               >
                 <FileText className="text-green-600" size={24} />
                 <span className="font-semibold">View All Leads</span>
+              </button>
+              <button
+                onClick={() => navigate("/admin/products")}
+                className="flex items-center gap-3 p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition"
+              >
+                <Package className="text-purple-600" size={24} />
+                <span className="font-semibold">Manage Products</span>
+              </button>
+              <button
+                onClick={() => navigate("/admin/kit-enquiries")}
+                className="flex items-center gap-3 p-4 border-2 border-pink-200 rounded-lg hover:bg-pink-50 transition"
+              >
+                <ClipboardList className="text-pink-600" size={24} />
+                <span className="font-semibold">Kit Enquiries</span>
               </button>
             </div>
           </div>
