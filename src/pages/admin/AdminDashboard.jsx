@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   LogOut,
   Settings,
@@ -18,6 +18,7 @@ import API from "../../config/api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,13 @@ const AdminDashboard = () => {
   const [allLeads, setAllLeads] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // 🔥 Pagination states for leads modal
+  const [leadsPage, setLeadsPage] = useState(1);
+  const [leadsTotalPages, setLeadsTotalPages] = useState(1);
+  
+  // 🔥 Track current filter type
+  const [currentAssignedFilter, setCurrentAssignedFilter] = useState("");
+
   // Bulk Assign States
   const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState([]);
@@ -38,6 +46,17 @@ const AdminDashboard = () => {
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [hoveringCard, setHoveringCard] = useState(null);
+
+  // 🔥 NEW: Separate pagination states for bulk assign modal
+  const [bulkLeadsPage, setBulkLeadsPage] = useState(1);
+  const [bulkLeadsTotalPages, setBulkLeadsTotalPages] = useState(1);
+  const [bulkLeadsTotal, setBulkLeadsTotal] = useState(0);
+
+  // 🔥 Role Change States
+  const [roleChangeModalOpen, setRoleChangeModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [newRole, setNewRole] = useState("");
+  const [updatingRole, setUpdatingRole] = useState(false);
 
   const [dashboardData, setDashboardData] = useState({
     totalUsers: 0,
@@ -55,7 +74,13 @@ const AdminDashboard = () => {
     setAdmin(user);
     fetchDashboardData();
     fetchAllUsers();
-  }, [navigate]);
+    
+    // 🔥 Check if we need to auto-open leads modal
+    if (location.state?.openLeadsModal) {
+      openModal("leads");
+      window.history.replaceState({}, document.title);
+    }
+  }, [navigate, location]);
 
   const fetchAllUsers = async () => {
     setLoadingUsers(true);
@@ -69,18 +94,42 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchLeads = async (search = "") => {
-    setLoadingLeads(true);
+  // 🔥 Server-side pagination with assigned filter (for leads modal)
+  const fetchLeads = async (page = 1, search = "", assigned = "") => {
     try {
-      const params = {};
-      if (search) {
-        params.search = search;
-      }
-      
-      const leadsRes = await API.get("/api/enquiry", { params });
-      setAllLeads(leadsRes.data.enquiries || []);
+      const params = { page, limit: 20 };
+      if (search) params.search = search;
+      if (assigned) params.assigned = assigned;
+
+      const res = await API.get("/api/enquiry", { params });
+
+      setAllLeads(res.data.enquiries || []);
+      setLeadsTotalPages(res.data.pagination?.pages || 1);
+      setLeadsPage(page);
     } catch (error) {
       console.error("Fetch leads error:", error);
+    }
+  };
+
+  // 🔥 NEW: Separate fetch function for bulk assign modal with pagination (ONLY UNASSIGNED LEADS)
+  const fetchBulkLeads = async (page = 1, search = "") => {
+    setLoadingLeads(true);
+    try {
+      const params = { 
+        page, 
+        limit: 20,
+        assigned: "no" // 🔥 ONLY fetch unassigned/pending leads
+      };
+      if (search) params.search = search;
+
+      const res = await API.get("/api/enquiry", { params });
+
+      setAllLeads(res.data.enquiries || []);
+      setBulkLeadsTotalPages(res.data.pagination?.pages || 1);
+      setBulkLeadsTotal(res.data.pagination?.total || 0);
+      setBulkLeadsPage(page);
+    } catch (error) {
+      console.error("Fetch bulk leads error:", error);
     } finally {
       setLoadingLeads(false);
     }
@@ -112,10 +161,27 @@ const AdminDashboard = () => {
     setModalType(type);
     setModalOpen(true);
     setSearchTerm("");
+    setCurrentAssignedFilter(""); // Reset filter
     if (type === "users") {
       fetchAllUsers();
     } else if (type === "leads") {
-      fetchLeads();
+      fetchLeads(1);
+    }
+  };
+
+  // 🔥 Open leads modal filtered by type (pending/active)
+  const openLeadsByType = (type) => {
+    setModalType("leads");
+    setModalOpen(true);
+    setSearchTerm("");
+
+    if (type === "pending") {
+      setCurrentAssignedFilter("no");
+      fetchLeads(1, "", "no");
+    }
+    if (type === "active") {
+      setCurrentAssignedFilter("yes");
+      fetchLeads(1, "", "yes");
     }
   };
 
@@ -124,13 +190,26 @@ const AdminDashboard = () => {
     setSearchTerm("");
   };
 
-  const openBulkAssign = () => {
+  // 🔥 UPDATED: Open bulk assign with pagination
+  const openBulkAssign = async () => {
     setBulkAssignOpen(true);
     setSelectedLeads([]);
     setSelectedAssociate("");
     setBulkSearchTerm("");
     setSuccessMessage("");
-    fetchLeads();
+    setBulkLeadsPage(1); // 🔥 Reset to page 1
+    
+    setLoadingLeads(true);
+    try {
+      await Promise.all([
+        fetchBulkLeads(1, ""), // 🔥 Use fetchBulkLeads instead of fetchLeads
+        allUsers.length === 0 ? fetchAllUsers() : Promise.resolve()
+      ]);
+    } catch (error) {
+      console.error("Error loading bulk assign data:", error);
+    } finally {
+      setLoadingLeads(false);
+    }
   };
 
   const closeBulkAssign = () => {
@@ -148,11 +227,19 @@ const AdminDashboard = () => {
     );
   };
 
+  // 🔥 UPDATED: Handle search with pagination reset
   const handleSearchLeads = (searchValue) => {
     setBulkSearchTerm(searchValue);
-    fetchLeads(searchValue);
+    setBulkLeadsPage(1); // 🔥 Reset to page 1 on search
+    fetchBulkLeads(1, searchValue); // 🔥 Use fetchBulkLeads
   };
 
+  // 🔥 NEW: Handle pagination change for bulk assign
+  const handleBulkLeadsPageChange = (newPage) => {
+    fetchBulkLeads(newPage, bulkSearchTerm);
+  };
+
+  // 🔥 UPDATED: Refresh current page after bulk assign
   const handleBulkAssign = async () => {
     if (!selectedAssociate || selectedLeads.length === 0) {
       alert("Please select leads and an associate!");
@@ -173,7 +260,7 @@ const AdminDashboard = () => {
       
       setSelectedLeads([]);
       setSelectedAssociate("");
-      fetchLeads(bulkSearchTerm);
+      fetchBulkLeads(bulkLeadsPage, bulkSearchTerm); // 🔥 Stay on current page
     } catch (error) {
       console.error("Bulk assign error:", error);
       alert("Failed to assign leads. Please try again.");
@@ -190,22 +277,48 @@ const AdminDashboard = () => {
               u.email?.toLowerCase().includes(searchTerm.toLowerCase())
             : true
         )
-      : allLeads.filter((l) =>
-          searchTerm
-            ? l.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              l.email?.toLowerCase().includes(searchTerm.toLowerCase())
-            : true
-        );
+      : allLeads;
 
-  const bulkFilteredLeads = allLeads.filter(lead =>
-    bulkSearchTerm
-      ? lead.fullName?.toLowerCase().includes(bulkSearchTerm.toLowerCase()) ||
-        lead.email?.toLowerCase().includes(bulkSearchTerm.toLowerCase())
-      : true
-  );
+  // 🔥 UPDATED: Filter out admin users - only show customers
+  const availableUsers = allUsers.filter(u => u.role?.toLowerCase() !== "admin");
+  const selectedAssociateName = availableUsers.find(a => a._id === selectedAssociate)?.name;
 
-  const associates = allUsers.filter(u => u.role === "associate");
-  const selectedAssociateName = associates.find(a => a._id === selectedAssociate)?.name;
+  // 🔥 Role Change Functions
+  const openRoleChangeModal = (user) => {
+    setSelectedUser(user);
+    setNewRole(user.role);
+    setRoleChangeModalOpen(true);
+  };
+
+  const closeRoleChangeModal = () => {
+    setRoleChangeModalOpen(false);
+    setSelectedUser(null);
+    setNewRole("");
+  };
+
+  const handleRoleChange = async () => {
+    if (!newRole || newRole === selectedUser?.role) {
+      alert("Please select a different role!");
+      return;
+    }
+
+    setUpdatingRole(true);
+    try {
+      await API.put(`/api/auth/${selectedUser._id}/role`, {
+        role: newRole,
+      });
+
+      alert(`User role updated to ${newRole} successfully!`);
+      closeRoleChangeModal();
+      fetchAllUsers(); // Refresh users list
+      fetchDashboardData(); // Refresh stats
+    } catch (error) {
+      console.error("Role update error:", error);
+      alert(error.response?.data?.message || "Failed to update role");
+    } finally {
+      setUpdatingRole(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-teal-50 flex">
@@ -291,12 +404,20 @@ const AdminDashboard = () => {
               value={dashboardData.pendingLeads}
               icon={<Activity className="text-yellow-600" size={28} />}
               gradient="from-yellow-50 to-yellow-100"
+              onClick={() => openLeadsByType("pending")}
+              onHover={() => setHoveringCard("pending")}
+              onLeave={() => setHoveringCard(null)}
+              isHovering={hoveringCard === "pending"}
             />
             <StatCard
               title="Active Leads"
               value={dashboardData.activeLeads}
               icon={<Activity className="text-purple-600" size={28} />}
               gradient="from-purple-50 to-purple-100"
+              onClick={() => openLeadsByType("active")}
+              onHover={() => setHoveringCard("active")}
+              onLeave={() => setHoveringCard(null)}
+              isHovering={hoveringCard === "active"}
             />
           </div>
 
@@ -362,7 +483,11 @@ const AdminDashboard = () => {
           <div className="bg-white w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl">
             <div className="flex justify-between items-center p-5 border-b bg-gradient-to-r from-cyan-500 to-teal-500 text-white">
               <h2 className="text-xl font-bold">
-                {modalType === "users" ? "All Users" : "All Leads"}
+                {modalType === "users" ? "All Users" : 
+                  currentAssignedFilter === "yes" ? "Active Leads (Assigned)" :
+                  currentAssignedFilter === "no" ? "Pending Leads (Unassigned)" :
+                  "All Leads"
+                }
               </h2>
               <button onClick={closeModal} className="hover:bg-white/20 p-2 rounded-full transition">
                 <X size={24} />
@@ -372,14 +497,20 @@ const AdminDashboard = () => {
             <div className="p-5 border-b bg-gray-50">
               <input
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchTerm(value);
+                  if (modalType === "leads") {
+                    fetchLeads(1, value, currentAssignedFilter);
+                  }
+                }}
                 placeholder={`Search ${modalType} by name or email...`}
                 className="border-2 border-gray-300 p-3 w-full rounded-lg focus:border-cyan-500 focus:outline-none"
               />
             </div>
 
             <div className="p-5 max-h-[60vh] overflow-y-auto">
-              {(modalType === "users" && loadingUsers) || (modalType === "leads" && loadingLeads) ? (
+              {modalType === "users" && loadingUsers ? (
                 <div className="flex justify-center items-center py-20">
                   <Loader2 className="animate-spin text-cyan-600" size={40} />
                 </div>
@@ -390,24 +521,92 @@ const AdminDashboard = () => {
               ) : (
                 <div className="space-y-3">
                   {filteredData.map((item) => (
-                    <div key={item._id} className="border-2 border-gray-200 p-4 rounded-lg hover:border-cyan-400 transition">
+                    <div 
+                      key={item._id} 
+                      onClick={() => {
+                        if (modalType === "leads") {
+                          navigate(`/admin/lead/${item._id}`);
+                        }
+                      }}
+                      className={`border-2 border-gray-200 p-4 rounded-lg hover:border-cyan-400 transition ${
+                        modalType === "leads" ? "cursor-pointer hover:bg-cyan-50 hover:shadow-md" : ""
+                      }`}
+                    >
                       <p className="font-semibold text-lg">{item.name || item.fullName}</p>
                       <p className="text-sm text-gray-600">{item.email}</p>
                       {item.phone && (
                         <p className="text-sm text-gray-500">{item.phone}</p>
                       )}
+                      
+                      {modalType === "leads" && item.assignedTo && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-xs text-purple-700 font-medium">
+                            Assigned to: {item.assignedTo.name || item.assignedTo.email}
+                          </span>
+                        </div>
+                      )}
+                      
                       {item.role && (
                         <span className="inline-block mt-2 px-3 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-semibold">
                           {item.role}
                         </span>
                       )}
+                      
+                      {modalType === "users" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openRoleChangeModal(item);
+                          }}
+                          className="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600 transition font-semibold"
+                        >
+                          Change Role
+                        </button>
+                      )}
+                      
                       {item.status && (
                         <span className="inline-block mt-2 ml-2 px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full font-semibold">
                           {item.status}
                         </span>
                       )}
+                      {modalType === "leads" && (
+                        <p className="text-xs text-cyan-600 mt-2 font-medium">
+                          {item.assignedTo 
+                            ? "Click to view full details →" 
+                            : "Click to assign lead →"
+                          }
+                        </p>
+                      )}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Pagination controls for leads */}
+              {modalType === "leads" && filteredData.length > 0 && (
+                <div className="flex justify-between items-center mt-6 border-t pt-4">
+                  <button
+                    disabled={leadsPage === 1}
+                    onClick={() => fetchLeads(leadsPage - 1, searchTerm, currentAssignedFilter)}
+                    className="px-4 py-2 bg-cyan-500 text-white rounded-lg font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-cyan-600 transition"
+                  >
+                    Previous
+                  </button>
+
+                  <span className="font-semibold text-gray-700">
+                    Page {leadsPage} of {leadsTotalPages}
+                  </span>
+
+                  <button
+                    disabled={leadsPage === leadsTotalPages}
+                    onClick={() => fetchLeads(leadsPage + 1, searchTerm, currentAssignedFilter)}
+                    className="px-4 py-2 bg-cyan-500 text-white rounded-lg font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-cyan-600 transition"
+                  >
+                    Next
+                  </button>
                 </div>
               )}
             </div>
@@ -415,7 +614,98 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* BULK ASSIGN MODAL */}
+      {/* ROLE CHANGE MODAL */}
+      {roleChangeModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Users size={24} />
+                Change User Role
+              </h2>
+              <button
+                onClick={closeRoleChangeModal}
+                className="hover:bg-white/20 p-2 rounded-full transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">User</p>
+                <p className="font-semibold text-gray-900">{selectedUser.name}</p>
+                <p className="text-sm text-gray-600">{selectedUser.email}</p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Current Role
+                </label>
+                <div className="p-3 bg-gray-100 rounded-lg">
+                  <span className="inline-block px-3 py-1 bg-cyan-500 text-white text-sm rounded-full font-semibold">
+                    {selectedUser.role}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  New Role *
+                </label>
+                <select
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value)}
+                  className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                >
+                  <option value="customer">👤 Customer</option>
+                  <option value="associate">👔 Associate</option>
+                  <option value="admin">👑 Admin</option>
+                </select>
+              </div>
+
+              {newRole && newRole !== selectedUser.role && (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ <strong>Warning:</strong> Changing role from <strong>{selectedUser.role}</strong> to <strong>{newRole}</strong> will update user permissions immediately.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleRoleChange}
+                  disabled={!newRole || newRole === selectedUser.role || updatingRole}
+                  className={`flex-1 py-3 rounded-lg font-bold transition ${
+                    !newRole || newRole === selectedUser.role || updatingRole
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg"
+                  }`}
+                >
+                  {updatingRole ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="animate-spin" size={20} />
+                      Updating...
+                    </span>
+                  ) : (
+                    "Update Role"
+                  )}
+                </button>
+
+                <button
+                  onClick={closeRoleChangeModal}
+                  disabled={updatingRole}
+                  className="px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BULK ASSIGN MODAL - 🔥 UPDATED WITH PAGINATION */}
       {bulkAssignOpen && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4">
           <div className="bg-white w-full max-w-6xl rounded-xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
@@ -447,15 +737,19 @@ const AdminDashboard = () => {
                     <input
                       value={bulkSearchTerm}
                       onChange={(e) => handleSearchLeads(e.target.value)}
-                      placeholder="Search leads by name or email..."
+                      placeholder="Search leads by name, email, phone, or company..."
                       className="w-full p-3 rounded-lg border-2 border-gray-300 focus:border-purple-500 focus:outline-none"
                     />
                   </div>
 
-                  <div className="mb-4 bg-purple-50 p-3 rounded-lg">
+                  {/* 🔥 Pagination Info - Only Unassigned Leads */}
+                  <div className="mb-4 bg-purple-50 p-3 rounded-lg flex items-center justify-between">
                     <p className="text-sm text-gray-600">
-                      <strong>Note:</strong> Select leads individually by clicking on them. 
-                      (Select All disabled for large datasets - {dashboardData.totalLeads.toLocaleString()} total leads)
+                      <strong>Showing Unassigned Leads:</strong> Page {bulkLeadsPage} of {bulkLeadsTotalPages} 
+                      {bulkLeadsTotal > 0 && ` (${bulkLeadsTotal.toLocaleString()} pending leads)`}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      💡 Only unassigned leads shown
                     </p>
                   </div>
 
@@ -464,12 +758,17 @@ const AdminDashboard = () => {
                       <div className="flex justify-center items-center py-20">
                         <Loader2 className="animate-spin text-purple-600" size={40} />
                       </div>
-                    ) : bulkFilteredLeads.length === 0 ? (
+                    ) : allLeads.length === 0 ? (
                       <div className="text-center py-10">
                         <p className="text-gray-500">No leads found</p>
+                        {bulkSearchTerm && (
+                          <p className="text-sm text-gray-400 mt-2">
+                            Try adjusting your search
+                          </p>
+                        )}
                       </div>
                     ) : (
-                      bulkFilteredLeads.map((lead) => (
+                      allLeads.map((lead) => (
                         <div
                           key={lead._id}
                           onClick={() => handleSelectLead(lead._id)}
@@ -492,6 +791,9 @@ const AdminDashboard = () => {
                               {lead.phone && (
                                 <p className="text-sm text-gray-500">{lead.phone}</p>
                               )}
+                              {lead.company && (
+                                <p className="text-sm text-gray-500">🏢 {lead.company}</p>
+                              )}
                               {lead.status && (
                                 <span className="inline-block mt-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
                                   {lead.status}
@@ -503,6 +805,33 @@ const AdminDashboard = () => {
                       ))
                     )}
                   </div>
+
+                  {/* 🔥 NEW: PAGINATION CONTROLS */}
+                  {allLeads.length > 0 && (
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t-2 border-gray-200">
+                      <button
+                        disabled={bulkLeadsPage === 1}
+                        onClick={() => handleBulkLeadsPageChange(bulkLeadsPage - 1)}
+                        className="px-4 py-2 bg-purple-500 text-white rounded-lg font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-600 transition flex items-center gap-2"
+                      >
+                        <span>←</span> Previous
+                      </button>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Page</span>
+                        <span className="font-bold text-purple-600 text-lg">{bulkLeadsPage}</span>
+                        <span className="text-sm text-gray-600">of {bulkLeadsTotalPages}</span>
+                      </div>
+
+                      <button
+                        disabled={bulkLeadsPage === bulkLeadsTotalPages}
+                        onClick={() => handleBulkLeadsPageChange(bulkLeadsPage + 1)}
+                        className="px-4 py-2 bg-purple-500 text-white rounded-lg font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-purple-600 transition flex items-center gap-2"
+                      >
+                        Next <span>→</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* ASSIGNMENT PANEL */}
@@ -515,7 +844,7 @@ const AdminDashboard = () => {
 
                     <div className="mb-4">
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Choose Associate
+                        Choose User to Assign ({availableUsers.length} available)
                       </label>
                       {loadingUsers ? (
                         <div className="flex justify-center items-center p-4">
@@ -527,13 +856,18 @@ const AdminDashboard = () => {
                           onChange={(e) => setSelectedAssociate(e.target.value)}
                           className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none"
                         >
-                          <option value="">-- Select Associate --</option>
-                          {associates.map((associate) => (
-                            <option key={associate._id} value={associate._id}>
-                              {associate.name} ({associate.email})
+                          <option value="">-- Select User --</option>
+                          {availableUsers.map((user) => (
+                            <option key={user._id} value={user._id}>
+                              {user.name} ({user.email}) - {user.role}
                             </option>
                           ))}
                         </select>
+                      )}
+                      {!loadingUsers && availableUsers.length === 0 && (
+                        <p className="text-sm text-red-600 mt-2">
+                          ⚠️ No users available for assignment
+                        </p>
                       )}
                     </div>
 
@@ -547,7 +881,7 @@ const AdminDashboard = () => {
                     <button
                       onClick={handleBulkAssign}
                       disabled={!selectedAssociate || selectedLeads.length === 0 || loading}
-                      className={`w-full py-3 rounded-lg font-bold transition ${
+                      className={`w-full py-3 rounded-lg font-bold transition mb-3 ${
                         !selectedAssociate || selectedLeads.length === 0 || loading
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg"

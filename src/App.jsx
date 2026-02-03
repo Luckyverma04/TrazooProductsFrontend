@@ -18,6 +18,7 @@ import VerifyOTP from "./pages/VerifyOTP";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import KitEnquiries from "./pages/admin/KitEnquiries";
 import ProductsManager from "./pages/admin/ProductsManager";
+import AdminLeadDetails from "./pages/admin/AdminLeadDetails"; // 🔥 IMPORT
 
 import AssociateDashboard from "./pages/associate/AssociateDashboard";
 import MyLeads from "./pages/associate/MyLeads";
@@ -76,6 +77,16 @@ function App() {
         element={
           <AdminRoute>
             <KitEnquiries />
+          </AdminRoute>
+        }
+      />
+
+      {/* 🔥 FIXED: ADMIN LEAD DETAILS ROUTE - Changed from /lead/:leadId to /admin/lead/:id */}
+      <Route
+        path="/admin/lead/:id"
+        element={
+          <AdminRoute>
+            <AdminLeadDetails />
           </AdminRoute>
         }
       />
