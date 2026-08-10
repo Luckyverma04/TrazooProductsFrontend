@@ -109,7 +109,7 @@ const toneStyles = {
 const Fulfilment = () => {
   return (
     <div className="min-h-screen bg-[#FFFDF9]">
-      <Navbar />
+    
 
       <main className="max-w-[1400px] mx-auto px-6 lg:px-10 py-12">
 

@@ -411,7 +411,7 @@ const Customization = () => {
 
   return (
     <div className="min-h-screen bg-[#FFFDF9] text-[#222222]">
-      <Navbar />
+   
 
       <main className="pt-28 pb-20 px-6">
         <div className="max-w-7xl mx-auto">

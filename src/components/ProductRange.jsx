@@ -262,7 +262,7 @@ const ProductRange = () => {
 
   return (
     <>
-      <Navbar />
+     
 
       <main id="products" className="bg-[#FFFDF9] pt-28 pb-24 px-6">
         <div className="max-w-7xl mx-auto">

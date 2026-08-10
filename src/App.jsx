@@ -2,73 +2,65 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import TrustSection from "./components/TrustSection";
-import Footer from "./components/Footer";
-import Customization from "./components/Customization";
 
+// Public pages
+import Home from "./pages/Home";
+import Hero from "./components/Hero";
 import ProductRange from "./components/ProductRange";
-import OurWork from "./components/OurWork";
+import Customization from "./components/Customization";
 import Requirements from "./components/Requirements";
 import Fulfilment from "./components/Fulfilment";
+import OurWork from "./components/OurWork";
+import Footer from "./components/Footer";
 
+// Auth
 import CombinedAuth from "./pages/CombinedAuth";
 import VerifyOTP from "./pages/VerifyOTP";
 
+// Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import KitEnquiries from "./pages/admin/KitEnquiries";
 import ProductsManager from "./pages/admin/ProductsManager";
 import AdminLeadDetails from "./pages/admin/AdminLeadDetails";
 
+// Associate
 import AssociateDashboard from "./pages/associate/AssociateDashboard";
 import MyLeads from "./pages/associate/MyLeads";
 import LeadDetail from "./pages/associate/LeadDetail";
 
+// Protection
 import AdminRoute from "./routes/AdminRoute";
 import AssociateRoute from "./routes/AssociateRoute";
 
-const homeTrustColumns = [
-  {
-    title: "Trusted by Enterprises",
-    items: ["Infosys", "HCLTech", "Amazon", "Flipkart", "Rapido", "Masai"],
-  },
-  {
-    title: "Chosen by Institutions",
-    items: [
-      "IIM Mumbai",
-      "BITSoM",
-      "IIT Mandi",
-      "IIT Roorkee",
-      "IIT Madras",
-      "IIIT Bangalore",
-      "IIM Indore",
-      "IIM Nagpur",
-    ],
-  },
-];
 
-function HomePage() {
+// ======================================================
+// SOLUTIONS PAGE
+// ======================================================
+
+function SolutionsPage() {
   return (
     <>
-      <Navbar />
-
-      <main>
-        <Hero />
-        <TrustSection columns={homeTrustColumns} />
-      </main>
-
+      <Hero />
       <Footer />
     </>
   );
 }
 
+
+// ======================================================
+// APP
+// ======================================================
+
 function App() {
   useEffect(() => {
     const id = "trazoo-manrope-font";
 
-    if (document.getElementById(id)) return;
+    if (document.getElementById(id)) {
+      return;
+    }
 
     const link = document.createElement("link");
+
     link.id = id;
     link.rel = "stylesheet";
     link.href =
@@ -84,37 +76,58 @@ function App() {
         fontFamily: "'Manrope', system-ui, sans-serif",
       }}
     >
+
+      {/* ONE GLOBAL NAVBAR ONLY */}
+      <Navbar />
+
       <Routes>
 
         {/* ================= PUBLIC ================= */}
 
-        <Route path="/" element={<HomePage />} />
+        {/* HOME */}
+        <Route
+          path="/"
+          element={<Home />}
+        />
 
+        {/* SOLUTIONS */}
+        <Route
+          path="/solutions"
+          element={<SolutionsPage />}
+        />
+
+        {/* PRODUCTS */}
         <Route
           path="/products"
           element={<ProductRange />}
         />
 
-        {/* ✅ THIS WAS MISSING */}
+        {/* CUSTOMISATION */}
+        <Route
+          path="/customisation"
+          element={<Customization />}
+        />
+
+        {/* REQUIREMENTS */}
         <Route
           path="/requirements"
           element={<Requirements />}
         />
 
-        <Route
-          path="/our-work"
-          element={<OurWork />}
-        />
-        <Route
-  path="/customisation"
-  element={<Customization />}
-/>
-
-        {/* ================= FULFILMENT ================= */}
+        {/* FULFILMENT */}
         <Route
           path="/fulfilment"
           element={<Fulfilment />}
         />
+
+        {/* OUR WORK */}
+        <Route
+          path="/our-work"
+          element={<OurWork />}
+        />
+
+
+        {/* ================= AUTH ================= */}
 
         <Route
           path="/auth"
@@ -125,6 +138,7 @@ function App() {
           path="/verify-otp"
           element={<VerifyOTP />}
         />
+
 
         {/* ================= ADMIN ================= */}
 
@@ -164,6 +178,7 @@ function App() {
           }
         />
 
+
         {/* ================= ASSOCIATE ================= */}
 
         <Route
@@ -193,14 +208,21 @@ function App() {
           }
         />
 
+
         {/* ================= 404 ================= */}
 
         <Route
           path="*"
-          element={<Navigate to="/" replace />}
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
         />
 
       </Routes>
+
     </div>
   );
 }

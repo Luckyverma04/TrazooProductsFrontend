@@ -119,7 +119,7 @@ const OurWork = () => {
 
   return (
     <>
-      <Navbar />
+    
 
       <main className="bg-[#FFFDF9] pt-28 pb-20 px-6">
         <div className="max-w-6xl mx-auto">

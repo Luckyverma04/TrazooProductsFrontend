@@ -102,17 +102,17 @@ const Navbar = () => {
     : null;
 
   // ================= ACTIVE NAV =================
-  const isActive = (link) => {
-    if (link.path) {
-      return location.pathname.startsWith(link.path);
-    }
+const isActive = (link) => {
+  if (link.path) {
+    return location.pathname === link.path;
+  }
 
-    if (link.hash === "#hero") {
-      return isHome;
-    }
+  if (link.hash === "#hero") {
+    return location.pathname === "/";
+  }
 
-    return false;
-  };
+  return false;
+};
 
   return (
     <nav className="w-full bg-[#FFFDF9] border-b border-[#DED8D2]">
@@ -121,17 +121,20 @@ const Navbar = () => {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
 
         {/* ================= LOGO ================= */}
-        <button
-          onClick={() => goToHash("#hero")}
-          className="flex items-center"
-        >
-          <img
-            src={logo}
-            alt="Trazoo"
-            className="w-[110px] h-auto"
-          />
-        </button>
-
+  <button
+  onClick={() => {
+    setIsMenuOpen(false);
+    navigate("/");
+  }}
+  className="flex items-center"
+  aria-label="Go to Home"
+>
+  <img
+    src={logo}
+    alt="Trazoo"
+    className="w-[110px] h-auto"
+  />
+</button>
         {/* ================= DESKTOP NAV ================= */}
         <ul className="hidden lg:flex gap-7">
 
