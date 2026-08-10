@@ -1,60 +1,109 @@
-import { Mail, Phone, MapPin, Linkedin, Instagram, LogIn } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Instagram,
+  LogIn,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
-import { footerColumns } from "../config/navConfig";
 
 // Gmail vs default mail client
 const getMailHref = () => {
   const isChrome =
-    typeof navigator !== "undefined" && navigator.userAgent.includes("Chrome");
+    typeof navigator !== "undefined" &&
+    navigator.userAgent.includes("Chrome");
+
   return isChrome
     ? "https://mail.google.com/mail/?view=cm&fs=1&to=contact@trazooglobal.com"
     : "mailto:contact@trazooglobal.com";
 };
 
+// Footer links
+const footerColumns = [
+  {
+    title: "Company",
+    links: [
+      {
+        name: "About Us",
+        path: "/",
+        hash: "#hero",
+      },
+      {
+        name: "Contact Us",
+        path: "/requirements",
+      },
+      {
+        name: "Enterprise FAQ",
+        path: "/faq",
+      },
+    ],
+  },
+
+  {
+    title: "Services",
+    links: [
+      {
+        name: "Products",
+        path: "/products",
+      },
+      {
+        name: "Customisation",
+        path: "/customisation",
+      },
+      {
+        name: "Fulfilment",
+        path: "/fulfilment",
+      },
+      {
+        name: "Global Shipping",
+        path: "/shipping",
+      },
+    ],
+  },
+
+  {
+    title: "Legal",
+    links: [
+      {
+        name: "Terms of Service",
+        path: "/terms",
+      },
+      {
+        name: "Privacy Policy",
+        path: "/privacy",
+      },
+    ],
+  },
+];
+
 const Footer = () => {
-  const navigate = useNavigate();
-
-  /**
-   * Ek hi handler:
-   *  - hash wala link  → us section pe scroll
-   *  - path wala link  → us route pe navigate
-   *  - ready:false     → abhi kuch nahi (page bana hi nahi)
-   *
-   * Page ban jaaye to navConfig.js mein `ready: true` kar dena — bas.
-   */
-  const handleClick = (link) => {
-    if (!link.ready) return;
-
-    if (link.hash) {
-      const el = document.querySelector(link.hash);
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else if (link.path) {
-      navigate(link.path);
-    }
-  };
-
   return (
     <footer
       id="footer"
-      className="bg-[#F7F2EC] border-t border-[#DED8D2] text-[#222222]"
+      className="bg-[#FFFDF9] border-t border-[#DED8D2]"
     >
-      <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* ---------- BRAND ---------- */}
+      <div className="max-w-7xl mx-auto px-6 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+
+          {/* ================= BRAND ================= */}
           <div>
-            <img
-              src={logo}
-              alt="Trazoo Global"
-              className="h-10 object-contain mb-5"
-            />
+            <Link to="/">
+              <img
+                src={logo}
+                alt="Trazoo Global"
+                className="w-[120px] h-auto mb-5"
+              />
+            </Link>
 
             <p className="text-[#4A4644] leading-relaxed mb-6 max-w-xs">
               Corporate gifting. Without the vendor chaos.
             </p>
 
-            {/* CONTACT */}
+            {/* ================= CONTACT ================= */}
             <div className="space-y-3 text-sm">
+
               <a
                 href={getMailHref()}
                 className="flex items-center gap-2 text-[#4A4644] hover:text-[#DF4607] transition-colors"
@@ -72,10 +121,12 @@ const Footer = () => {
                 <MapPin size={15} />
                 <span>India</span>
               </div>
+
             </div>
 
-            {/* SOCIAL ICONS */}
+            {/* ================= SOCIAL ================= */}
             <div className="flex gap-3 mt-6">
+
               <a
                 href="https://www.linkedin.com/company/trazoo-global-llp/"
                 target="_blank"
@@ -95,52 +146,76 @@ const Footer = () => {
               >
                 <Instagram size={18} />
               </a>
+
             </div>
           </div>
 
-          {/* ---------- LINK COLUMNS ---------- */}
+          {/* ================= FOOTER COLUMNS ================= */}
           {footerColumns.map((col) => (
             <div key={col.title}>
+
               <h5 className="text-sm font-bold text-[#111111] mb-5">
                 {col.title}
               </h5>
+
               <ul className="space-y-3">
-                {col.links.map((l) => (
-                  <li key={l.name}>
-                    <button
-                      onClick={() => handleClick(l)}
-                      title={l.ready ? undefined : "Coming soon"}
-                      className={`text-left transition-colors ${
-                        l.ready
-                          ? "text-[#4A4644] hover:text-[#DF4607]"
-                          : "text-[#A9A29D] cursor-default"
-                      }`}
+
+                {col.links.map((link) => (
+                  <li key={link.name}>
+
+                    <Link
+                      to={link.path}
+                      onClick={() => {
+                        // About Us -> homepage hero
+                        if (link.hash) {
+                          setTimeout(() => {
+                            document
+                              .querySelector(link.hash)
+                              ?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start",
+                              });
+                          }, 100);
+                        }
+
+                        window.scrollTo({
+                          top: 0,
+                          behavior: "smooth",
+                        });
+                      }}
+                      className="text-[#4A4644] hover:text-[#DF4607] transition-colors"
                     >
-                      {l.name}
-                    </button>
+                      {link.name}
+                    </Link>
+
                   </li>
                 ))}
+
               </ul>
 
-              {/* Login button sirf Company column ke neeche */}
+              {/* ================= LOGIN ================= */}
               {col.title === "Company" && (
                 <Link
                   to="/auth"
                   className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-[#DF4607] hover:bg-[#C93E05] text-white font-semibold text-sm rounded-lg transition-colors"
                 >
-                  <LogIn size={16} /> Login
+                  <LogIn size={16} />
+                  Login
                 </Link>
               )}
+
             </div>
           ))}
+
         </div>
 
-        {/* ---------- COPYRIGHT ---------- */}
+        {/* ================= COPYRIGHT ================= */}
         <div className="mt-14 pt-6 border-t border-[#DED8D2]">
           <p className="text-sm text-[#6E6A67]">
             © {new Date().getFullYear()} Trazoo Global. All rights reserved.
           </p>
         </div>
+
       </div>
     </footer>
   );
