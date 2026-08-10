@@ -63,8 +63,11 @@ const CombinedAuth = () => {
           password: formData.password,
         });
 
-        alert("Signup successful! Please verify OTP.");
-        navigate("/verify-otp");
+       localStorage.setItem("pendingEmail", formData.email);
+
+alert("Signup successful! Please verify OTP.");
+
+navigate("/verify-otp");
       }
     } catch (err) {
       alert(err.response?.data?.message || "Something went wrong");

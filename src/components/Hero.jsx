@@ -1,143 +1,137 @@
-import { useEffect, useMemo, useState } from "react";
-import { Package, ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import heroVideo from "../assets/kling_20260729_VIDEO_Create_an__5433_0.mp4";
 
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const videoRef = useRef(null);
+  const playedThisVisitRef = useRef(false);
 
+  const navigate = useNavigate();
+
+  // ===== VISIBILITY =====
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  const scrollToSection = (e, sectionId) => {
-    e.preventDefault();
-    document.querySelector(sectionId)?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+  // ===== VIDEO LOGIC =====
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!playedThisVisitRef.current) {
+            playedThisVisitRef.current = true;
+
+            video.currentTime = 0;
+
+            video.play().catch(() => {});
+          }
+        } else {
+          video.pause();
+          playedThisVisitRef.current = false;
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(video);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // ===== NAVIGATION =====
+
+  const goToRequirements = () => {
+    navigate("/requirements");
   };
 
-  // ✅ Reduced particles from 12 to 8 for better performance
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 8 }, () => ({
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        delay: Math.random() * 4,
-        duration: 8 + Math.random() * 6,
-      })),
-    []
-  );
+  const goToProducts = () => {
+    navigate("/products");
+  };
 
   return (
     <section
       id="hero"
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 relative overflow-hidden px-4 py-20"
+      className="min-h-screen bg-[#FFFDF9] pt-28 pb-20 px-6 flex items-center"
     >
-      {/* ✅ Optimized background blobs with hardware acceleration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div 
-          className="absolute top-20 left-10 w-72 h-72 rounded-full opacity-20 bg-[#e16f30]"
-          style={{
-            filter: 'blur(80px)',
-            transform: 'translateZ(0)',
-            animation: 'blob 10s infinite ease-in-out'
-          }}
-        />
-        <div 
-          className="absolute top-40 right-10 w-72 h-72 rounded-full opacity-15 bg-[#df4607]"
-          style={{
-            filter: 'blur(80px)',
-            transform: 'translateZ(0)',
-            animation: 'blob 10s infinite ease-in-out',
-            animationDelay: '2s'
-          }}
-        />
-      </div>
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-      {/* ✅ Optimized floating particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {particles.map((p, i) => (
+          {/* ---------- LEFT: TEXT ---------- */}
           <div
-            key={i}
-            className="absolute w-2 h-2 bg-orange-300 rounded-full opacity-30"
-            style={{
-              left: `${p.left}%`,
-              top: `${p.top}%`,
-              animation: `float ${p.duration}s linear infinite`,
-              animationDelay: `${p.delay}s`,
-              transform: 'translateZ(0)', // Hardware acceleration
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Content */}
-      <div className="max-w-3xl relative z-10 text-center sm:text-left">
-        <h1
-          className={`font-bold leading-tight mb-4 transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          }`}
-        >
-          <span className="block text-4xl sm:text-6xl lg:text-7xl">
-            Welcome & Joining
-          </span>
-          <span className="block text-4xl sm:text-6xl lg:text-7xl mb-2">
-            Kits
-          </span>
-          <span className="block text-2xl sm:text-4xl italic font-semibold text-[#df4607]">
-            That Create a Lasting First Impression
-          </span>
-        </h1>
-
-        <p
-          className={`text-base sm:text-lg text-gray-700 mb-10 transition-all duration-700 delay-150 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          Thoughtfully designed, fully customised welcome kits for employees and
-          students – so every new beginning feels special from day one.
-        </p>
-
-        <div
-          className={`flex gap-4 justify-center sm:justify-start transition-all duration-700 delay-300 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <button
-            onClick={(e) => scrollToSection(e, "#enquiry")}
-            className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300"
+            className={`transition-all duration-700 ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+            }`}
           >
-            Get Started <ArrowRight className="inline w-5 h-5 ml-1" />
-          </button>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#111111] leading-tight">
+              Corporate gifting.
+              <br />
+              Without the vendor chaos.
+            </h1>
 
-          <button
-            onClick={(e) => scrollToSection(e, "#products")}
-            className="px-8 py-4 bg-white text-gray-800 font-semibold rounded-full border-2 border-orange-200 hover:border-orange-400 hover:scale-105 transition-transform duration-300"
+            <p className="text-lg text-[#4A4644] leading-relaxed max-w-xl mt-6 mb-10">
+              From customised merchandise to thousands of individually packed
+              gifts across India, Trazoo handles sourcing, branding, quality
+              checks, packaging and delivery through one team.
+            </p>
+
+            {/* CTA BUTTONS */}
+            <div className="flex flex-wrap gap-4">
+
+              {/* SHARE YOUR REQUIREMENT */}
+              <button
+                onClick={goToRequirements}
+                className="px-8 py-4 bg-[#DF4607] text-white text-sm md:text-base font-semibold rounded-lg hover:bg-[#C93E05] transition-colors"
+              >
+                Share Your Requirement
+              </button>
+
+              {/* EXPLORE PRODUCTS */}
+              <button
+                onClick={goToProducts}
+                className="px-8 py-4 bg-transparent text-[#111111] text-sm md:text-base font-semibold rounded-lg border border-[#111111] hover:bg-[#111111] hover:text-white transition-colors"
+              >
+                Explore Products
+              </button>
+
+            </div>
+          </div>
+
+          {/* ---------- RIGHT: VIDEO CARD ---------- */}
+          <div
+            className={`transition-all duration-700 delay-150 ${
+              isVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+            }`}
           >
-            <Package className="inline w-5 h-5 mr-1" />
-            View Our Kits
-          </button>
+            <div className="rounded-2xl bg-[#F7F2EC] border border-[#DED8D2] p-5">
+              <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-white">
+                <video
+                  ref={videoRef}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-full object-cover"
+                >
+                  <source
+                    src={heroVideo}
+                    type="video/mp4"
+                  />
+
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <style>{`
-        @keyframes blob {
-          0%, 100% { 
-            transform: translate3d(0, 0, 0) scale(1); 
-          }
-          50% { 
-            transform: translate3d(20px, -30px, 0) scale(1.1); 
-          }
-        }
-        @keyframes float {
-          0%, 100% { 
-            transform: translate3d(0, 0, 0); 
-          }
-          50% { 
-            transform: translate3d(0, -25px, 0); 
-          }
-        }
-      `}</style>
     </section>
   );
 };

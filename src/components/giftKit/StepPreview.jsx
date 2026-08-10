@@ -49,14 +49,17 @@ const StepPreview = ({
   useEffect(() => {
     const calculatePrice = async () => {
       try {
-        const res = await API.post("/api/kit/calculate-price", {
+        const payload = {
           quantity,
-          selectedProducts: Object.values(selectedProducts).map((p) => ({
+          selectedProducts: Object.values(selectedProducts || {}).map((p) => ({
             productId: p._id,
             brandingType: "logo",
           })),
-        });
+        };
 
+        console.log("PRICE API PAYLOAD:", payload);
+
+        const res = await API.post("/api/kit/calculate-price", payload);
         setPricing(res.data);
       } catch (err) {
         alert("Failed to calculate price");
@@ -65,7 +68,8 @@ const StepPreview = ({
       }
     };
 
-    if (quantity && Object.keys(selectedProducts).length) {
+    // ✅ FIX: Object.values — works correctly with null-stripped selectedProducts
+    if (quantity && Object.values(selectedProducts || {}).length) {
       calculatePrice();
     }
   }, [quantity, selectedProducts]);
@@ -75,7 +79,7 @@ const StepPreview = ({
   ====================== */
   const handleSubmit = async () => {
     if (!userDetails) {
-      onNeedUserDetails(); // Guest → open form
+      onNeedUserDetails();
       return;
     }
 
@@ -89,7 +93,7 @@ const StepPreview = ({
         budget,
         quantity,
         brandLogo: logoPreview,
-        selectedProducts: Object.values(selectedProducts).map((p) => ({
+        selectedProducts: Object.values(selectedProducts || {}).map((p) => ({
           productId: p._id,
           category: p.category,
           price: p.unitPrice,
@@ -130,29 +134,41 @@ const StepPreview = ({
           </p>
         </div>
 
-        {/* PRODUCTS */}
+        {/* PRODUCTS — with logo overlay */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-          {Object.values(selectedProducts).map((item) => (
+          {Object.values(selectedProducts || {}).map((item) => (
             <div
               key={item._id}
               className="border rounded-lg p-3 bg-white text-center"
             >
-              <img
-                src={item.images?.[0]}
-                alt={item.name}
-                className="h-20 mx-auto object-contain"
-              />
+              {/* ✅ Product image + logo overlay */}
+              <div className="relative inline-block mx-auto">
+                <img
+                  src={item.images?.[0]}
+                  alt={item.name}
+                  className="h-20 object-contain block"
+                />
+                {logoPreview && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <img
+                      src={logoPreview}
+                      alt="Brand Logo"
+                      className="w-8 h-8 object-contain opacity-85"
+                      style={{ mixBlendMode: "multiply" }}
+                    />
+                  </div>
+                )}
+              </div>
               <p className="font-semibold mt-2">{item.name}</p>
-              <p className="text-sm text-gray-600">
-                ₹{item.unitPrice}
-              </p>
+              <p className="text-sm text-gray-600">₹{item.unitPrice}</p>
             </div>
           ))}
         </div>
 
         {/* LOGO */}
         <div className="bg-white rounded-lg p-4 mb-6">
-          <h3 className="font-semibold mb-2">Brand Logo</h3>
+          {/* ✅ Updated label */}
+          <h3 className="font-semibold mb-2">Brand Logo (Applied to selected products)</h3>
           {logoPreview ? (
             <img src={logoPreview} alt="Logo" className="h-20" />
           ) : (
@@ -194,7 +210,7 @@ const StepPreview = ({
         </div>
 
         {/* ACTIONS */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 pb-8">
           <button
             onClick={onBack}
             className="flex-1 border py-3 rounded-lg"
@@ -221,6 +237,7 @@ const StepPreview = ({
             )}
           </button>
         </div>
+
       </div>
     </div>
   );

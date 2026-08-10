@@ -13,6 +13,11 @@ import {
   Building2,
   MessageSquare,
   IndianRupee,
+  Eye,
+  X,
+  CheckCircle,
+  XCircle,
+  Image as ImageIcon,
 } from "lucide-react";
 import API from "../../config/api";
 
@@ -23,6 +28,8 @@ const KitEnquiries = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [selectedEnquiry, setSelectedEnquiry] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
     // Check admin authentication
@@ -61,6 +68,16 @@ const KitEnquiries = () => {
     } finally {
       setUpdatingStatus(null);
     }
+  };
+
+  const handleViewDetails = (enquiry) => {
+    setSelectedEnquiry(enquiry);
+    setShowDetailsModal(true);
+  };
+
+  const closeDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedEnquiry(null);
   };
 
   const filteredEnquiries = enquiries.filter((enquiry) => {
@@ -104,6 +121,14 @@ const KitEnquiries = () => {
   const formatBudget = (budget) => {
     if (!budget) return "Not specified";
     return budget;
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price);
   };
 
   return (
@@ -282,6 +307,56 @@ const KitEnquiries = () => {
                     </div>
                   </div>
 
+                  {/* Pricing Summary */}
+                  {(enquiry.perKitPrice || enquiry.totalPrice) && (
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 p-4 rounded-lg mb-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {enquiry.perKitPrice && (
+                          <div>
+                            <p className="text-xs text-gray-600 mb-1">Per Kit Price</p>
+                            <p className="text-lg font-bold text-purple-700">
+                              {formatPrice(enquiry.perKitPrice)}
+                            </p>
+                          </div>
+                        )}
+                        {enquiry.totalPrice && (
+                          <div>
+                            <p className="text-xs text-gray-600 mb-1">Total Price</p>
+                            <p className="text-lg font-bold text-pink-700">
+                              {formatPrice(enquiry.totalPrice)}
+                            </p>
+                          </div>
+                        )}
+                        {enquiry.gstApplicable !== undefined && (
+                          <div>
+                            <p className="text-xs text-gray-600 mb-1">GST</p>
+                            <p className="text-lg font-bold flex items-center gap-1">
+                              {enquiry.gstApplicable ? (
+                                <>
+                                  <CheckCircle className="text-green-600" size={18} />
+                                  <span className="text-green-700">Applicable</span>
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="text-red-600" size={18} />
+                                  <span className="text-red-700">Not Applicable</span>
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        )}
+                        {enquiry.selectedProducts && enquiry.selectedProducts.length > 0 && (
+                          <div>
+                            <p className="text-xs text-gray-600 mb-1">Products</p>
+                            <p className="text-lg font-bold text-blue-700">
+                              {enquiry.selectedProducts.length} items
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {enquiry.message && (
                     <div className="bg-blue-50 border-2 border-blue-200 p-4 rounded-lg mb-4">
                       <p className="text-xs text-gray-500 mb-1 font-semibold flex items-center gap-1">
@@ -293,6 +368,14 @@ const KitEnquiries = () => {
                   )}
 
                   <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => handleViewDetails(enquiry)}
+                      className="flex-1 min-w-[150px] bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition font-semibold flex items-center justify-center gap-2"
+                    >
+                      <Eye size={18} />
+                      View Details
+                    </button>
+
                     <a
                       href={`mailto:${enquiry.email}`}
                       className="flex-1 min-w-[150px] bg-pink-500 text-white py-2 px-4 rounded-lg hover:bg-pink-600 transition font-semibold text-center"
@@ -354,6 +437,265 @@ const KitEnquiries = () => {
           </div>
         )}
       </div>
+
+      {/* DETAILS MODAL */}
+      {showDetailsModal && selectedEnquiry && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-pink-600 to-purple-600 text-white p-6 rounded-t-2xl flex items-center justify-between z-10">
+              <div>
+                <h2 className="text-2xl font-bold">Enquiry Details</h2>
+                <p className="text-pink-100 text-sm mt-1">ID: {selectedEnquiry._id}</p>
+              </div>
+              <button
+                onClick={closeDetailsModal}
+                className="p-2 hover:bg-white/20 rounded-lg transition"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Customer Information */}
+              <div>
+                <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <User className="text-pink-600" size={20} />
+                  Customer Information
+                </h3>
+                <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Name</p>
+                    <p className="font-semibold text-gray-800">{selectedEnquiry.customerName || selectedEnquiry.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Email</p>
+                    <p className="font-semibold text-gray-800">{selectedEnquiry.email}</p>
+                  </div>
+                  {selectedEnquiry.phone && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Phone</p>
+                      <p className="font-semibold text-gray-800">{selectedEnquiry.phone}</p>
+                    </div>
+                  )}
+                  {selectedEnquiry.company && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Company</p>
+                      <p className="font-semibold text-gray-800">{selectedEnquiry.company}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Order Information */}
+              <div>
+                <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <Package className="text-purple-600" size={20} />
+                  Order Information
+                </h3>
+                <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedEnquiry.kitType && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Kit Type</p>
+                      <p className="font-semibold text-gray-800">{selectedEnquiry.kitType}</p>
+                    </div>
+                  )}
+                  {selectedEnquiry.quantity && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Quantity</p>
+                      <p className="font-semibold text-gray-800">{selectedEnquiry.quantity} units</p>
+                    </div>
+                  )}
+                  {selectedEnquiry.budget && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Budget</p>
+                      <p className="font-semibold text-gray-800">{formatBudget(selectedEnquiry.budget)}</p>
+                    </div>
+                  )}
+                  {selectedEnquiry.deliveryDate && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Delivery Date</p>
+                      <p className="font-semibold text-gray-800">{formatDate(selectedEnquiry.deliveryDate)}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Enquiry Date</p>
+                    <p className="font-semibold text-gray-800">{formatDate(selectedEnquiry.createdAt)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Status</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(selectedEnquiry.status)}`}>
+                      {selectedEnquiry.status?.charAt(0).toUpperCase() + selectedEnquiry.status?.slice(1)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing Details */}
+              {(selectedEnquiry.perKitPrice || selectedEnquiry.totalPrice) && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <IndianRupee className="text-green-600" size={20} />
+                    Pricing Details
+                  </h3>
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {selectedEnquiry.perKitPrice && (
+                        <div>
+                          <p className="text-xs text-gray-600 mb-1">Per Kit Price</p>
+                          <p className="text-xl font-bold text-green-700">{formatPrice(selectedEnquiry.perKitPrice)}</p>
+                        </div>
+                      )}
+                      {selectedEnquiry.totalPrice && (
+                        <div>
+                          <p className="text-xs text-gray-600 mb-1">Total Price</p>
+                          <p className="text-xl font-bold text-green-700">{formatPrice(selectedEnquiry.totalPrice)}</p>
+                        </div>
+                      )}
+                      {selectedEnquiry.gstApplicable !== undefined && (
+                        <div>
+                          <p className="text-xs text-gray-600 mb-1">GST Status</p>
+                          <p className="text-lg font-bold flex items-center gap-2">
+                            {selectedEnquiry.gstApplicable ? (
+                              <>
+                                <CheckCircle className="text-green-600" size={20} />
+                                <span className="text-green-700">Applicable</span>
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="text-red-600" size={20} />
+                                <span className="text-red-700">Not Applicable</span>
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Brand Logo */}
+              {selectedEnquiry.brandLogo && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <ImageIcon className="text-blue-600" size={20} />
+                    Brand Logo
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4 flex justify-center">
+                    <img 
+                      src={selectedEnquiry.brandLogo} 
+                      alt="Brand Logo" 
+                      className="max-h-40 object-contain border-2 border-gray-200 rounded-lg"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Selected Products */}
+              {selectedEnquiry.selectedProducts && selectedEnquiry.selectedProducts.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <Package className="text-pink-600" size={20} />
+                    Selected Products ({selectedEnquiry.selectedProducts.length})
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedEnquiry.selectedProducts.map((product, index) => (
+                      <div key={index} className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-pink-300 transition">
+                        <div className="flex flex-col md:flex-row gap-4">
+                          {/* Product Image */}
+                          {product.image && (
+                            <div className="flex-shrink-0">
+                              <img 
+                                src={product.image} 
+                                alt={product.name || `Product ${index + 1}`}
+                                className="w-24 h-24 object-cover rounded-lg border-2 border-gray-200"
+                              />
+                            </div>
+                          )}
+                          
+                          {/* Product Details */}
+                          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Product Name</p>
+                              <p className="font-semibold text-gray-800">{product.name || product.productName || `Product ${index + 1}`}</p>
+                            </div>
+                            
+                            {product.category && (
+                              <div>
+                                <p className="text-xs text-gray-500 mb-1">Category</p>
+                                <p className="font-semibold text-gray-800">{product.category}</p>
+                              </div>
+                            )}
+                            
+                            {product.price && (
+                              <div>
+                                <p className="text-xs text-gray-500 mb-1">Price</p>
+                                <p className="font-semibold text-pink-700">{formatPrice(product.price)}</p>
+                              </div>
+                            )}
+                            
+                            {product.quantity && (
+                              <div>
+                                <p className="text-xs text-gray-500 mb-1">Quantity</p>
+                                <p className="font-semibold text-gray-800">{product.quantity}</p>
+                              </div>
+                            )}
+                            
+                            {product.description && (
+                              <div className="md:col-span-2">
+                                <p className="text-xs text-gray-500 mb-1">Description</p>
+                                <p className="text-sm text-gray-700">{product.description}</p>
+                              </div>
+                            )}
+                            
+                            {product._id && (
+                              <div className="md:col-span-2">
+                                <p className="text-xs text-gray-500 mb-1">Product ID</p>
+                                <p className="text-xs font-mono text-gray-600">{product._id}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Message */}
+              {selectedEnquiry.message && (
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <MessageSquare className="text-blue-600" size={20} />
+                    Customer Message
+                  </h3>
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                    <p className="text-gray-700 whitespace-pre-wrap">{selectedEnquiry.message}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3 pt-4 border-t-2 border-gray-200">
+                <a
+                  href={`mailto:${selectedEnquiry.email}`}
+                  className="flex-1 min-w-[200px] bg-pink-500 text-white py-3 px-6 rounded-lg hover:bg-pink-600 transition font-semibold text-center"
+                >
+                  Contact via Email
+                </a>
+                <button
+                  onClick={closeDetailsModal}
+                  className="flex-1 min-w-[200px] bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

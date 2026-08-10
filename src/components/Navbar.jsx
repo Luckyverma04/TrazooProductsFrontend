@@ -1,171 +1,440 @@
-import { Menu, X, LogOut, LayoutDashboard, Package } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
+
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+
 import logo from "../assets/logo.png";
+import { navLinks } from "../config/navConfig";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isHome = location.pathname === "/";
+
+  // ================= USER =================
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem("user");
+      }
+    }
   }, []);
 
-  const navLinks = [
-    { name: "Home", id: "#hero" },
-    { name: "Our Products", id: "#products" },
-    { name: "About Us", id: "#about" },
-    { name: "Why Choose Us", id: "#why-trazoo" },
-    { name: "Contact", id: "#footer" },
-  ];
+  // ================= SCROLL =================
+  const scrollTo = (hash) => {
+    const el = document.querySelector(hash);
 
-  const scrollToSection = (e, id) => {
-    e.preventDefault();
-    const el = document.querySelector(id);
     if (!el) return;
 
-    const offset = 80;
-    const y = el.getBoundingClientRect().top + window.scrollY - offset;
+    const y =
+      el.getBoundingClientRect().top +
+      window.scrollY -
+      80;
 
-    window.scrollTo({ top: y, behavior: "smooth" });
-    setIsMenuOpen(false);
+    window.scrollTo({
+      top: y,
+      behavior: "smooth",
+    });
   };
 
+  // ================= HASH NAVIGATION =================
+  const goToHash = (hash) => {
+    if (isHome) {
+      scrollTo(hash);
+    } else {
+      navigate("/");
+
+      setTimeout(() => {
+        scrollTo(hash);
+      }, 100);
+    }
+  };
+
+  // ================= NAVIGATION =================
+  const handleNavClick = (link) => {
+    setIsMenuOpen(false);
+
+    // Coming soon pages
+    if (!link.ready) return;
+
+    if (link.hash) {
+      goToHash(link.hash);
+    } else if (link.path) {
+      navigate(link.path);
+    }
+  };
+
+  // ================= REQUIREMENT BUTTON =================
+  const goToEnquiry = () => {
+    setIsMenuOpen(false);
+    navigate("/requirements");
+  };
+
+  // ================= LOGOUT =================
   const handleLogout = () => {
     localStorage.clear();
     setUser(null);
-    navigate("/", { replace: true });
+
+    navigate("/", {
+      replace: true,
+    });
   };
 
-  // Get normalized role
-  const userRole = user?.role ? String(user.role).toLowerCase() : null;
+  // ================= USER ROLE =================
+  const userRole = user?.role
+    ? String(user.role).toLowerCase()
+    : null;
+
+  // ================= ACTIVE NAV =================
+  const isActive = (link) => {
+    if (link.path) {
+      return location.pathname.startsWith(link.path);
+    }
+
+    if (link.hash === "#hero") {
+      return isHome;
+    }
+
+    return false;
+  };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md shadow z-50 border-b">
-      <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
+    <nav className="w-full bg-[#FFFDF9] border-b border-[#DED8D2]">
 
-        {/* LOGO (NO href) */}
+      {/* ================= MAIN NAVBAR ================= */}
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
+
+        {/* ================= LOGO ================= */}
         <button
-          onClick={(e) => scrollToSection(e, "#hero")}
+          onClick={() => goToHash("#hero")}
           className="flex items-center"
         >
-          <img src={logo} alt="Trazoo Logo" className="w-14 h-14 object-contain" />
+          <img
+            src={logo}
+            alt="Trazoo"
+            className="w-[110px] h-auto"
+          />
         </button>
 
-        {/* DESKTOP NAV */}
-        <ul className="hidden md:flex gap-8">
-          {navLinks.map((l) => (
-            <li key={l.name}>
+        {/* ================= DESKTOP NAV ================= */}
+        <ul className="hidden lg:flex gap-7">
+
+          {navLinks.map((link) => (
+            <li key={link.name}>
+
               <button
-                onClick={(e) => scrollToSection(e, l.id)}
-                className="text-gray-700 hover:text-orange-600"
+                onClick={() => handleNavClick(link)}
+                title={
+                  link.ready
+                    ? undefined
+                    : "Coming soon"
+                }
+                className={`
+                  text-sm
+                  font-medium
+                  transition-colors
+                  pb-1
+                  border-b-2
+
+                  ${
+                    isActive(link)
+                      ? "text-[#DF4607] border-[#DF4607]"
+                      : link.ready
+                      ? "text-[#222222] border-transparent hover:text-[#DF4607]"
+                      : "text-[#A9A29D] border-transparent cursor-default"
+                  }
+                `}
               >
-                {l.name}
+                {link.name}
               </button>
+
             </li>
           ))}
+
         </ul>
 
-        {/* RIGHT */}
-        <div className="hidden md:flex gap-4 items-center">
+        {/* ================= RIGHT SIDE ================= */}
+        <div className="hidden lg:flex gap-3 items-center">
+
+          {/* SHARE YOUR REQUIREMENT */}
           <button
-            onClick={(e) => scrollToSection(e, "#enquiry")}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg text-white font-semibold"
-            style={{ backgroundImage: "linear-gradient(to right,#df4607,#e16f30)" }}
+            onClick={goToEnquiry}
+            className="
+              px-6
+              py-3
+              bg-[#DF4607]
+              text-white
+              font-semibold
+              text-sm
+              rounded-lg
+              hover:bg-[#C93E05]
+              transition-colors
+            "
           >
-            <Package size={16} /> Enquire Now
+            Share Your Requirement
           </button>
 
-          {/* ADMIN DASHBOARD */}
+          {/* ADMIN */}
           {userRole === "admin" && (
             <button
-              onClick={() => navigate("/admin/dashboard")}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg flex gap-2 hover:bg-purple-700 transition-colors"
+              onClick={() =>
+                navigate("/admin/dashboard")
+              }
+              className="
+                px-4
+                py-2.5
+                rounded-lg
+                flex
+                gap-2
+                items-center
+                text-sm
+                font-medium
+                text-[#222222]
+                border
+                border-[#DED8D2]
+                hover:bg-[#F7F2EC]
+                transition-colors
+              "
             >
-              <LayoutDashboard size={16} /> Admin Dashboard
+              <LayoutDashboard size={16} />
+              Admin
             </button>
           )}
 
-          {/* ASSOCIATE/CUSTOMER DASHBOARD */}
-          {(userRole === "associate" || userRole === "customer") && (
+          {/* ASSOCIATE / CUSTOMER */}
+          {(userRole === "associate" ||
+            userRole === "customer") && (
             <button
-              onClick={() => navigate("/associate")}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg flex gap-2 hover:bg-blue-700 transition-colors"
+              onClick={() =>
+                navigate("/associate")
+              }
+              className="
+                px-4
+                py-2.5
+                rounded-lg
+                flex
+                gap-2
+                items-center
+                text-sm
+                font-medium
+                text-[#222222]
+                border
+                border-[#DED8D2]
+                hover:bg-[#F7F2EC]
+                transition-colors
+              "
             >
-              <LayoutDashboard size={16} /> Dashboard
+              <LayoutDashboard size={16} />
+              Dashboard
             </button>
           )}
 
+          {/* LOGOUT */}
           {user && (
             <button
               onClick={handleLogout}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg flex gap-2 hover:bg-red-600 transition-colors"
+              className="
+                px-4
+                py-2.5
+                rounded-lg
+                flex
+                gap-2
+                items-center
+                text-sm
+                font-medium
+                text-[#6E6A67]
+                hover:text-[#DF4607]
+                transition-colors
+              "
             >
-              <LogOut size={16} /> Logout
+              <LogOut size={16} />
+              Logout
             </button>
           )}
+
         </div>
 
-        {/* MOBILE MENU BUTTON */}
-        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden">
-          {isMenuOpen ? <X /> : <Menu />}
+        {/* ================= MOBILE MENU BUTTON ================= */}
+        <button
+          onClick={() =>
+            setIsMenuOpen(!isMenuOpen)
+          }
+          className="lg:hidden text-[#222222]"
+        >
+          {isMenuOpen ? (
+            <X size={24} />
+          ) : (
+            <Menu size={24} />
+          )}
         </button>
+
       </div>
 
-      {/* MOBILE MENU */}
+      {/* ================= MOBILE MENU ================= */}
       {isMenuOpen && (
-        <div className="md:hidden px-6 py-4 border-t">
+        <div
+          className="
+            lg:hidden
+            bg-[#FFFDF9]
+            border-t
+            border-[#DED8D2]
+            px-6
+            py-4
+          "
+        >
+
           <ul className="flex flex-col gap-3">
-            {navLinks.map((l) => (
-              <li key={l.name}>
+
+            {/* NAV LINKS */}
+            {navLinks.map((link) => (
+              <li key={link.name}>
+
                 <button
-                  onClick={(e) => scrollToSection(e, l.id)}
-                  className="w-full text-left text-gray-700"
+                  onClick={() =>
+                    handleNavClick(link)
+                  }
+                  className={`
+                    w-full
+                    text-left
+                    text-sm
+                    font-medium
+                    py-1
+
+                    ${
+                      link.ready
+                        ? "text-[#222222] hover:text-[#DF4607]"
+                        : "text-[#A9A29D] cursor-default"
+                    }
+                  `}
                 >
-                  {l.name}
+                  {link.name}
                 </button>
+
               </li>
             ))}
-            
-            {/* ADMIN DASHBOARD - Mobile */}
+
+            {/* SHARE YOUR REQUIREMENT */}
+            <li>
+              <button
+                onClick={goToEnquiry}
+                className="
+                  w-full
+                  mt-3
+                  px-4
+                  py-3
+                  bg-[#DF4607]
+                  text-white
+                  font-semibold
+                  text-sm
+                  rounded-lg
+                "
+              >
+                Share Your Requirement
+              </button>
+            </li>
+
+            {/* ADMIN DASHBOARD */}
             {userRole === "admin" && (
-              <button
-                onClick={() => {
-                  navigate("/admin/dashboard");
-                  setIsMenuOpen(false);
-                }}
-                className="bg-purple-600 text-white py-2 rounded flex items-center justify-center gap-2"
-              >
-                <LayoutDashboard size={16} /> Admin Dashboard
-              </button>
+              <li>
+                <button
+                  onClick={() => {
+                    navigate("/admin/dashboard");
+                    setIsMenuOpen(false);
+                  }}
+                  className="
+                    w-full
+                    py-2.5
+                    rounded-lg
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
+                    text-sm
+                    font-medium
+                    border
+                    border-[#DED8D2]
+                  "
+                >
+                  <LayoutDashboard size={16} />
+                  Admin Dashboard
+                </button>
+              </li>
             )}
 
-            {/* ASSOCIATE/CUSTOMER DASHBOARD - Mobile */}
-            {(userRole === "associate" || userRole === "customer") && (
-              <button
-                onClick={() => {
-                  navigate("/associate");
-                  setIsMenuOpen(false);
-                }}
-                className="bg-blue-600 text-white py-2 rounded flex items-center justify-center gap-2"
-              >
-                <LayoutDashboard size={16} /> Dashboard
-              </button>
+            {/* ASSOCIATE / CUSTOMER DASHBOARD */}
+            {(userRole === "associate" ||
+              userRole === "customer") && (
+              <li>
+                <button
+                  onClick={() => {
+                    navigate("/associate");
+                    setIsMenuOpen(false);
+                  }}
+                  className="
+                    w-full
+                    py-2.5
+                    rounded-lg
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
+                    text-sm
+                    font-medium
+                    border
+                    border-[#DED8D2]
+                  "
+                >
+                  <LayoutDashboard size={16} />
+                  Dashboard
+                </button>
+              </li>
             )}
 
+            {/* LOGOUT */}
             {user && (
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white py-2 rounded flex items-center justify-center gap-2"
-              >
-                <LogOut size={16} /> Logout
-              </button>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="
+                    w-full
+                    py-2.5
+                    rounded-lg
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
+                    text-sm
+                    font-medium
+                    text-[#6E6A67]
+                  "
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </li>
             )}
+
           </ul>
+
         </div>
       )}
+
     </nav>
   );
 };

@@ -8,14 +8,16 @@ const CATEGORY_MAP = {
   diaries: "Diary",
   stationery: "Stationery",
   drinkware: "Drinkware",
-  bags: "Bags", // ✅ NEW
+  bags: "Bags",
+  electronics: "Electronics",
 };
 
 const CATEGORY_ICONS = {
   Diary: "📔",
   Stationery: "✒️",
   Drinkware: "🥤",
-  Bags: "🎒", // ✅ NEW
+  Bags: "🎒",
+  Electronics: "📱",
 };
 
 const StepProducts = ({ kitData, onNext, onBack }) => {
@@ -26,7 +28,8 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
     Diary: null,
     Stationery: null,
     Drinkware: null,
-    Bags: null, // ✅ NEW
+    Bags: null,
+    Electronics: null,
   });
 
   const handleSelect = (categoryKey, product) => {
@@ -36,17 +39,29 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
     }));
   };
 
-  const missing = Object.keys(selected).filter((key) => !selected[key]);
-  const isReady = missing.length === 0;
+  // Only require categories that have products
+  const requiredCategories = Object.entries(products)
+    .filter(([_, items]) => items && items.length > 0)
+    .map(([key]) => CATEGORY_MAP[key]);
 
-  const totalCategories = Object.keys(selected).length;
-  const selectedCount = Object.values(selected).filter(Boolean).length;
-  const progressPercentage = (selectedCount / totalCategories) * 100;
+  const isReady = requiredCategories.every((cat) => selected[cat]);
+
+  const totalCategories = requiredCategories.length;
+  const selectedCount = requiredCategories.filter((cat) => selected[cat]).length;
+  const progressPercentage = totalCategories > 0 ? (selectedCount / totalCategories) * 100 : 0;
+
+  // ✅ FIX: Strip null values before passing to next step
+  const handleNext = () => {
+    const cleanSelected = Object.fromEntries(
+      Object.entries(selected).filter(([_, value]) => value !== null)
+    );
+    onNext(cleanSelected);
+  };
 
   return (
     <div className="w-full h-screen overflow-y-auto bg-gray-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
-        
+
         {/* HEADER WITH PROGRESS */}
         <div className="text-center mb-4 sm:mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl mb-3 sm:mb-4 shadow-lg">
@@ -58,7 +73,7 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
           <p className="text-xs sm:text-sm md:text-base text-gray-600 mb-3 sm:mb-4">
             Select one product from each category
           </p>
-          
+
           <div className="max-w-md mx-auto px-4">
             <div className="flex items-center justify-between text-xs sm:text-sm font-semibold mb-2">
               <span className="text-gray-700">
@@ -84,7 +99,9 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg truncate">Premium Packaging</h3>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg truncate">
+                    Premium Packaging
+                  </h3>
                   <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                     Included
                   </span>
@@ -99,6 +116,8 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
         {/* PRODUCT CATEGORIES */}
         <div className="space-y-6 sm:space-y-8 mb-4 sm:mb-6">
           {Object.entries(products).map(([category, items]) => {
+            if (!items || items.length === 0) return null;
+
             const categoryKey = CATEGORY_MAP[category];
             if (!categoryKey) return null;
 
@@ -111,7 +130,7 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
                       {categoryKey}
                     </h3>
                   </div>
-                  
+
                   {selected[categoryKey] ? (
                     <span className="flex items-center gap-1.5 sm:gap-2 text-green-600 text-xs sm:text-sm font-bold bg-green-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-green-200">
                       <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -134,7 +153,10 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
                         onClick={() => handleSelect(categoryKey, item)}
                         className={`group relative cursor-pointer rounded-xl sm:rounded-2xl border-2 bg-white overflow-hidden
                           transition-all duration-300 hover:shadow-xl hover:-translate-y-1
-                          ${isSelected ? "border-blue-500 ring-4 ring-blue-100 shadow-xl scale-105" : "border-gray-200 hover:border-blue-300"}`}
+                          ${isSelected
+                            ? "border-blue-500 ring-4 ring-blue-100 shadow-xl scale-105"
+                            : "border-gray-200 hover:border-blue-300"
+                          }`}
                       >
                         {isSelected && (
                           <div className="absolute top-2 right-2 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-full p-1 shadow-lg z-10">
@@ -172,20 +194,29 @@ const StepProducts = ({ kitData, onNext, onBack }) => {
         {/* ACTION BUTTONS */}
         <div className="sticky bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg p-3 sm:p-4 -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <button onClick={onBack} className="w-full sm:flex-1 border-2 border-gray-300 py-3 rounded-xl">
-              <ArrowLeft className="inline mr-2" /> Back
+            <button
+              onClick={onBack}
+              className="w-full sm:flex-1 border-2 border-gray-300 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back
             </button>
 
             <button
-              onClick={() => onNext(selected)}
+              onClick={handleNext}
               disabled={!isReady}
-              className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 rounded-xl disabled:opacity-50"
+              className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-700 hover:to-cyan-700 transition-all flex items-center justify-center gap-2"
             >
-              {isReady ? "Continue" : `Select ${missing.length} More`}
-              {isReady && <ArrowRight className="inline ml-2" />}
+              {isReady ? (
+                <>
+                  Continue <ArrowRight className="w-4 h-4" />
+                </>
+              ) : (
+                `Select ${totalCategories - selectedCount} More`
+              )}
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
