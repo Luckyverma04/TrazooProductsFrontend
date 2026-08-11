@@ -1,3 +1,5 @@
+import { useSEO } from "../hooks/useSEO";
+import { seoMetadata } from "../utils/seo";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -42,6 +44,7 @@ const customizationTypes = [
 ];
 
 const Customization = () => {
+   useSEO(seoMetadata.customisation);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
 

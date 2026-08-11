@@ -1,3 +1,5 @@
+import { useSEO } from "../hooks/useSEO";
+import { seoMetadata } from "../utils/seo";
 import { useState } from "react";
 import {
   Package,
@@ -11,6 +13,8 @@ import {
 const API = import.meta.env.VITE_API_URL;
 
 const Requirements = () => {
+    useSEO(seoMetadata.requirements);  // ← ADD THIS
+
   const [step, setStep] = useState(1);
 
   const [formData, setFormData] = useState({

@@ -1,3 +1,5 @@
+import { useSEO } from "../hooks/useSEO";
+import { seoMetadata } from "../utils/seo";
 import { useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import Navbar from "./Navbar";
@@ -108,6 +110,8 @@ const CaseStudyCard = ({ study, onEnquire }) => (
 
 /* ================= MAIN ================= */
 const OurWork = () => {
+    useSEO(seoMetadata.ourWork);  // ← ADD THIS
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

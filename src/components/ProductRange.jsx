@@ -1,3 +1,5 @@
+import { useSEO } from "../hooks/useSEO";
+import { seoMetadata } from "../utils/seo";
 import { useState, useMemo, useEffect, memo } from "react";
 import { CheckCircle2, X } from "lucide-react";
 
@@ -155,6 +157,7 @@ const ProductCard = memo(({ product, isShortlisted, onShortlist, onEnquire }) =>
 
 /* ================= MAIN ================= */
 const ProductRange = () => {
+   useSEO(seoMetadata.products);
   const [filters, setFilters] = useState({
     category: [],
     price: [],

@@ -1,3 +1,5 @@
+import { useSEO } from "../hooks/useSEO";
+import { seoMetadata } from "../utils/seo";
 import {
   Truck,
   CheckCircle2,
@@ -107,6 +109,7 @@ const toneStyles = {
 };
 
 const Fulfilment = () => {
+   useSEO(seoMetadata.fulfilment);
   return (
     <div className="min-h-screen bg-[#FFFDF9]">
     

@@ -1,8 +1,11 @@
+import { useSEO } from "../hooks/useSEO"; 
+import { seoMetadata } from "../utils/seo";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import heroVideo from "../assets/kling_20260729_VIDEO_Create_an__5433_0.mp4";
 
 const Hero = () => {
+    useSEO(seoMetadata.solutions);
   const [isVisible, setIsVisible] = useState(false);
   const videoRef = useRef(null);
   const playedThisVisitRef = useRef(false);
