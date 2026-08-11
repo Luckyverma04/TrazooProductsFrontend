@@ -1,16 +1,32 @@
 import { useState, useMemo, useEffect, memo } from "react";
 import { CheckCircle2, X } from "lucide-react";
-import Navbar from "./Navbar";
+
 import Footer from "./Footer";
 import TrustSection from "./TrustSection";
 
-// Images — aapki hi assets folder wali
+// Fallback images
 import firstImg from "../assets/First.png";
 import secondImg from "../assets/Second.png";
 import thirdImg from "../assets/Third.png";
 import bottlesImg from "../assets/Bottles.png";
 import bagsImg from "../assets/BagsandNotebooks.png";
 import notebooksImg from "../assets/Notebooks.png";
+
+// Fallback images mapping
+const FALLBACK_IMAGES = {
+  Apparel: thirdImg,
+  Stationery: notebooksImg,
+  Drinkware: bottlesImg,
+  Bags: bagsImg,
+  Packaging: secondImg,
+  Electronics: thirdImg,
+  "Electronics & Tech": thirdImg,
+  Travel: bagsImg,
+  Wellness: bottlesImg,
+  "Food & Hampers": firstImg,
+  "Awards & Recognition": secondImg,
+  "Event Merchandise": firstImg,
+};
 
 /* ================= FILTER OPTIONS ================= */
 const CATEGORIES = [
@@ -56,67 +72,6 @@ const USE_CASES = [
 
 const QUANTITIES = ["10–25", "25–50", "50–100", "100–500", "500+"];
 
-/* ================= PRODUCTS =================
-   Naya product add karna ho to bas yahan object daal do.
-   `image` ke liye upar import add karna mat bhoolna.
-============================================== */
-const PRODUCTS = [
-  {
-    id: 1,
-    title: "Premium Cotton Polo",
-    spec: "220 GSM, Bio-washed",
-    price: 650,
-    category: "Apparel",
-    image: thirdImg,
-    useCases: ["Employee Joining", "Event"],
-  },
-  {
-    id: 2,
-    title: "Insulated Travel Mug",
-    spec: "350ml, Double-walled Steel",
-    price: 850,
-    category: "Drinkware",
-    image: bottlesImg,
-    useCases: ["Client Gifting", "Recognition"],
-  },
-  {
-    id: 3,
-    title: "Executive Notebook",
-    spec: "A5, Hardbound, 160 Pages",
-    price: 350,
-    category: "Stationery",
-    image: notebooksImg,
-    useCases: ["Employee Joining", "Institutional"],
-  },
-  {
-    id: 4,
-    title: "Laptop Backpack",
-    spec: '15.6", Water-resistant',
-    price: 1250,
-    category: "Bags",
-    image: bagsImg,
-    useCases: ["Employee Joining", "Client Gifting"],
-  },
-  {
-    id: 5,
-    title: "Welcome Kit Box",
-    spec: "Hoodie, Bottle, Notebook, Organiser",
-    price: 1499,
-    category: "Event Merchandise",
-    image: firstImg,
-    useCases: ["Employee Joining", "Institutional"],
-  },
-  {
-    id: 6,
-    title: "Custom Gift Packaging",
-    spec: "Rigid box with welcome card",
-    price: 199,
-    category: "Packaging",
-    image: secondImg,
-    useCases: ["Festival", "Custom Merchandise"],
-  },
-];
-
 /* ================= FILTER GROUP ================= */
 const FilterGroup = ({ title, options, selected, onToggle }) => (
   <div className="mb-8">
@@ -144,7 +99,7 @@ const FilterGroup = ({ title, options, selected, onToggle }) => (
 /* ================= PRODUCT CARD ================= */
 const ProductCard = memo(({ product, isShortlisted, onShortlist, onEnquire }) => (
   <div className="rounded-lg border border-[#DED8D2] bg-white overflow-hidden flex flex-col group">
-    {/* Image — beige backdrop taaki cut-out images bhi acchi lagein */}
+    {/* Image — beige backdrop */}
     <div className="aspect-square bg-[#EDE4DA] overflow-hidden">
       <img
         src={product.image}
@@ -152,6 +107,9 @@ const ProductCard = memo(({ product, isShortlisted, onShortlist, onEnquire }) =>
         loading="lazy"
         decoding="async"
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        onError={(e) => {
+          e.target.src = FALLBACK_IMAGES[product.category] || firstImg;
+        }}
       />
     </div>
 
@@ -160,7 +118,9 @@ const ProductCard = memo(({ product, isShortlisted, onShortlist, onEnquire }) =>
       <h3 className="text-[13px] font-bold text-[#111111] leading-snug mb-0.5">
         {product.title}
       </h3>
-      <p className="text-[11px] text-[#6E6A67] mb-2">{product.spec}</p>
+      <p className="text-[11px] text-[#6E6A67] mb-2">
+        {product.spec || "Premium quality product"}
+      </p>
 
       <p className="text-[13px] font-semibold text-[#DF4607] mb-1.5">
         ₹{product.price.toLocaleString("en-IN")} onwards
@@ -171,7 +131,6 @@ const ProductCard = memo(({ product, isShortlisted, onShortlist, onEnquire }) =>
         <span>Custom branding available</span>
       </div>
 
-      {/* mt-auto se sab cards ke buttons ek line mein rehte hain */}
       <div className="flex flex-col gap-1.5 mt-auto">
         <button
           onClick={onEnquire}
@@ -204,6 +163,66 @@ const ProductRange = () => {
     quantity: [],
   });
   const [shortlist, setShortlist] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // ✅ SMART API URL - LOCAL vs DEPLOYED
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+
+        // 🔧 Smart API URL selection based on hostname
+        let API_BASE;
+
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+          // LOCAL DEVELOPMENT
+          API_BASE = "http://localhost:5000";
+        } else {
+          // PRODUCTION/DEPLOYED
+          API_BASE = import.meta.env.VITE_API_URL || "https://api.trazooglobal.com";
+        }
+
+        const API_URL = `${API_BASE}/api/products/active`;
+
+        console.log("🌍 Hostname:", window.location.hostname);
+        console.log("🔗 Fetching from:", API_URL);
+
+        const response = await fetch(API_URL);
+
+        console.log("📊 Response status:", response.status);
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("✅ Products fetched:", data.length);
+
+        // Map backend response to component format
+        const mappedProducts = data.map((product) => ({
+          id: product._id,
+          title: product.name,
+          spec: product.spec || "Premium quality product",
+          price: product.unitPrice,
+          category: product.category,
+          image: product.images?.[0] || FALLBACK_IMAGES[product.category],
+          useCases: product.useCases || [],
+        }));
+
+        setProducts(mappedProducts);
+        setError(null);
+      } catch (err) {
+        console.error("❌ Error fetching products:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -230,7 +249,7 @@ const ProductRange = () => {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const filtered = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return products.filter((p) => {
       const catOk =
         filters.category.length === 0 || filters.category.includes(p.category);
 
@@ -247,7 +266,7 @@ const ProductRange = () => {
 
       return catOk && priceOk && useOk;
     });
-  }, [filters]);
+  }, [filters, products]);
 
   const clearAll = () =>
     setFilters({
@@ -262,7 +281,7 @@ const ProductRange = () => {
 
   return (
     <>
-     
+      
 
       <main id="products" className="bg-[#FFFDF9] pt-28 pb-24 px-6">
         <div className="max-w-7xl mx-auto">
@@ -321,9 +340,20 @@ const ProductRange = () => {
               />
             </aside>
 
-            {/* ===== GRID — chhote cards, zyada columns ===== */}
+            {/* ===== GRID ===== */}
             <div>
-              {filtered.length ? (
+              {loading ? (
+                <div className="text-center py-12">
+                  <p className="text-sm text-[#6E6A67]">Loading products...</p>
+                </div>
+              ) : error ? (
+                <div className="rounded-lg border border-dashed border-[#DED8D2] p-12 text-center">
+                  <p className="text-sm text-red-500 mb-3">❌ Error: {error}</p>
+                  <p className="text-xs text-[#6E6A67] mb-3">
+                    Check browser console for details
+                  </p>
+                </div>
+              ) : filtered.length ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                   {filtered.map((p) => (
                     <ProductCard
