@@ -3,6 +3,8 @@ import {
   X,
   LogOut,
   LayoutDashboard,
+  Home,
+  ChevronDown,
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
@@ -80,6 +82,12 @@ const Navbar = () => {
     }
   };
 
+  // ================= HOME NAVIGATION =================
+  const handleHomeClick = () => {
+    setIsMenuOpen(false);
+    navigate("/");
+  };
+
   // ================= REQUIREMENT BUTTON =================
   const goToEnquiry = () => {
     setIsMenuOpen(false);
@@ -102,41 +110,62 @@ const Navbar = () => {
     : null;
 
   // ================= ACTIVE NAV =================
-const isActive = (link) => {
-  if (link.path) {
-    return location.pathname === link.path;
-  }
+  const isActive = (link) => {
+    if (link.path) {
+      return location.pathname === link.path;
+    }
 
-  if (link.hash === "#hero") {
-    return location.pathname === "/";
-  }
+    if (link.hash === "#hero") {
+      return location.pathname === "/";
+    }
 
-  return false;
-};
+    return false;
+  };
 
   return (
-    <nav className="w-full bg-[#FFFDF9] border-b border-[#DED8D2]">
+    <nav className="w-full sticky top-0 z-50 backdrop-blur-md bg-white/30 border-b border-white/20">
 
       {/* ================= MAIN NAVBAR ================= */}
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-3 flex items-center justify-between">
 
         {/* ================= LOGO ================= */}
-  <button
-  onClick={() => {
-    setIsMenuOpen(false);
-    navigate("/");
-  }}
-  className="flex items-center"
-  aria-label="Go to Home"
->
-  <img
-    src={logo}
-    alt="Trazoo"
-    className="w-[110px] h-auto"
-  />
-</button>
+        <div className="flex items-center flex-shrink-0">
+          <img
+            src={logo}
+            alt="Trazoo"
+            className="w-[110px] h-auto"
+          />
+        </div>
+
         {/* ================= DESKTOP NAV ================= */}
-        <ul className="hidden lg:flex gap-7">
+        <ul className="hidden lg:flex gap-1 items-center">
+
+          {/* HOME BUTTON */}
+          <li>
+            <button
+              onClick={handleHomeClick}
+              className={`
+                text-sm
+                font-semibold
+                transition-all
+                duration-300
+                px-4 py-2.5 
+                rounded-lg
+                flex
+                items-center
+                gap-2
+
+                ${
+                  isHome
+                    ? "text-[#DF4607] bg-orange-100/40"
+                    : "text-[#222222] hover:bg-orange-100/30 hover:text-[#DF4607]"
+                }
+              `}
+            >
+              <Home size={18} strokeWidth={2.5} />
+              Home
+            </button>
+          </li>
 
           {navLinks.map((link) => (
             <li key={link.name}>
@@ -150,17 +179,18 @@ const isActive = (link) => {
                 }
                 className={`
                   text-sm
-                  font-medium
-                  transition-colors
-                  pb-1
-                  border-b-2
+                  font-semibold
+                  transition-all
+                  duration-300
+                  px-4 py-2.5
+                  rounded-lg
 
                   ${
                     isActive(link)
-                      ? "text-[#DF4607] border-[#DF4607]"
+                      ? "text-[#DF4607] bg-orange-100/40"
                       : link.ready
-                      ? "text-[#222222] border-transparent hover:text-[#DF4607]"
-                      : "text-[#A9A29D] border-transparent cursor-default"
+                      ? "text-[#222222] hover:bg-orange-100/30 hover:text-[#DF4607]"
+                      : "text-[#A9A29D] cursor-default"
                   }
                 `}
               >
@@ -170,24 +200,47 @@ const isActive = (link) => {
             </li>
           ))}
 
+          {/* ABOUT US */}
+          <li>
+            <button
+              onClick={() => goToHash("#hero")}
+              className="
+                text-sm
+                font-semibold
+                transition-all
+                duration-300
+                px-4 py-2.5
+                rounded-lg
+                text-[#222222]
+                hover:bg-orange-100/30
+                hover:text-[#DF4607]
+              "
+            >
+              About Us
+            </button>
+          </li>
+
         </ul>
 
         {/* ================= RIGHT SIDE ================= */}
-        <div className="hidden lg:flex gap-3 items-center">
+        <div className="hidden lg:flex gap-2 items-center">
 
           {/* SHARE YOUR REQUIREMENT */}
           <button
             onClick={goToEnquiry}
             className="
               px-6
-              py-3
+              py-2.5
               bg-[#DF4607]
               text-white
               font-semibold
               text-sm
               rounded-lg
               hover:bg-[#C93E05]
-              transition-colors
+              transition-all
+              duration-300
+              hover:shadow-lg
+              hover:scale-105
             "
           >
             Share Your Requirement
@@ -207,15 +260,15 @@ const isActive = (link) => {
                 gap-2
                 items-center
                 text-sm
-                font-medium
+                font-semibold
                 text-[#222222]
-                border
-                border-[#DED8D2]
-                hover:bg-[#F7F2EC]
-                transition-colors
+                hover:text-[#DF4607]
+                hover:bg-orange-100/30
+                transition-all
+                duration-300
               "
             >
-              <LayoutDashboard size={16} />
+              <LayoutDashboard size={18} />
               Admin
             </button>
           )}
@@ -235,15 +288,15 @@ const isActive = (link) => {
                 gap-2
                 items-center
                 text-sm
-                font-medium
+                font-semibold
                 text-[#222222]
-                border
-                border-[#DED8D2]
-                hover:bg-[#F7F2EC]
-                transition-colors
+                hover:text-[#DF4607]
+                hover:bg-orange-100/30
+                transition-all
+                duration-300
               "
             >
-              <LayoutDashboard size={16} />
+              <LayoutDashboard size={18} />
               Dashboard
             </button>
           )}
@@ -260,13 +313,15 @@ const isActive = (link) => {
                 gap-2
                 items-center
                 text-sm
-                font-medium
+                font-semibold
                 text-[#6E6A67]
                 hover:text-[#DF4607]
-                transition-colors
+                hover:bg-orange-100/30
+                transition-all
+                duration-300
               "
             >
-              <LogOut size={16} />
+              <LogOut size={18} />
               Logout
             </button>
           )}
@@ -278,7 +333,7 @@ const isActive = (link) => {
           onClick={() =>
             setIsMenuOpen(!isMenuOpen)
           }
-          className="lg:hidden text-[#222222]"
+          className="lg:hidden text-[#222222] p-2.5 hover:bg-orange-100/30 hover:text-[#DF4607] rounded-lg transition-all"
         >
           {isMenuOpen ? (
             <X size={24} />
@@ -294,15 +349,45 @@ const isActive = (link) => {
         <div
           className="
             lg:hidden
-            bg-[#FFFDF9]
-            border-t
-            border-[#DED8D2]
+            backdrop-blur-md
+            bg-white/30
+            border-t border-white/20
             px-6
             py-4
           "
         >
 
-          <ul className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-1">
+
+            {/* HOME BUTTON */}
+            <li>
+              <button
+                onClick={handleHomeClick}
+                className={`
+                  w-full
+                  text-left
+                  text-sm
+                  font-semibold
+                  py-3
+                  px-4
+                  rounded-lg
+                  flex
+                  items-center
+                  gap-2
+                  transition-all
+                  duration-300
+
+                  ${
+                    isHome
+                      ? "text-[#DF4607] bg-orange-100/40"
+                      : "text-[#222222] hover:bg-orange-100/30 hover:text-[#DF4607]"
+                  }
+                `}
+              >
+                <Home size={18} strokeWidth={2.5} />
+                Home
+              </button>
+            </li>
 
             {/* NAV LINKS */}
             {navLinks.map((link) => (
@@ -316,12 +401,16 @@ const isActive = (link) => {
                     w-full
                     text-left
                     text-sm
-                    font-medium
-                    py-1
+                    font-semibold
+                    py-3
+                    px-4
+                    rounded-lg
+                    transition-all
+                    duration-300
 
                     ${
                       link.ready
-                        ? "text-[#222222] hover:text-[#DF4607]"
+                        ? "text-[#222222] hover:bg-orange-100/30 hover:text-[#DF4607]"
                         : "text-[#A9A29D] cursor-default"
                     }
                   `}
@@ -331,6 +420,32 @@ const isActive = (link) => {
 
               </li>
             ))}
+
+            {/* ABOUT US */}
+            <li>
+              <button
+                onClick={() => {
+                  goToHash("#hero");
+                  setIsMenuOpen(false);
+                }}
+                className="
+                  w-full
+                  text-left
+                  text-sm
+                  font-semibold
+                  py-3
+                  px-4
+                  rounded-lg
+                  text-[#222222]
+                  hover:bg-orange-100/30
+                  hover:text-[#DF4607]
+                  transition-all
+                  duration-300
+                "
+              >
+                About Us
+              </button>
+            </li>
 
             {/* SHARE YOUR REQUIREMENT */}
             <li>
@@ -346,6 +461,10 @@ const isActive = (link) => {
                   font-semibold
                   text-sm
                   rounded-lg
+                  transition-all
+                  duration-300
+                  hover:bg-[#C93E05]
+                  hover:shadow-lg
                 "
               >
                 Share Your Requirement
@@ -362,20 +481,23 @@ const isActive = (link) => {
                   }}
                   className="
                     w-full
-                    py-2.5
+                    py-3
+                    px-4
                     rounded-lg
                     flex
                     items-center
-                    justify-center
                     gap-2
                     text-sm
-                    font-medium
-                    border
-                    border-[#DED8D2]
+                    font-semibold
+                    text-[#222222]
+                    hover:bg-orange-100/30
+                    hover:text-[#DF4607]
+                    transition-all
+                    duration-300
                   "
                 >
-                  <LayoutDashboard size={16} />
-                  Admin Dashboard
+                  <LayoutDashboard size={18} />
+                  Admin
                 </button>
               </li>
             )}
@@ -391,19 +513,22 @@ const isActive = (link) => {
                   }}
                   className="
                     w-full
-                    py-2.5
+                    py-3
+                    px-4
                     rounded-lg
                     flex
                     items-center
-                    justify-center
                     gap-2
                     text-sm
-                    font-medium
-                    border
-                    border-[#DED8D2]
+                    font-semibold
+                    text-[#222222]
+                    hover:bg-orange-100/30
+                    hover:text-[#DF4607]
+                    transition-all
+                    duration-300
                   "
                 >
-                  <LayoutDashboard size={16} />
+                  <LayoutDashboard size={18} />
                   Dashboard
                 </button>
               </li>
@@ -416,18 +541,22 @@ const isActive = (link) => {
                   onClick={handleLogout}
                   className="
                     w-full
-                    py-2.5
+                    py-3
+                    px-4
                     rounded-lg
                     flex
                     items-center
-                    justify-center
                     gap-2
                     text-sm
-                    font-medium
+                    font-semibold
                     text-[#6E6A67]
+                    hover:bg-orange-100/30
+                    hover:text-[#DF4607]
+                    transition-all
+                    duration-300
                   "
                 >
-                  <LogOut size={16} />
+                  <LogOut size={18} />
                   Logout
                 </button>
               </li>

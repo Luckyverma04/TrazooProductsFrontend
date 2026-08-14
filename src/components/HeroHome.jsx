@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import heroImage from "../assets/hero-home.png";
-
+// import Logo-company1.jpeg from "../assets/Logo-company1.jpeg";
 // ================= COMPANY LOGOS DATA =================
 const companies = [
   {
