@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
+import footer from "../assets/footer.png";
 
 // Gmail vs default mail client
 const getMailHref = () => {
@@ -27,8 +28,7 @@ const footerColumns = [
     links: [
       {
         name: "About Us",
-        path: "/",
-        hash: "#hero",
+        path: "/about",
       },
       {
         name: "Contact Us",
@@ -57,8 +57,8 @@ const footerColumns = [
         path: "/fulfilment",
       },
       {
-        name: "Global Shipping",
-        path: "/shipping",
+        name: "Our Work",
+        path: "/our-work",
       },
     ],
   },
@@ -82,9 +82,20 @@ const Footer = () => {
   return (
     <footer
       id="footer"
-      className="bg-[#FFFDF9] border-t border-[#DED8D2]"
+      className="bg-[#FFFDF9] border-t border-[#DED8D2] relative overflow-hidden"
+      style={{
+        backgroundImage: `url(${footer})`,
+        backgroundPosition: "right center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "contain",
+        backgroundAttachment: "scroll",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-6 py-14">
+      {/* ================= OVERLAY FOR READABILITY ================= */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#FFFDF9] via-[#FFFDF9] to-transparent pointer-events-none"></div>
+
+      {/* ================= FOOTER CONTENT ================= */}
+      <div className="max-w-7xl mx-auto px-6 py-14 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
           {/* ================= BRAND ================= */}
@@ -165,24 +176,6 @@ const Footer = () => {
 
                     <Link
                       to={link.path}
-                      onClick={() => {
-                        // About Us -> homepage hero
-                        if (link.hash) {
-                          setTimeout(() => {
-                            document
-                              .querySelector(link.hash)
-                              ?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "start",
-                              });
-                          }, 100);
-                        }
-
-                        window.scrollTo({
-                          top: 0,
-                          behavior: "smooth",
-                        });
-                      }}
                       className="text-[#4A4644] hover:text-[#DF4607] transition-colors"
                     >
                       {link.name}

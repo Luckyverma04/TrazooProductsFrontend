@@ -1,5 +1,10 @@
 import { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 
@@ -32,6 +37,25 @@ import LeadDetail from "./pages/associate/LeadDetail";
 // Protection
 import AdminRoute from "./routes/AdminRoute";
 import AssociateRoute from "./routes/AssociateRoute";
+
+
+// ======================================================
+// SCROLL TO TOP
+// ======================================================
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant",
+    });
+  }, [pathname]);
+
+  return null;
+}
 
 
 // ======================================================
@@ -80,6 +104,9 @@ function App() {
 
       {/* ONE GLOBAL NAVBAR ONLY */}
       <Navbar />
+
+      {/* RESET SCROLL POSITION ON EVERY ROUTE CHANGE */}
+      <ScrollToTop />
 
       <Routes>
 
@@ -229,7 +256,6 @@ function App() {
         />
 
       </Routes>
-
     </div>
   );
 }
