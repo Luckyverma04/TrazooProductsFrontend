@@ -1,46 +1,38 @@
 import { useNavigate } from "react-router-dom";
-import heroImage from "../assets/hero-home.png";
-// import Logo-company1.jpeg from "../assets/Logo-company1.jpeg";
+import heroImage from "../assets/Home.jpeg";
+import Logo_company1 from "../assets/Logo_company1.jpeg";
+import Logo_company2 from "../assets/Logo_company2.jpeg";
+import Logo_company3 from "../assets/Logo_company3.jpeg";
+import Logo_company4 from "../assets/Logo_company4.jpeg";
+import Logo_company5 from "../assets/Logo_company5.jpeg";
+import Logo_company6 from "../assets/Logo_company7.png";
 // ================= COMPANY LOGOS DATA =================
 const companies = [
   {
-    name: "Infosys",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Infosys_logo.svg/1200px-Infosys_logo.svg.png",
+    name: "IIM Trichy",
+    logo: Logo_company1,
   },
   {
-    name: "HCLTech",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/HCL_Technologies_Logo.svg/1200px-HCL_Technologies_Logo.svg.png",
+    name: "IIT Mandi",
+    logo: Logo_company2,
   },
   {
-    name: "Amazon",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/1200px-Amazon_logo.svg.png",
+    name: "IIM Ranchi",
+    logo: Logo_company3,
   },
   {
-    name: "Flipkart",
-    logo: "https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Flipkart_logo.svg/1200px-Flipkart_logo.svg.png",
+    name: "UPRIO",
+    logo: Logo_company4,
   },
   {
-    name: "Rapido",
-    logo: "https://www.rapido.bike/img/rapido_logo_dark.svg",
+    name: "IHUB DivyaSampark",
+    logo: Logo_company5,
   },
   {
-    name: "Masai",
-    logo: "https://assets.masaischool.com/masai-logo-dark.png",
-  },
-  {
-    name: "IIT Madras",
-    logo: "https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/IIT_Madras_Logo.svg/1200px-IIT_Madras_Logo.svg.png",
-  },
-  {
-    name: "IIM Mumbai",
-    logo: "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/IIM_Mumbai_Logo.svg/1200px-IIM_Mumbai_Logo.svg.png",
-  },
-  {
-    name: "BITSoM",
-    logo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/Birla_Institute_of_Technology_and_Science_Pilani_Logo.svg/1200px-Birla_Institute_of_Technology_and_Science_Pilani_Logo.svg.png",
+    name: "Massai",
+    logo: Logo_company6,
   },
 ];
-
 // ================= DATA =================
 const stats = [
   { value: "30,000+", label: "Shipments Delivered" },
@@ -67,7 +59,7 @@ const solutions = [
   { name: "Corporate Gifting", price: "₹500 onwards" },
   { name: "Festive & Holiday Gifting", price: "₹500 onwards" },
   { name: "Events & Conferences", price: "₹500 onwards" },
-  { name: "Employee & Joining Kits", price: "₹500 onwards", highlighted: true },
+{ name: "Employee & Joining Kits", price: "₹500 onwards" },
   { name: "Custom Merchandise", price: "₹500 onwards" },
   { name: "Institutional Gifting", price: "₹500 onwards" },
 ];
@@ -172,68 +164,64 @@ const HeroHome = () => {
         </div>
       </section>
 
-      {/* ================= TRUSTED BY / LOGOS ================= */}
-      <section className="bg-[#FFFDF9] border-b border-[#DED8D2]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-14 xl:px-20 py-14 md:py-16">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#9A9691] text-center mb-2">
-            Trusted by Industry Leaders
-          </p>
-          <p className="text-sm text-[#6E6A67] text-center mb-12">
-            Leading enterprises choose Trazoo for corporate gifting
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-4 md:gap-6 items-center justify-items-center">
-            {companies.map((company, i) => (
-              <div
-                key={i}
-                className="
-                  flex items-center justify-center
-                  h-20 md:h-24
-                  w-full
-                  px-4
-                  py-4
-                  rounded-lg
-                  border border-[#DED8D2]
-                  bg-white
-                  hover:border-[#DF4607]
-                  hover:shadow-lg
-                  transition-all
-                  group
-                  overflow-hidden
-                "
-              >
-                <img
-                  src={company.logo}
-                  alt={company.name}
-                  className="
-                    h-12 md:h-14
-                    object-contain
-                    filter
-                    group-hover:brightness-110
-                    transition-all
-                  "
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                    if (e.currentTarget.nextElementSibling) {
-                      e.currentTarget.nextElementSibling.style.display = "block";
-                    }
-                  }}
-                />
-                <span 
-                  className="
-                    text-xs sm:text-sm font-bold text-[#6E6A67] 
-                    group-hover:text-[#DF4607] 
-                    text-center transition-colors
-                    hidden
-                  "
-                >
-                  {company.name}
-                </span>
-              </div>
-            ))}
+     {/* ================= TRUSTED BY / LOGOS ================= */}
+{/* ================= TRUSTED BY / LOGOS ================= */}
+<section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
+  <div className="w-full py-14 md:py-16">
+
+    {/* Heading */}
+    <div className="text-center px-6 mb-10 md:mb-12">
+      <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em] text-[#DF4607]">
+        Trusted by Leading Organizations
+      </p>
+
+      <h2 className="mt-3 text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-[-0.03em] text-[#111111]">
+        Trusted by teams that value quality
+      </h2>
+
+      <p className="mt-3 max-w-2xl mx-auto text-sm md:text-base leading-6 text-[#6E6A67]">
+        Organizations trust Trazoo for reliable gifting, merchandise and
+        end-to-end fulfilment.
+      </p>
+    </div>
+
+    {/* Logos */}
+    <div className="w-full overflow-hidden">
+      <div className="flex items-center justify-center gap-10 md:gap-14 lg:gap-16 animate-logo-scroll">
+
+        {companies.map((company, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-center shrink-0"
+          >
+            <img
+              src={company.logo}
+              alt={company.name}
+              className="
+                h-14
+                md:h-16
+                lg:h-[68px]
+                w-auto
+                max-w-[150px]
+                md:max-w-[170px]
+                lg:max-w-[180px]
+                object-contain
+                border-0
+                outline-none
+                shadow-none
+                transition-transform duration-300
+                hover:scale-105
+              "
+              loading="lazy"
+            />
           </div>
-        </div>
-      </section>
+        ))}
+
+      </div>
+    </div>
+
+  </div>
+</section>
 
       {/* ================= STATS ================= */}
       <section className="bg-[#FFFDF9] border-b border-[#DED8D2]">
