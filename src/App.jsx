@@ -17,7 +17,12 @@ import Customization from "./components/Customization";
 import Requirements from "./components/Requirements";
 import Fulfilment from "./components/Fulfilment";
 import OurWork from "./components/OurWork";
+import FAQ from "./pages/FAQ";
 import Footer from "./components/Footer";
+
+// Legal pages
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 // Auth
 import CombinedAuth from "./pages/CombinedAuth";
@@ -158,6 +163,27 @@ function App() {
         <Route
           path="/our-work"
           element={<OurWork />}
+        />
+
+        {/* FAQ */}
+        <Route
+          path="/faq"
+          element={<FAQ />}
+        />
+
+
+        {/* ================= LEGAL ================= */}
+
+        {/* TERMS OF SERVICE */}
+        <Route
+          path="/terms"
+          element={<Terms />}
+        />
+
+        {/* PRIVACY POLICY */}
+        <Route
+          path="/privacy"
+          element={<Privacy />}
         />
 
 
