@@ -4,7 +4,6 @@ import {
   LogOut,
   LayoutDashboard,
   Home,
-  ChevronDown,
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
@@ -42,12 +41,15 @@ const Navbar = () => {
   const scrollTo = (hash) => {
     const el = document.querySelector(hash);
 
-    if (!el) return;
+    if (!el) {
+      console.log(`Element with id ${hash} not found`);
+      return;
+    }
 
     const y =
       el.getBoundingClientRect().top +
       window.scrollY -
-      80;
+      100;
 
     window.scrollTo({
       top: y,
@@ -115,8 +117,8 @@ const Navbar = () => {
       return location.pathname === link.path;
     }
 
-    if (link.hash === "#hero") {
-      return location.pathname === "/";
+    if (link.hash) {
+      return location.pathname === "/" && window.location.hash === link.hash;
     }
 
     return false;
@@ -199,26 +201,6 @@ const Navbar = () => {
 
             </li>
           ))}
-
-          {/* ABOUT US */}
-          <li>
-            <button
-              onClick={() => goToHash("#hero")}
-              className="
-                text-sm
-                font-semibold
-                transition-all
-                duration-300
-                px-4 py-2.5
-                rounded-lg
-                text-[#222222]
-                hover:bg-orange-100/30
-                hover:text-[#DF4607]
-              "
-            >
-              About Us
-            </button>
-          </li>
 
         </ul>
 
@@ -420,32 +402,6 @@ const Navbar = () => {
 
               </li>
             ))}
-
-            {/* ABOUT US */}
-            <li>
-              <button
-                onClick={() => {
-                  goToHash("#hero");
-                  setIsMenuOpen(false);
-                }}
-                className="
-                  w-full
-                  text-left
-                  text-sm
-                  font-semibold
-                  py-3
-                  px-4
-                  rounded-lg
-                  text-[#222222]
-                  hover:bg-orange-100/30
-                  hover:text-[#DF4607]
-                  transition-all
-                  duration-300
-                "
-              >
-                About Us
-              </button>
-            </li>
 
             {/* SHARE YOUR REQUIREMENT */}
             <li>

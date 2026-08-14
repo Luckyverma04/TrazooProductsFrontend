@@ -28,6 +28,12 @@ export const navLinks = [
     path: "/our-work",
     ready: true,
   },
+
+  {
+    name: "About Us",
+    path: "/about",
+    ready: true,
+  },
 ];
 
 

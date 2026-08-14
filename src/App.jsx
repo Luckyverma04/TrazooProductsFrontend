@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 // Public pages
 import Home from "./pages/Home";
 import Hero from "./components/Hero";
+import About from "./pages/About";
 import ProductRange from "./components/ProductRange";
 import Customization from "./components/Customization";
 import Requirements from "./components/Requirements";
@@ -88,6 +89,12 @@ function App() {
         <Route
           path="/"
           element={<Home />}
+        />
+
+        {/* ABOUT US */}
+        <Route
+          path="/about"
+          element={<About />}
         />
 
         {/* SOLUTIONS */}
