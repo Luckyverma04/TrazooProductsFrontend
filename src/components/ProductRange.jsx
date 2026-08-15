@@ -124,7 +124,7 @@ const ProductCard = ({ product, isShortlisted, onShortlist }) => {
   const navigate = useNavigate();
 
   const handleCustomizeClick = () => {
-    // ✅ Pass product data via route state to customize page
+    // ✅ Navigate to customize with product pre-selected
     navigate("/customize", {
       state: {
         preSelectedProduct: {
@@ -176,13 +176,14 @@ const ProductCard = ({ product, isShortlisted, onShortlist }) => {
         </div>
 
         <div className="flex flex-col gap-1.5 mt-auto">
-          {/* ✅ Navigate to customize with product pre-selected */}
+          {/* ✅ SINGLE CUSTOMIZE BUTTON - Auto-select product */}
           <button
             onClick={handleCustomizeClick}
-            className="w-full py-2 bg-[#DF4607] text-white text-[12px] font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
+            className="w-full py-2.5 bg-[#DF4607] text-white text-[12px] font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
           >
-            Customise &amp; Enquire
+            Customize
           </button>
+          {/* Add to Shortlist Button */}
           <button
             onClick={() => onShortlist(product)}
             className={`w-full py-2 text-[12px] font-semibold rounded-md border transition-colors ${

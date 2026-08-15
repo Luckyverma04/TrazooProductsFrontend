@@ -141,9 +141,9 @@ function App() {
           element={<ProductRange />}
         />
 
-        {/* CUSTOMISATION */}
+        {/* ✅ CUSTOMIZATION - FIXED PATH */}
         <Route
-          path="/customisation"
+          path="/customize"
           element={<Customization />}
         />
 

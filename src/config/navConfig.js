@@ -12,8 +12,8 @@ export const navLinks = [
   },
 
   {
-    name: "Customisation",
-    path: "/customisation",
+    name: "Customization",
+    path: "/customize",
     ready: true,
   },
 
@@ -44,14 +44,14 @@ export const footerColumns = [
     links: [
       {
         name: "Terms of Service",
-        path: "/terms-of-service",
-        ready: false,
+        path: "/terms",
+        ready: true,
       },
 
       {
         name: "Privacy Policy",
-        path: "/privacy-policy",
-        ready: false,
+        path: "/privacy",
+        ready: true,
       },
     ],
   },
@@ -69,7 +69,7 @@ export const footerColumns = [
       {
         name: "Enterprise FAQ",
         path: "/faq",
-        ready: false,
+        ready: true,
       },
     ],
   },

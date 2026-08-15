@@ -2,23 +2,13 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-// ✅ LOWERCASE logo.png - Case Sensitive!
-import Logo from "../assets/logo.png";
+import logo from "../assets/logo.png";
+import { navLinks } from "../config/navConfig";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const menuItems = [
-    { name: "Home", path: "/" },
-    { name: "Solutions", path: "/solutions" },
-    { name: "Products", path: "/products" },
-    { name: "Customisation", path: "/customize" },
-    { name: "Fulfilment", path: "/fulfilment" },
-    { name: "Our Work", path: "/our-work" },
-    { name: "About", path: "/about" },
-  ];
 
   const isActive = (path) => location.pathname === path;
 
@@ -42,7 +32,7 @@ const Navbar = () => {
             className="flex-shrink-0 hover:opacity-80 transition-opacity"
           >
             <img
-              src={Logo}
+              src={logo}
               alt="Trazoo"
               className="h-10 md:h-12 w-auto"
             />
@@ -50,7 +40,7 @@ const Navbar = () => {
 
           {/* Desktop Menu - CENTER */}
           <div className="hidden lg:flex items-center gap-6 xl:gap-8 flex-1 justify-center">
-            {menuItems.map((item) => (
+            {navLinks.map((item) => (
               <button
                 key={item.path}
                 onClick={() => handleNavClick(item.path)}
@@ -91,7 +81,7 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden mt-4 pb-4 space-y-2 border-t border-[#DED8D2] pt-4">
-            {menuItems.map((item) => (
+            {navLinks.map((item) => (
               <button
                 key={item.path}
                 onClick={() => handleNavClick(item.path)}
