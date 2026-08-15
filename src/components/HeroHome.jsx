@@ -11,30 +11,12 @@ import Logo_company6 from "../assets/Logo_company7.png";
 
 // ================= COMPANY LOGOS DATA =================
 const companies = [
-  {
-    name: "IIM Trichy",
-    logo: LogoCompany1,
-  },
-  {
-    name: "IIT Mandi",
-    logo: LogoCompany2,
-  },
-  {
-    name: "IIM Ranchi",
-    logo: LogoCompany3,
-  },
-  {
-    name: "UPRIO",
-    logo: LogoCompany4,
-  },
-  {
-    name: "IHUB DivyaSampark",
-    logo: LogoCompany5,
-  },
-  {
-    name: "Masai",
-    logo: Logo_company6,
-  },
+  { name: "IIM Trichy", logo: LogoCompany1 },
+  { name: "IIT Mandi", logo: LogoCompany2 },
+  { name: "IIM Ranchi", logo: LogoCompany3 },
+  { name: "UPRIO", logo: LogoCompany4 },
+  { name: "IHUB DivyaSampark", logo: LogoCompany5 },
+  { name: "Masai", logo: Logo_company6 },
 ];
 
 // ================= DATA =================
@@ -163,7 +145,7 @@ const HeroHome = () => {
                 </button>
               </div>
 
-              {/* RIGHT: HERO VIDEO - FULL WIDTH NO PADDING */}
+              {/* RIGHT: HERO VIDEO */}
               <div className="order-first lg:order-last">
                 <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-[#DED8D2] bg-white shadow-lg">
                   <video
@@ -188,7 +170,26 @@ const HeroHome = () => {
         </div>
       </section>
 
-      {/* ================= TRUSTED BY / LOGOS ================= */}
+      {/* ================= STATS ================= */}
+      <section className="bg-[#FFFDF9] border-b border-[#DED8D2]">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-14 xl:px-20 py-16 md:py-20">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-12 gap-y-14">
+            {stats.map((stat) => (
+              <div key={stat.label}>
+                <div className="text-3xl md:text-4xl font-extrabold text-[#DF4607] tracking-[-0.02em]">
+                  {stat.value}
+                </div>
+
+                <div className="mt-2 text-sm md:text-base text-[#6E6A67] font-medium">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL ONLY ================= */}
       <section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
         <div className="w-full py-14 md:py-16">
 
@@ -210,58 +211,69 @@ const HeroHome = () => {
 
           {/* Logos */}
           <div className="w-full overflow-hidden">
-            <div className="flex items-center justify-center gap-10 md:gap-14 lg:gap-16 animate-logo-scroll">
+            {/* Mobile: Horizontal Scroll Carousel */}
+            <div className="md:hidden overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex items-center justify-start gap-6 px-6 min-w-max">
+                {companies.map((company, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center shrink-0"
+                  >
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="
+                        h-12
+                        w-auto
+                        max-w-[120px]
+                        object-contain
+                        border-0
+                        outline-none
+                        shadow-none
+                        transition-transform duration-300
+                        hover:scale-105
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              {companies.map((company, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-center shrink-0"
-                >
-                  <img
-                    src={company.logo}
-                    alt={company.name}
-                    className="
-                      h-14
-                      md:h-16
-                      lg:h-[68px]
-                      w-auto
-                      max-w-[150px]
-                      md:max-w-[170px]
-                      lg:max-w-[180px]
-                      object-contain
-                      border-0
-                      outline-none
-                      shadow-none
-                      transition-transform duration-300
-                      hover:scale-105
-                    "
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-
+            {/* Desktop: Static Grid (NO Animation) */}
+            <div className="hidden md:block">
+              <div className="flex items-center justify-center flex-wrap gap-10 md:gap-14 lg:gap-16 px-6">
+                {companies.map((company, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center"
+                  >
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="
+                        h-14
+                        md:h-16
+                        lg:h-[68px]
+                        w-auto
+                        max-w-[150px]
+                        md:max-w-[170px]
+                        lg:max-w-[180px]
+                        object-contain
+                        border-0
+                        outline-none
+                        shadow-none
+                        transition-transform duration-300
+                        hover:scale-105
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-        </div>
-      </section>
-
-      {/* ================= STATS ================= */}
-      <section className="bg-[#FFFDF9] border-b border-[#DED8D2]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-14 xl:px-20 py-16 md:py-20">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-12 gap-y-14">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="text-3xl md:text-4xl font-extrabold text-[#DF4607] tracking-[-0.02em]">
-                  {stat.value}
-                </div>
-
-                <div className="mt-2 text-sm md:text-base text-[#6E6A67] font-medium">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

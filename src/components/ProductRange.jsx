@@ -1,10 +1,10 @@
 import { useSEO } from "../hooks/useSEO";
 import { seoMetadata } from "../utils/seo";
-import { useState, useMemo, useEffect, memo } from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import Footer from "./Footer";
-import TrustSection from "./TrustSection";
 
 // Fallback images
 import firstImg from "../assets/First.png";
@@ -117,61 +117,84 @@ const FilterGroup = ({ title, options, selected, onToggle }) => (
 );
 
 /* ================= PRODUCT CARD ================= */
-const ProductCard = memo(({ product, isShortlisted, onShortlist, onEnquire }) => (
-  <div className="rounded-lg border border-[#DED8D2] bg-white overflow-hidden flex flex-col group">
-    {/* Image — beige backdrop */}
-    <div className="aspect-square bg-[#EDE4DA] overflow-hidden">
-      <img
-        src={product.image}
-        alt={product.title}
-        loading="lazy"
-        decoding="async"
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        onError={(e) => {
-          e.target.src = FALLBACK_IMAGES[product.category] || firstImg;
-        }}
-      />
-    </div>
+const ProductCard = ({ product, isShortlisted, onShortlist }) => {
+  const navigate = useNavigate();
 
-    {/* Body */}
-    <div className="p-3.5 flex flex-col flex-1">
-      <h3 className="text-[13px] font-bold text-[#111111] leading-snug mb-0.5">
-        {product.title}
-      </h3>
-      <p className="text-[11px] text-[#6E6A67] mb-2">
-        {product.spec || "Premium quality product"}
-      </p>
+  const handleCustomizeClick = () => {
+    // ✅ Pass product data via route state to customize page
+    navigate("/customize", {
+      state: {
+        preSelectedProduct: {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          category: product.category,
+          image: product.image,
+          spec: product.spec,
+        }
+      }
+    });
+  };
 
-      <p className="text-[13px] font-semibold text-[#DF4607] mb-1.5">
-        ₹{product.price.toLocaleString("en-IN")} onwards
-      </p>
-
-      <div className="flex items-center gap-1.5 text-[10px] text-[#4A4644] mb-3">
-        <CheckCircle2 size={11} className="text-[#DF4607] shrink-0" />
-        <span>Custom branding available</span>
+  return (
+    <div className="rounded-lg border border-[#DED8D2] bg-white overflow-hidden flex flex-col group">
+      {/* Image — beige backdrop */}
+      <div className="aspect-square bg-[#EDE4DA] overflow-hidden">
+        <img
+          src={product.image}
+          alt={product.title}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            e.target.src = FALLBACK_IMAGES[product.category] || firstImg;
+          }}
+        />
       </div>
 
-      <div className="flex flex-col gap-1.5 mt-auto">
-        <button
-          onClick={onEnquire}
-          className="w-full py-2 bg-[#DF4607] text-white text-[12px] font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
-        >
-          Customise &amp; Enquire
-        </button>
-        <button
-          onClick={() => onShortlist(product)}
-          className={`w-full py-2 text-[12px] font-semibold rounded-md border transition-colors ${
-            isShortlisted
-              ? "border-[#DF4607] text-[#DF4607] bg-[#FFF3EE]"
-              : "border-[#DED8D2] text-[#111111] hover:border-[#111111]"
-          }`}
-        >
-          {isShortlisted ? "Added" : "Add to Shortlist"}
-        </button>
+      {/* Body */}
+      <div className="p-3.5 flex flex-col flex-1">
+        <h3 className="text-[13px] font-bold text-[#111111] leading-snug mb-0.5">
+          {product.title}
+        </h3>
+        <p className="text-[11px] text-[#6E6A67] mb-2">
+          {product.spec || "Premium quality product"}
+        </p>
+
+        <p className="text-[13px] font-semibold text-[#DF4607] mb-1.5">
+          ₹{product.price.toLocaleString("en-IN")} onwards
+        </p>
+
+        <div className="flex items-center gap-1.5 text-[10px] text-[#4A4644] mb-3">
+          <svg className="w-3 h-3 text-[#DF4607]" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <span>Custom branding available</span>
+        </div>
+
+        <div className="flex flex-col gap-1.5 mt-auto">
+          {/* ✅ Navigate to customize with product pre-selected */}
+          <button
+            onClick={handleCustomizeClick}
+            className="w-full py-2 bg-[#DF4607] text-white text-[12px] font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
+          >
+            Customise &amp; Enquire
+          </button>
+          <button
+            onClick={() => onShortlist(product)}
+            className={`w-full py-2 text-[12px] font-semibold rounded-md border transition-colors ${
+              isShortlisted
+                ? "border-[#DF4607] text-[#DF4607] bg-[#FFF3EE]"
+                : "border-[#DED8D2] text-[#111111] hover:border-[#111111]"
+            }`}
+          >
+            {isShortlisted ? "Added" : "Add to Shortlist"}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-));
+  );
+};
 
 /* ================= MAIN ================= */
 const ProductRange = () => {
@@ -263,11 +286,6 @@ const ProductRange = () => {
         ? prev.filter((p) => p.id !== product.id)
         : [...prev, product]
     );
-
-  const goToEnquiry = () =>
-    document
-      .querySelector("#footer")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -380,7 +398,6 @@ const ProductRange = () => {
                       product={p}
                       isShortlisted={shortlist.some((s) => s.id === p.id)}
                       onShortlist={toggleShortlist}
-                      onEnquire={goToEnquiry}
                     />
                   ))}
                 </div>
@@ -402,7 +419,7 @@ const ProductRange = () => {
         </div>
       </main>
 
-      {/* ================= TRUSTED BY / LOGOS ================= */}
+      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL ONLY ================= */}
       <section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
         <div className="w-full py-14 md:py-16">
 
@@ -424,36 +441,66 @@ const ProductRange = () => {
 
           {/* Logos */}
           <div className="w-full overflow-hidden">
-            <div className="flex items-center justify-center gap-10 md:gap-14 lg:gap-16 animate-logo-scroll">
+            {/* Mobile: Horizontal Scroll Carousel */}
+            <div className="md:hidden overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex items-center justify-start gap-6 px-6 min-w-max">
+                {companies.map((company, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center shrink-0"
+                  >
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="
+                        h-12
+                        w-auto
+                        max-w-[120px]
+                        object-contain
+                        border-0
+                        outline-none
+                        shadow-none
+                        transition-transform duration-300
+                        hover:scale-105
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              {companies.map((company, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-center shrink-0"
-                >
-                  <img
-                    src={company.logo}
-                    alt={company.name}
-                    className="
-                      h-14
-                      md:h-16
-                      lg:h-[68px]
-                      w-auto
-                      max-w-[150px]
-                      md:max-w-[170px]
-                      lg:max-w-[180px]
-                      object-contain
-                      border-0
-                      outline-none
-                      shadow-none
-                      transition-transform duration-300
-                      hover:scale-105
-                    "
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-
+            {/* Desktop: Static Grid (NO Animation) */}
+            <div className="hidden md:block">
+              <div className="flex items-center justify-center flex-wrap gap-10 md:gap-14 lg:gap-16 px-6">
+                {companies.map((company, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center"
+                  >
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="
+                        h-14
+                        md:h-16
+                        lg:h-[68px]
+                        w-auto
+                        max-w-[150px]
+                        md:max-w-[170px]
+                        lg:max-w-[180px]
+                        object-contain
+                        border-0
+                        outline-none
+                        shadow-none
+                        transition-transform duration-300
+                        hover:scale-105
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -494,7 +541,7 @@ const ProductRange = () => {
             </div>
 
             <button
-              onClick={goToEnquiry}
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="px-5 py-2.5 bg-[#DF4607] text-white text-[13px] font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
             >
               Enquire for Selected Products
