@@ -54,3 +54,29 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
+
+/* ================= MOBILE CAROUSEL ANIMATION (ONLY on small screens) ================= */
+@media (max-width: 768px) {
+  @keyframes carousel-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .mobile-carousel {
+    display: flex;
+    animation: carousel-scroll 20s linear infinite;
+  }
+
+  .mobile-carousel:hover {
+    animation-play-state: paused;
+  }
+
+  /* Duplicate items for seamless loop */
+  .mobile-carousel-item {
+    flex-shrink: 0;
+  }
+}

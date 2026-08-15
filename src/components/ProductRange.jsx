@@ -48,6 +48,9 @@ const companies = [
   { name: "Masai", logo: Logo_company6 },
 ];
 
+// Duplicate companies for seamless carousel loop
+const companiesWithDuplicate = [...companies, ...companies];
+
 /* ================= FILTER OPTIONS ================= */
 const CATEGORIES = [
   "Apparel",
@@ -419,7 +422,7 @@ const ProductRange = () => {
         </div>
       </main>
 
-      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL ONLY ================= */}
+      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL ================= */}
       <section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
         <div className="w-full py-14 md:py-16">
 
@@ -441,13 +444,13 @@ const ProductRange = () => {
 
           {/* Logos */}
           <div className="w-full overflow-hidden">
-            {/* Mobile: Horizontal Scroll Carousel */}
-            <div className="md:hidden overflow-x-auto pb-2 scrollbar-hide">
-              <div className="flex items-center justify-start gap-6 px-6 min-w-max">
-                {companies.map((company, i) => (
+            {/* Mobile: Carousel Animation */}
+            <div className="md:hidden">
+              <div className="mobile-carousel scrollbar-hide">
+                {companiesWithDuplicate.map((company, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-center shrink-0"
+                    className="mobile-carousel-item flex items-center justify-center shrink-0"
                   >
                     <img
                       src={company.logo}
