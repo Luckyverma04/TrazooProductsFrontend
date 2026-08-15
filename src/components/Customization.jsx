@@ -1,6 +1,7 @@
 import { useSEO } from "../hooks/useSEO";
 import { seoMetadata } from "../utils/seo";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -10,7 +11,6 @@ import {
   Upload,
 } from "lucide-react";
 
-import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const API = import.meta.env.VITE_API_URL;
@@ -44,9 +44,12 @@ const customizationTypes = [
 ];
 
 const Customization = () => {
-   useSEO(seoMetadata.customisation);
+  useSEO(seoMetadata.customisation);
+  const location = useLocation();
+  
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [preSelectedProduct, setPreSelectedProduct] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -109,6 +112,28 @@ const Customization = () => {
   }, []);
 
   // ==================================================
+  // AUTO-SELECT PRODUCT FROM ROUTE STATE
+  // ==================================================
+
+  useEffect(() => {
+    if (location.state?.preSelectedProduct) {
+      const preSelected = location.state.preSelectedProduct;
+
+      console.log("✅ Pre-selected product:", preSelected);
+
+      setPreSelectedProduct(preSelected);
+
+      // Auto-select the product from route state
+      setFormData((prev) => ({
+        ...prev,
+        productId: preSelected.id,
+        category: preSelected.category || "",
+        price: preSelected.price || "",
+      }));
+    }
+  }, [location.state]);
+
+  // ==================================================
   // CHANGE HANDLER
   // ==================================================
 
@@ -151,16 +176,6 @@ const Customization = () => {
 
     if (!file) return;
 
-    /*
-      IMPORTANT:
-      Backend expects brandLogo as a URL.
-
-      If your existing Cloudinary upload API is available,
-      replace this section with that upload API.
-
-      For now we store the selected file name only.
-    */
-
     setFormData((prev) => ({
       ...prev,
       brandLogo: file.name,
@@ -187,235 +202,240 @@ const Customization = () => {
   // ==================================================
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  setAlert({
-    type: "",
-    message: "",
-  });
-
-  // ==================================================
-  // FRONTEND VALIDATION
-  // ==================================================
-
-  if (!formData.name.trim()) {
     setAlert({
-      type: "error",
-      message: "Please enter your name.",
+      type: "",
+      message: "",
     });
-    return;
-  }
 
-  if (!formData.email.trim()) {
-    setAlert({
-      type: "error",
-      message: "Please enter your email.",
-    });
-    return;
-  }
+    // ==================================================
+    // FRONTEND VALIDATION
+    // ==================================================
 
-  if (!formData.phone.trim()) {
-    setAlert({
-      type: "error",
-      message: "Please enter your phone number.",
-    });
-    return;
-  }
-
-  if (!formData.productId) {
-    setAlert({
-      type: "error",
-      message: "Please select a product.",
-    });
-    return;
-  }
-
-  if (!formData.customizationType) {
-    setAlert({
-      type: "error",
-      message: "Please select the customization type.",
-    });
-    return;
-  }
-
-  if (formData.needsLogo && !formData.brandLogo) {
-    setAlert({
-      type: "error",
-      message: "Please upload your logo.",
-    });
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    const selectedProduct = products.find(
-      (product) =>
-        String(product._id) === String(formData.productId)
-    );
-
-    if (!selectedProduct) {
-      throw new Error("Selected product not found.");
+    if (!formData.name.trim()) {
+      setAlert({
+        type: "error",
+        message: "Please enter your name.",
+      });
+      return;
     }
 
-    const payload = {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      phone: formData.phone.trim(),
+    if (!formData.email.trim()) {
+      setAlert({
+        type: "error",
+        message: "Please enter your email.",
+      });
+      return;
+    }
 
-      productId: formData.productId,
+    if (!formData.phone.trim()) {
+      setAlert({
+        type: "error",
+        message: "Please enter your phone number.",
+      });
+      return;
+    }
 
-      category:
-        formData.category ||
-        selectedProduct.category ||
-        "",
+    if (!formData.productId) {
+      setAlert({
+        type: "error",
+        message: "Please select a product.",
+      });
+      return;
+    }
 
-      price:
-        formData.price !== ""
-          ? Number(formData.price)
-          : selectedProduct.unitPrice,
+    if (!formData.customizationType) {
+      setAlert({
+        type: "error",
+        message: "Please select the customization type.",
+      });
+      return;
+    }
 
-      quantity: formData.quantity
-        ? Number(formData.quantity)
-        : undefined,
+    if (formData.needsLogo && !formData.brandLogo) {
+      setAlert({
+        type: "error",
+        message: "Please upload your logo.",
+      });
+      return;
+    }
 
-      customizationType:
-        formData.customizationType,
+    setIsSubmitting(true);
 
-      notes: formData.notes.trim(),
+    try {
+      const selectedProduct = products.find(
+        (product) =>
+          String(product._id) === String(formData.productId)
+      );
 
-      needsLogo: Boolean(formData.needsLogo),
-
-      brandLogo:
-        formData.brandLogo || undefined,
-
-      referenceImage:
-        formData.referenceImage || undefined,
-    };
-
-    const response = await fetch(
-      `${API}/api/kit-enquiry/customization`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify(payload),
+      if (!selectedProduct) {
+        throw new Error("Selected product not found.");
       }
-    );
 
-    // ==================================================
-    // SAFE RESPONSE HANDLING
-    // ==================================================
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
 
-    const contentType =
-      response.headers.get("content-type") || "";
+        productId: formData.productId,
 
-    let data = {};
+        category:
+          formData.category ||
+          selectedProduct.category ||
+          "",
 
-    if (contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
+        price:
+          formData.price !== ""
+            ? Number(formData.price)
+            : selectedProduct.unitPrice,
 
+        quantity: formData.quantity
+          ? Number(formData.quantity)
+          : undefined,
+
+        customizationType:
+          formData.customizationType,
+
+        notes: formData.notes.trim(),
+
+        needsLogo: Boolean(formData.needsLogo),
+
+        brandLogo:
+          formData.brandLogo || undefined,
+
+        referenceImage:
+          formData.referenceImage || undefined,
+      };
+
+      const response = await fetch(
+        `${API}/api/kit-enquiry/customization`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify(payload),
+        }
+      );
+
+      // ==================================================
+      // SAFE RESPONSE HANDLING
+      // ==================================================
+
+      const contentType =
+        response.headers.get("content-type") || "";
+
+      let data = {};
+
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+
+        console.error(
+          "Backend returned non-JSON response:",
+          text
+        );
+
+        throw new Error(
+          `Server error (${response.status}). Please try again.`
+        );
+      }
+
+      // ==================================================
+      // ERROR
+      // ==================================================
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            "Failed to submit customization request."
+        );
+      }
+
+      // ==================================================
+      // SUCCESS
+      // ==================================================
+
+      setAlert({
+        type: "success",
+        message:
+          data?.message ||
+          "✅ Customization request submitted successfully!",
+      });
+
+      alert(
+        data?.message ||
+          "✅ Customization request submitted successfully!"
+      );
+
+      // ==================================================
+      // RESET FORM
+      // ==================================================
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        productId: "",
+        category: "",
+        price: "",
+        quantity: "",
+        customizationType: "",
+        notes: "",
+        needsLogo: false,
+        brandLogo: "",
+        referenceImage: "",
+      });
+
+      // ==================================================
+      // SCROLL TOP
+      // ==================================================
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } catch (error) {
       console.error(
-        "Backend returned non-JSON response:",
-        text
+        "Customization submission error:",
+        error
       );
 
-      throw new Error(
-        `Server error (${response.status}). Please try again.`
+      setAlert({
+        type: "error",
+        message:
+          error?.message ||
+          "Something went wrong. Please try again.",
+      });
+
+      alert(
+        `❌ ${
+          error?.message ||
+          "Something went wrong. Please try again."
+        }`
       );
+    } finally {
+      setIsSubmitting(false);
     }
+  };
 
-    // ==================================================
-    // ERROR
-    // ==================================================
+  // ==================================================
+  // FILTER PRODUCTS - Show only pre-selected if exists
+  // ==================================================
 
-    if (!response.ok) {
-      throw new Error(
-        data?.message ||
-          "Failed to submit customization request."
-      );
-    }
-
-    // ==================================================
-    // SUCCESS
-    // ==================================================
-
-    setAlert({
-      type: "success",
-      message:
-        data?.message ||
-        "✅ Customization request submitted successfully!",
-    });
-
-    // Optional browser confirmation
-    alert(
-      data?.message ||
-        "✅ Customization request submitted successfully!"
-    );
-
-    // ==================================================
-    // RESET FORM
-    // ==================================================
-
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      productId: "",
-      category: "",
-      price: "",
-      quantity: "",
-      customizationType: "",
-      notes: "",
-      needsLogo: false,
-      brandLogo: "",
-      referenceImage: "",
-    });
-
-    // ==================================================
-    // SCROLL TOP
-    // ==================================================
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-
-  } catch (error) {
-    console.error(
-      "Customization submission error:",
-      error
-    );
-
-    setAlert({
-      type: "error",
-      message:
-        error?.message ||
-        "Something went wrong. Please try again.",
-    });
-
-    // Clear confirmation that something failed
-    alert(
-      `❌ ${
-        error?.message ||
-        "Something went wrong. Please try again."
-      }`
-    );
-
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  const displayProducts = preSelectedProduct
+    ? products.filter(
+        (product) =>
+          String(product._id) === String(preSelectedProduct.id)
+      )
+    : products;
 
   return (
     <div className="min-h-screen bg-[#FFFDF9] text-[#222222]">
-   
-
       <main className="pt-28 pb-20 px-6">
         <div className="max-w-7xl mx-auto">
 
@@ -593,14 +613,14 @@ const Customization = () => {
                   <div className="border border-[#DDD6D0] rounded-xl px-4 py-4 text-[#88817B]">
                     Loading products...
                   </div>
-                ) : products.length === 0 ? (
+                ) : displayProducts.length === 0 ? (
                   <div className="border border-red-200 bg-red-50 rounded-xl px-4 py-4 text-red-600">
                     No products available.
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-4">
 
-                    {products.map((product) => {
+                    {displayProducts.map((product) => {
                       const selected =
                         String(formData.productId) ===
                         String(product._id);
