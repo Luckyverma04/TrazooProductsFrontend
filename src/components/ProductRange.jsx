@@ -14,6 +14,14 @@ import bottlesImg from "../assets/Bottles.png";
 import bagsImg from "../assets/BagsandNotebooks.png";
 import notebooksImg from "../assets/Notebooks.png";
 
+// Company Logos
+import LogoCompany1 from "../assets/Logo_company1.jpeg";
+import LogoCompany2 from "../assets/Logo_company2.jpeg";
+import LogoCompany3 from "../assets/Logo_company3.jpeg";
+import LogoCompany4 from "../assets/Logo_company4.jpeg";
+import LogoCompany5 from "../assets/Logo_company5.jpeg";
+import Logo_company6 from "../assets/Logo_company7.png";
+
 // Fallback images mapping
 const FALLBACK_IMAGES = {
   Apparel: thirdImg,
@@ -29,6 +37,16 @@ const FALLBACK_IMAGES = {
   "Awards & Recognition": secondImg,
   "Event Merchandise": firstImg,
 };
+
+// Company logos data
+const companies = [
+  { name: "IIM Trichy", logo: LogoCompany1 },
+  { name: "IIT Mandi", logo: LogoCompany2 },
+  { name: "IIM Ranchi", logo: LogoCompany3 },
+  { name: "UPRIO", logo: LogoCompany4 },
+  { name: "IHUB DivyaSampark", logo: LogoCompany5 },
+  { name: "Masai", logo: Logo_company6 },
+];
 
 /* ================= FILTER OPTIONS ================= */
 const CATEGORIES = [
@@ -157,7 +175,7 @@ const ProductCard = memo(({ product, isShortlisted, onShortlist, onEnquire }) =>
 
 /* ================= MAIN ================= */
 const ProductRange = () => {
-   useSEO(seoMetadata.products);
+  useSEO(seoMetadata.products);
   const [filters, setFilters] = useState({
     category: [],
     price: [],
@@ -284,8 +302,6 @@ const ProductRange = () => {
 
   return (
     <>
-      
-
       <main id="products" className="bg-[#FFFDF9] pt-28 pb-24 px-6">
         <div className="max-w-7xl mx-auto">
           {/* ---------- HEADING ---------- */}
@@ -386,25 +402,63 @@ const ProductRange = () => {
         </div>
       </main>
 
-      {/* ---------- TRUST STRIP ---------- */}
-      <TrustSection
-        columns={[
-          {
-            title: "Trusted by teams that cannot afford execution gaps",
-            items: [
-              "Infosys",
-              "HCLTech",
-              "Amazon",
-              "Flipkart",
-              "Rapido",
-              "Masai",
-              "IIT Madras",
-              "IIM Mumbai",
-              "BITSoM",
-            ],
-          },
-        ]}
-      />
+      {/* ================= TRUSTED BY / LOGOS ================= */}
+      <section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
+        <div className="w-full py-14 md:py-16">
+
+          {/* Heading */}
+          <div className="text-center px-6 mb-10 md:mb-12">
+            <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em] text-[#DF4607]">
+              Trusted by Leading Organizations
+            </p>
+
+            <h2 className="mt-3 text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-[-0.03em] text-[#111111]">
+              Trusted by teams that value quality
+            </h2>
+
+            <p className="mt-3 max-w-2xl mx-auto text-sm md:text-base leading-6 text-[#6E6A67]">
+              Organizations trust Trazoo for reliable gifting, merchandise and
+              end-to-end fulfilment.
+            </p>
+          </div>
+
+          {/* Logos */}
+          <div className="w-full overflow-hidden">
+            <div className="flex items-center justify-center gap-10 md:gap-14 lg:gap-16 animate-logo-scroll">
+
+              {companies.map((company, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-center shrink-0"
+                >
+                  <img
+                    src={company.logo}
+                    alt={company.name}
+                    className="
+                      h-14
+                      md:h-16
+                      lg:h-[68px]
+                      w-auto
+                      max-w-[150px]
+                      md:max-w-[170px]
+                      lg:max-w-[180px]
+                      object-contain
+                      border-0
+                      outline-none
+                      shadow-none
+                      transition-transform duration-300
+                      hover:scale-105
+                    "
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+
+            </div>
+          </div>
+
+        </div>
+      </section>
 
       <Footer />
 
