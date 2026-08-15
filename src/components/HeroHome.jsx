@@ -53,16 +53,6 @@ const solutions = [
   { name: "Institutional Gifting", price: "₹500 onwards" },
 ];
 
-const shipments = [
-  { id: "TRZ 8891", route: "Mumbai to Delhi", status: "IN TRANSIT" },
-  { id: "TRZ 8892", route: "Bangalore to Pune", status: "DELIVERED" },
-];
-
-const statusColor = {
-  "IN TRANSIT": "text-[#DF4607]",
-  DELIVERED: "text-green-600",
-};
-
 // ================= PAGE =================
 const HeroHome = () => {
   const navigate = useNavigate();
@@ -214,7 +204,7 @@ const HeroHome = () => {
 
           {/* Logos */}
           <div className="w-full overflow-hidden">
-            {/* Mobile: Carousel Animation */}
+            {/* Mobile: Carousel Animation - FASTER */}
             <div className="md:hidden">
               <div className="mobile-carousel scrollbar-hide">
                 {companiesWithDuplicate.map((company, i) => (

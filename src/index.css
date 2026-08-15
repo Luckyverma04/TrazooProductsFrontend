@@ -55,7 +55,7 @@ body {
   display: none;  /* Chrome, Safari and Opera */
 }
 
-/* ================= MOBILE CAROUSEL ANIMATION (ONLY on small screens) ================= */
+/* ================= MOBILE CAROUSEL ANIMATION - FASTER & MORE SPACING ================= */
 @media (max-width: 768px) {
   @keyframes carousel-scroll {
     0% {
@@ -68,7 +68,7 @@ body {
 
   .mobile-carousel {
     display: flex;
-    animation: carousel-scroll 20s linear infinite;
+    animation: carousel-scroll 12s linear infinite;
   }
 
   .mobile-carousel:hover {
@@ -78,5 +78,6 @@ body {
   /* Duplicate items for seamless loop */
   .mobile-carousel-item {
     flex-shrink: 0;
+    margin: 0 12px;
   }
 }

@@ -422,7 +422,7 @@ const ProductRange = () => {
         </div>
       </main>
 
-      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL ================= */}
+      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL FAST ================= */}
       <section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
         <div className="w-full py-14 md:py-16">
 
@@ -444,7 +444,7 @@ const ProductRange = () => {
 
           {/* Logos */}
           <div className="w-full overflow-hidden">
-            {/* Mobile: Carousel Animation */}
+            {/* Mobile: Carousel Animation - FASTER with SPACING */}
             <div className="md:hidden">
               <div className="mobile-carousel scrollbar-hide">
                 {companiesWithDuplicate.map((company, i) => (
