@@ -1,715 +1,488 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSEO } from "../hooks/useSEO";
 import { seoMetadata } from "../utils/seo";
-import { useState } from "react";
 import {
-  Package,
-  MapPin,
-  Pencil,
   ArrowRight,
-  ArrowLeft,
-  CheckCircle2,
+  Mail,
+  Phone,
+  MapPin,
 } from "lucide-react";
 
-const API = import.meta.env.VITE_API_URL;
+import Footer from "./Footer";
+
+// Company Logos
+import LogoCompany1 from "../assets/Logo_company1.jpeg";
+import LogoCompany2 from "../assets/Logo_company2.jpeg";
+import LogoCompany3 from "../assets/Logo_company3.jpeg";
+import LogoCompany4 from "../assets/Logo_company4.jpeg";
+import LogoCompany5 from "../assets/Logo_company5.jpeg";
+import Logo_company6 from "../assets/Logo_company7.png";
+
+// Company logos data
+const companies = [
+  { name: "IIM Trichy", logo: LogoCompany1 },
+  { name: "IIT Mandi", logo: LogoCompany2 },
+  { name: "IIM Ranchi", logo: LogoCompany3 },
+  { name: "UPRIO", logo: LogoCompany4 },
+  { name: "IHUB DivyaSampark", logo: LogoCompany5 },
+  { name: "Masai", logo: Logo_company6 },
+];
+
+// Duplicate companies for seamless carousel loop
+const companiesWithDuplicate = [...companies, ...companies];
 
 const Requirements = () => {
-    useSEO(seoMetadata.requirements);  // ← ADD THIS
-
-  const [step, setStep] = useState(1);
+  useSEO(seoMetadata.requirements);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     fullName: "",
-    company: "",
     email: "",
     phone: "",
-
-    // Step 1
-    requirement: "",
-    quantity: "",
-    requiredBy: "",
-
-    // Step 2
-    overallBudget: "",
-    deliveryRequirement: "",
+    companyName: "",
+    numberOfRecipients: "",
+    budget: "",
+    timeline: "",
+    category: "",
+    requirements: "",
   });
 
-  const [alert, setAlert] = useState({
-    type: "",
-    message: "",
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  // ==================================================
-  // HANDLE INPUT CHANGE
-  // ==================================================
-
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const API = import.meta.env.VITE_API_URL;
 
   // ==================================================
-  // STEP 1 → STEP 2
-  // ==================================================
-
-  const handleContinue = (e) => {
-    e.preventDefault();
-
-    setAlert({
-      type: "",
-      message: "",
-    });
-
-    if (
-      !formData.fullName.trim() ||
-      !formData.company.trim() ||
-      !formData.email.trim() ||
-      !formData.phone.trim()
-    ) {
-      setAlert({
-        type: "error",
-        message: "Please fill all required details.",
-      });
-
-      return;
-    }
-
-    setStep(2);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  // ==================================================
-  // STEP 2 → SUBMIT
+  // FORM SUBMIT
   // ==================================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitMessage("");
+    setSubmitError("");
 
-    setAlert({
-      type: "",
-      message: "",
-    });
-
-    if (!formData.overallBudget) {
-      setAlert({
-        type: "error",
-        message: "Please select your overall budget.",
-      });
-
+    // Validation
+    if (!formData.fullName.trim()) {
+      setSubmitError("Please enter your full name");
+      return;
+    }
+    if (!formData.email.trim()) {
+      setSubmitError("Please enter your email");
+      return;
+    }
+    if (!formData.phone.trim()) {
+      setSubmitError("Please enter your phone number");
       return;
     }
 
-    if (!formData.deliveryRequirement) {
-      setAlert({
-        type: "error",
-        message: "Please select your delivery requirement.",
-      });
-
-      return;
-    }
-
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
-      const payload = {
-        fullName: formData.fullName,
-        company: formData.company,
-        email: formData.email,
-        phone: formData.phone,
-
-        // Existing backend field
-        lookingFor: formData.requirement,
-
-        // New requirement fields
-        requirement: formData.requirement,
-
-        quantity: formData.quantity
-          ? Number(formData.quantity)
-          : null,
-
-        requiredBy: formData.requiredBy
-          ? formData.requiredBy
-          : null,
-
-        overallBudget: formData.overallBudget,
-
-        deliveryRequirement:
-          formData.deliveryRequirement,
-      };
-
-      const response = await fetch(`${API}/api/enquiry`, {
+      const response = await fetch(`${API}/api/kit-enquiry`, {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          companyName: formData.companyName,
+          numberOfRecipients: formData.numberOfRecipients
+            ? Number(formData.numberOfRecipients)
+            : undefined,
+          budget: formData.budget,
+          timeline: formData.timeline,
+          category: formData.category,
+          requirements: formData.requirements,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data?.message ||
-            "Failed to submit requirement."
-        );
+        throw new Error(data.message || "Failed to submit");
       }
 
-      // ================================================
-      // SUCCESS
-      // ================================================
-
-      setAlert({
-        type: "success",
-        message:
-          "Requirement submitted successfully!",
-      });
-
-      // Reset form after successful submission
-      setFormData({
-        fullName: "",
-        company: "",
-        email: "",
-        phone: "",
-        requirement: "",
-        quantity: "",
-        requiredBy: "",
-        overallBudget: "",
-        deliveryRequirement: "",
-      });
-
-      // Go back to Step 1
-      setStep(1);
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    } catch (error) {
-      console.error(
-        "Requirement submission error:",
-        error
+      setSubmitMessage(
+        "✅ Thank you! We'll review your requirement and get back soon."
       );
 
-      setAlert({
-        type: "error",
-        message:
-          error.message ||
-          "Something went wrong. Please try again later.",
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        companyName: "",
+        numberOfRecipients: "",
+        budget: "",
+        timeline: "",
+        category: "",
+        requirements: "",
       });
+
+      // Scroll to success message
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 300);
+    } catch (error) {
+      setSubmitError(error.message || "Something went wrong");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  // ==================================================
-  // BACK TO STEP 1
-  // ==================================================
-
-  const handleBack = () => {
-    setAlert({
-      type: "",
-      message: "",
-    });
-
-    setStep(1);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
-    <main className="min-h-screen bg-[#FFFDF9] pt-28 pb-20 px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#FFFDF9]">
 
-        {/* ==================================================
-            STEP 1
-        ================================================== */}
+      {/* ==================================================
+          HERO
+      ================================================== */}
 
-        {step === 1 && (
-          <div className="grid lg:grid-cols-[1.55fr_0.75fr] gap-12">
+      <section className="bg-gradient-to-br from-[#FFFDF9] to-[#F5F0EA] border-b border-[#DED8D2] pt-28 pb-16 px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-[#DF4607] text-xs font-semibold tracking-widest uppercase mb-4">
+            Let's create something great
+          </p>
 
-            {/* ================= LEFT ================= */}
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-[#111111] mb-4">
+            Share your requirement
+          </h1>
 
-            <div>
-              <p className="text-[#DF4607] text-xs font-semibold tracking-wide mb-3">
-                STEP 1 OF 2
-              </p>
+          <p className="text-lg text-[#77716C] max-w-2xl mx-auto mb-8">
+            Tell us what you need, and our team will work with you to create
+            the perfect solution for your brand.
+          </p>
+        </div>
+      </section>
 
-              <h1 className="text-4xl md:text-5xl font-bold text-[#111111] leading-tight">
-                Share Your Requirement
-              </h1>
+      <main className="pb-20 px-6">
+        <div className="max-w-7xl mx-auto">
 
-              <p className="text-[#8A817A] mt-3 mb-9">
-                Tell us what you need. We'll take it from there.
-              </p>
+          {/* ==================================================
+              FORM SECTION
+          ================================================== */}
 
-              {/* ALERT */}
+          <section className="grid lg:grid-cols-[1fr_360px] gap-12 items-start -mt-16 relative z-10">
 
-              {alert.message && (
-                <Alert
-                  type={alert.type}
-                  message={alert.message}
-                />
-              )}
-
-              <form
-                onSubmit={handleContinue}
-                className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5"
-              >
-
-                {/* FULL NAME */}
-
-                <InputField
-                  label="Full Name"
-                  placeholder="John Doe"
-                  value={formData.fullName}
-                  onChange={(e) =>
-                    handleChange(
-                      "fullName",
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-
-                {/* COMPANY */}
-
-                <InputField
-                  label="Company / Organisation"
-                  placeholder="Company / Organisation"
-                  value={formData.company}
-                  onChange={(e) =>
-                    handleChange(
-                      "company",
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-
-                {/* EMAIL */}
-
-                <InputField
-                  label="Work Email"
-                  type="email"
-                  placeholder="john@company.com"
-                  value={formData.email}
-                  onChange={(e) =>
-                    handleChange(
-                      "email",
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-
-                {/* PHONE */}
-
-                <InputField
-                  label="Phone Number"
-                  placeholder="+91 98765 43210"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    handleChange(
-                      "phone",
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-
-                {/* REQUIREMENT */}
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs text-[#222222] mb-2">
-                    Requirement
-                  </label>
-
-                  <textarea
-                    rows={4}
-                    placeholder="Describe what you're looking for..."
-                    value={formData.requirement}
-                    onChange={(e) =>
-                      handleChange(
-                        "requirement",
-                        e.target.value
-                      )
-                    }
-                    className="w-full bg-white border border-[#D8D2CC] rounded-lg px-4 py-3 text-sm text-[#222222] placeholder:text-[#9CA3AF] outline-none focus:border-[#DF4607] resize-none transition-colors"
-                  />
-                </div>
-
-                {/* QUANTITY */}
-
-                <InputField
-                  label="Approximate Quantity"
-                  type="number"
-                  placeholder="e.g. 500"
-                  value={formData.quantity}
-                  onChange={(e) =>
-                    handleChange(
-                      "quantity",
-                      e.target.value
-                    )
-                  }
-                  min="1"
-                />
-
-                {/* REQUIRED BY */}
-
-                <InputField
-                  label="Required By"
-                  type="date"
-                  value={formData.requiredBy}
-                  onChange={(e) =>
-                    handleChange(
-                      "requiredBy",
-                      e.target.value
-                    )
-                  }
-                />
-
-                {/* CONTINUE */}
-
-                <div className="md:col-span-2 pt-2">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 bg-[#DF4607] hover:bg-[#C93E05] text-white px-8 py-3.5 rounded-lg font-semibold text-sm transition-all duration-200"
-                  >
-                    Continue
-                    <ArrowRight size={18} />
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* ================= RIGHT ================= */}
-
-            <WhyTrazoo />
-          </div>
-        )}
-
-        {/* ==================================================
-            STEP 2
-        ================================================== */}
-
-        {step === 2 && (
-          <div className="max-w-7xl mx-auto">
-
-            <p className="text-[#DF4607] text-xs font-semibold tracking-wide mb-3">
-              STEP 2 OF 2
-            </p>
-
-            <h1 className="text-4xl md:text-5xl font-bold text-[#111111] leading-tight">
-              Share Your Requirement
-            </h1>
-
-            <p className="text-[#8A817A] text-base md:text-lg mt-3 mb-10">
-              Tell us what you need, and our enterprise
-              fulfillment team will handle the rest.
-            </p>
-
-            {/* TRUST CARD */}
-
-            <div className="border border-[#DED8D2] rounded-xl p-6 mb-12 flex items-center gap-5 bg-[#FFFDF9]">
-
-              <div className="w-16 h-16 shrink-0 rounded-full bg-white shadow-sm flex items-center justify-center">
-                <Package
-                  size={28}
-                  strokeWidth={2}
-                  className="text-[#DF4607]"
-                />
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-[#222222]">
-                  Enterprise Trusted
-                </h3>
-
-                <p className="text-base md:text-lg text-[#756E68]">
-                  30,000+ Kits Shipped Successfully
-                </p>
-              </div>
-            </div>
-
-            {/* ALERT */}
-
-            {alert.message && (
-              <div className="mb-8">
-                <Alert
-                  type={alert.type}
-                  message={alert.message}
-                />
-              </div>
-            )}
+            {/* FORM */}
 
             <form
               onSubmit={handleSubmit}
-              className="space-y-8"
+              className="bg-white border border-[#E3DDD7] rounded-2xl p-6 md:p-10 shadow-lg"
             >
 
-              {/* OVERALL BUDGET */}
+              {submitMessage && (
+                <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+                  {submitMessage}
+                </div>
+              )}
 
-              <div>
-                <label className="block text-lg text-[#222222] mb-2">
-                  Overall Budget
-                </label>
+              {submitError && (
+                <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {submitError}
+                </div>
+              )}
+
+              <h2 className="text-3xl font-bold mb-2">
+                Tell us about your needs
+              </h2>
+
+              <p className="text-[#77716C] mb-8">
+                The more details you share, the better we can tailor our
+                solution for you.
+              </p>
+
+              {/* NAME & EMAIL */}
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <input
+                  type="text"
+                  name="fullName"
+                  placeholder="Your Full Name"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
+                  required
+                />
+
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="your.email@company.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
+                  required
+                />
+              </div>
+
+              {/* PHONE & COMPANY */}
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="+91 98765 43210"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
+                  required
+                />
+
+                <input
+                  type="text"
+                  name="companyName"
+                  placeholder="Your Company Name"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
+                />
+              </div>
+
+              {/* RECIPIENTS & BUDGET */}
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <input
+                  type="number"
+                  name="numberOfRecipients"
+                  placeholder="Number of Recipients (e.g., 100)"
+                  value={formData.numberOfRecipients}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
+                  min="1"
+                />
 
                 <select
-                  value={formData.overallBudget}
-                  onChange={(e) =>
-                    handleChange(
-                      "overallBudget",
-                      e.target.value
-                    )
-                  }
-                  required
-                  className="w-full h-[62px] bg-white border border-[#9E9994] px-5 text-lg text-[#222222] outline-none focus:border-[#DF4607] transition-colors"
+                  name="budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
                 >
-                  <option value="">
-                    Select a range
-                  </option>
-
-                  <option value="UNDER_50K">
-                    Under ₹50,000
-                  </option>
-
-                  <option value="50K_1L">
-                    ₹50,000 - ₹1 Lakh
-                  </option>
-
-                  <option value="1L_5L">
-                    ₹1 Lakh - ₹5 Lakhs
-                  </option>
-
-                  <option value="5L_10L">
-                    ₹5 Lakhs - ₹10 Lakhs
-                  </option>
-
-                  <option value="ABOVE_10L">
-                    Above ₹10 Lakhs
-                  </option>
+                  <option value="">Select Budget Range</option>
+                  <option value="under-500">Under ₹500 per unit</option>
+                  <option value="500-1000">₹500 - ₹1,000</option>
+                  <option value="1000-2500">₹1,000 - ₹2,500</option>
+                  <option value="2500-plus">₹2,500+</option>
+                  <option value="custom">Custom Budget</option>
                 </select>
               </div>
 
-              {/* DELIVERY REQUIREMENT */}
+              {/* TIMELINE & CATEGORY */}
 
-              <div>
-                <label className="block text-lg text-[#222222] mb-2">
-                  Delivery Requirements
-                </label>
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <select
+                  name="timeline"
+                  value={formData.timeline}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
+                >
+                  <option value="">When do you need this?</option>
+                  <option value="urgent">Urgent (Within 7 days)</option>
+                  <option value="2weeks">2 Weeks</option>
+                  <option value="1month">1 Month</option>
+                  <option value="flexible">Flexible Timeline</option>
+                </select>
 
                 <select
-                  value={formData.deliveryRequirement}
-                  onChange={(e) =>
-                    handleChange(
-                      "deliveryRequirement",
-                      e.target.value
-                    )
-                  }
-                  required
-                  className="w-full h-[62px] bg-white border border-[#9E9994] px-5 text-lg text-[#222222] outline-none focus:border-[#DF4607] transition-colors"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607]"
                 >
-                  <option value="">
-                    Select delivery requirement
-                  </option>
-
-                  <option value="PAN_INDIA">
-                    Pan India Delivery
-                  </option>
-
-                  <option value="SINGLE_LOCATION">
-                    Single Location
-                  </option>
-
-                  <option value="MULTIPLE_LOCATIONS">
-                    Multiple Locations
-                  </option>
-
-                  <option value="INTERNATIONAL">
-                    International Delivery
-                  </option>
+                  <option value="">Product Category</option>
+                  <option value="apparel">Apparel</option>
+                  <option value="drinkware">Drinkware</option>
+                  <option value="stationery">Stationery</option>
+                  <option value="bags">Bags</option>
+                  <option value="electronics">Electronics & Tech</option>
+                  <option value="travel">Travel</option>
+                  <option value="wellness">Wellness</option>
+                  <option value="food">Food & Hampers</option>
+                  <option value="awards">Awards & Recognition</option>
+                  <option value="merchandise">Event Merchandise</option>
+                  <option value="packaging">Packaging</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 
-              {/* BUTTONS */}
+              {/* REQUIREMENTS */}
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <textarea
+                name="requirements"
+                placeholder="Describe your requirement in detail. What are you looking for? Any specific preferences for customization, colors, themes, or brand messaging?"
+                value={formData.requirements}
+                onChange={handleChange}
+                rows="5"
+                className="w-full border border-[#D9D1CA] rounded-xl px-4 py-3 outline-none focus:border-[#DF4607] resize-none mb-6"
+              />
 
-                {/* BACK */}
+              {/* SUBMIT */}
 
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  disabled={isLoading}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg border border-[#D8D2CC] bg-white text-[#222222] font-semibold text-sm hover:bg-[#F7F2EC] transition-colors disabled:opacity-50"
-                >
-                  <ArrowLeft size={18} />
-                  Back
-                </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#DF4607] hover:bg-[#C93E05] disabled:opacity-60 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition"
+              >
+                {isSubmitting ? "Submitting..." : "Submit Requirement"}
 
-                {/* SUBMIT */}
+                {!isSubmitting && <ArrowRight size={18} />}
+              </button>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-[#DF4607] hover:bg-[#C93E05] text-white font-semibold text-sm transition-colors disabled:opacity-50"
-                >
-                  {isLoading
-                    ? "Submitting..."
-                    : "Submit Requirement"}
-
-                  {!isLoading && (
-                    <CheckCircle2 size={18} />
-                  )}
-                </button>
-              </div>
             </form>
-          </div>
-        )}
-      </div>
-    </main>
-  );
-};
 
-/* ======================================================
-   INPUT FIELD
-====================================================== */
+            {/* SIDE INFO */}
 
-const InputField = ({
-  label,
-  type = "text",
-  placeholder,
-  value,
-  onChange,
-  required = false,
-  min,
-}) => {
-  return (
-    <div>
-      <label className="block text-xs text-[#222222] mb-2">
-        {label}
-      </label>
+            <aside className="lg:sticky lg:top-28 space-y-6">
 
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        required={required}
-        min={min}
-        className="w-full h-[48px] bg-white border border-[#D8D2CC] rounded-lg px-4 text-sm text-[#222222] placeholder:text-[#9CA3AF] outline-none focus:border-[#DF4607] transition-colors"
-      />
-    </div>
-  );
-};
+              <div className="bg-[#F5F0EA] rounded-2xl p-6">
+                <p className="text-xs tracking-widest text-[#DF4607] font-semibold uppercase mb-4">
+                  Quick Tips
+                </p>
 
-/* ======================================================
-   ALERT
-====================================================== */
+                <ul className="space-y-3 text-sm text-[#77716C]">
+                  <li>✓ Be specific about your needs</li>
+                  <li>✓ Share budget and timeline</li>
+                  <li>✓ Mention customization preferences</li>
+                  <li>✓ Add any reference images or ideas</li>
+                </ul>
+              </div>
 
-const Alert = ({ type, message }) => {
-  const isSuccess = type === "success";
+              <div className="bg-white border border-[#DED8D2] rounded-2xl p-6">
+                <p className="text-xs tracking-widest text-[#DF4607] font-semibold uppercase mb-4">
+                  Contact Us
+                </p>
 
-  return (
-    <div
-      className={`p-4 rounded-lg border mb-6 text-sm font-medium ${
-        isSuccess
-          ? "bg-green-50 text-green-700 border-green-200"
-          : "bg-red-50 text-red-700 border-red-200"
-      }`}
-    >
-      {message}
-    </div>
-  );
-};
+                <div className="space-y-4">
+                  <a
+                    href="mailto:hello@trazooglobal.com"
+                    className="flex items-center gap-3 text-sm hover:text-[#DF4607] transition"
+                  >
+                    <Mail size={18} className="text-[#DF4607]" />
+                    <span>hello@trazooglobal.com</span>
+                  </a>
 
-/* ======================================================
-   WHY TRAZOO
-====================================================== */
+                  <a
+                    href="tel:+919876543210"
+                    className="flex items-center gap-3 text-sm hover:text-[#DF4607] transition"
+                  >
+                    <Phone size={18} className="text-[#DF4607]" />
+                    <span>+91 9876 543 210</span>
+                  </a>
 
-const WhyTrazoo = () => {
-  return (
-    <aside className="bg-[#F7F2EC] border border-[#DED8D2] rounded-xl p-7 h-fit">
+                  <div className="flex items-center gap-3 text-sm">
+                    <MapPin size={18} className="text-[#DF4607]" />
+                    <span>Bhopal, India</span>
+                  </div>
+                </div>
+              </div>
 
-      <h2 className="text-2xl font-semibold text-[#111111] mb-8">
-        Why Trazoo?
-      </h2>
+            </aside>
 
-      <div className="space-y-7">
+          </section>
 
-        <InfoItem
-          icon={<Package size={19} />}
-          title="30,000+ Kits shipped"
-          description="Delivered in the last year alone."
-        />
-
-        <InfoItem
-          icon={<MapPin size={19} />}
-          title="12,000+ PIN codes reached"
-          description="Pan-India fulfilment and shipment visibility."
-        />
-
-        <InfoItem
-          icon={<Pencil size={19} />}
-          title="Custom Branding"
-          description="Premium logo placement and Custom packaging options for every gift."
-        />
-      </div>
-
-      <div className="border-t border-[#DED8D2] mt-8 pt-6">
-
-        <p className="text-[10px] tracking-[0.2em] text-[#8A817A] mb-4">
-          TRUSTED BY
-        </p>
-
-        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#756E68]">
-          <span>Infosys</span>
-          <span>HCLTech</span>
-          <span>Amazon</span>
-          <span>Flipkart</span>
         </div>
-      </div>
-    </aside>
-  );
-};
+      </main>
 
-/* ======================================================
-   INFO ITEM
-====================================================== */
+      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL ================= */}
+      <section className="bg-[#FFFDF9] border-t border-[#DED8D2] overflow-hidden">
+        <div className="w-full py-14 md:py-16">
 
-const InfoItem = ({
-  icon,
-  title,
-  description,
-}) => {
-  return (
-    <div className="flex gap-4">
+          {/* Heading */}
+          <div className="text-center px-6 mb-10 md:mb-12">
+            <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em] text-[#DF4607]">
+              Trusted by Leading Organizations
+            </p>
 
-      <div className="text-[#DF4607] mt-1 shrink-0">
-        {icon}
-      </div>
+            <h2 className="mt-3 text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-[-0.03em] text-[#111111]">
+              Trusted by teams that value quality
+            </h2>
 
-      <div>
-        <h3 className="font-medium text-[#222222]">
-          {title}
-        </h3>
+            <p className="mt-3 max-w-2xl mx-auto text-sm md:text-base leading-6 text-[#6E6A67]">
+              Organizations trust Trazoo for reliable gifting, merchandise and
+              end-to-end fulfilment.
+            </p>
+          </div>
 
-        <p className="text-sm text-[#8A817A] mt-1 leading-6">
-          {description}
-        </p>
-      </div>
+          {/* Logos */}
+          <div className="w-full overflow-hidden">
+            {/* Mobile: Carousel Animation - FASTER with SPACING */}
+            <div className="md:hidden">
+              <div className="mobile-carousel scrollbar-hide">
+                {companiesWithDuplicate.map((company, i) => (
+                  <div
+                    key={i}
+                    className="mobile-carousel-item flex items-center justify-center shrink-0"
+                  >
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="
+                        h-12
+                        w-auto
+                        max-w-[120px]
+                        object-contain
+                        border-0
+                        outline-none
+                        shadow-none
+                        transition-transform duration-300
+                        hover:scale-105
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop: Static Grid (NO Animation) */}
+            <div className="hidden md:block">
+              <div className="flex items-center justify-center flex-wrap gap-10 md:gap-14 lg:gap-16 px-6">
+                {companies.map((company, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center"
+                  >
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="
+                        h-14
+                        md:h-16
+                        lg:h-[68px]
+                        w-auto
+                        max-w-[150px]
+                        md:max-w-[170px]
+                        lg:max-w-[180px]
+                        object-contain
+                        border-0
+                        outline-none
+                        shadow-none
+                        transition-transform duration-300
+                        hover:scale-105
+                      "
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };
