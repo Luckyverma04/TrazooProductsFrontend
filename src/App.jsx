@@ -64,6 +64,26 @@ function ScrollToTop() {
 
 
 // ======================================================
+// NAVBAR VISIBILITY LOGIC - HIDE ON ADMIN/ASSOCIATE
+// ======================================================
+
+function NavbarWrapper() {
+  const location = useLocation();
+
+  // ✅ HIDE NAVBAR for admin and associate routes
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAssociateRoute = location.pathname.startsWith("/associate");
+  const isAuthRoute = location.pathname === "/auth" || location.pathname === "/verify-otp";
+
+  if (isAdminRoute || isAssociateRoute || isAuthRoute) {
+    return null; // Don't show navbar
+  }
+
+  return <Navbar />; // Show navbar for public pages
+}
+
+
+// ======================================================
 // SOLUTIONS PAGE
 // ======================================================
 
@@ -107,8 +127,8 @@ function App() {
       }}
     >
 
-      {/* ONE GLOBAL NAVBAR ONLY */}
-      <Navbar />
+      {/* ✅ CONDITIONAL NAVBAR - ONLY ON PUBLIC PAGES */}
+      <NavbarWrapper />
 
       {/* RESET SCROLL POSITION ON EVERY ROUTE CHANGE */}
       <ScrollToTop />

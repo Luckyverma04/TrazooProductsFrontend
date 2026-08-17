@@ -13,13 +13,19 @@ import {
 } from "lucide-react";
 import API from "../../config/api";
 
+// ✅ UPDATED: 11 categories to match frontend ProductRange
 const ALLOWED_CATEGORIES = [
-  "Diary",
-  "Stationery",
+  "Apparel",
   "Drinkware",
-  "Packaging",
-  "Electronics",
+  "Stationery",
   "Bags",
+  "Electronics & Tech",
+  "Travel",
+  "Wellness",
+  "Food & Hampers",
+  "Awards & Recognition",
+  "Event Merchandise",
+  "Packaging",
 ];
 
 const BUDGET_OPTIONS = [100, 200, 300, 500, 750, 1000, 1500, 2000];
@@ -214,7 +220,8 @@ const ProductsManager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 p-6 lg:p-10">
+    // ✅ FIXED: Added pt-28 to prevent navbar cutoff
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 p-6 lg:p-10 pt-28">
       <div className="max-w-7xl mx-auto">
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
@@ -424,6 +431,7 @@ const ProductsManager = () => {
                     />
                   </div>
 
+                  {/* ✅ UPDATED: Category dropdown with 11 categories */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Category *
