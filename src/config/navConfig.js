@@ -29,6 +29,13 @@ export const navLinks = [
     path: "/about",
     ready: true,
   },
+  // ✅ DASHBOARD LINK - Will show conditionally in Navbar
+  {
+    name: "Dashboard",
+    path: "/dashboard",
+    ready: true,
+    requiresAuth: true, // ✅ Only show when logged in
+  },
 ];
 
 export const footerColumns = [

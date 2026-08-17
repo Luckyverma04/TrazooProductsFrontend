@@ -1,8 +1,10 @@
 import { Navigate } from "react-router-dom";
+import storageUtils from "../utils/storageUtils";
 
 const AdminRoute = ({ children }) => {
-  const rawUser = localStorage.getItem("user");
-  const token = localStorage.getItem("token");
+  // ✅ Use storageUtils instead of direct localStorage
+  const rawUser = storageUtils.getItem("user");
+  const token = storageUtils.getItem("token");
 
   // Check if user is logged in
   if (!rawUser || !token) {
@@ -22,7 +24,7 @@ const AdminRoute = ({ children }) => {
   } catch (error) {
     // If JSON parsing fails, redirect to auth
     console.error("Error parsing user data:", error);
-    localStorage.clear();
+    storageUtils.clear();
     return <Navigate to="/auth" replace />;
   }
 };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import storageUtils from "../utils/storageUtils";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -34,8 +35,10 @@ const CombinedAuth = () => {
         });
 
         const { token, user } = res.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+        
+        // ✅ UPDATED: Use storageUtils instead of localStorage
+        storageUtils.setItem("token", token);
+        storageUtils.setItem("user", JSON.stringify(user));
 
         if (user.role === "admin") {
           navigate("/admin/dashboard", { replace: true });
@@ -49,7 +52,8 @@ const CombinedAuth = () => {
           password: formData.password,
         });
 
-        localStorage.setItem("pendingEmail", formData.email);
+        // ✅ UPDATED: Use storageUtils instead of localStorage
+        storageUtils.setItem("pendingEmail", formData.email);
         alert("Signup successful! Please verify OTP.");
         navigate("/verify-otp");
       }
