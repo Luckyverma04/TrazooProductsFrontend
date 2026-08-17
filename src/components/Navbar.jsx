@@ -49,11 +49,11 @@ const Navbar = () => {
     navigate("/requirements");
   };
 
-  // ✅ LOGOUT FUNCTION
+  // ✅ LOGOUT FUNCTION - Go to HOME
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
       storageUtils.clear();
-      navigate("/auth", { replace: true });
+      navigate("/", { replace: true }); // ✅ HOME PAGE, NOT /auth
     }
   };
 

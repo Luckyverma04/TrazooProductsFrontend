@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -19,6 +19,30 @@ const CombinedAuth = () => {
     password: "",
   });
 
+  // ✅ CHECK IF ALREADY LOGGED IN - Redirect to dashboard/home
+  useEffect(() => {
+    const token = storageUtils.getItem("token");
+    const rawUser = storageUtils.getItem("user");
+
+    if (token && rawUser) {
+      try {
+        const user = JSON.parse(rawUser);
+        const role = user.role?.toLowerCase();
+
+        // If already logged in, redirect to appropriate dashboard
+        if (role === "admin") {
+          navigate("/admin/dashboard", { replace: true });
+        } else if (role === "associate") {
+          navigate("/associate", { replace: true });
+        } else {
+          navigate("/", { replace: true }); // Fallback to home
+        }
+      } catch (err) {
+        console.error("Error parsing user:", err);
+      }
+    }
+  }, [navigate]);
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -35,8 +59,8 @@ const CombinedAuth = () => {
         });
 
         const { token, user } = res.data;
-        
-        // ✅ UPDATED: Use storageUtils instead of localStorage
+
+        // ✅ Use storageUtils instead of localStorage
         storageUtils.setItem("token", token);
         storageUtils.setItem("user", JSON.stringify(user));
 
@@ -52,7 +76,7 @@ const CombinedAuth = () => {
           password: formData.password,
         });
 
-        // ✅ UPDATED: Use storageUtils instead of localStorage
+        // ✅ Use storageUtils instead of localStorage
         storageUtils.setItem("pendingEmail", formData.email);
         alert("Signup successful! Please verify OTP.");
         navigate("/verify-otp");
