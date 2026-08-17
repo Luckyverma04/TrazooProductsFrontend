@@ -1,34 +1,29 @@
 export const navLinks = [
   {
+    name: "Home",
+    path: "/",
+    ready: true,
+  },
+  {
     name: "Solutions",
     path: "/solutions",
     ready: true,
   },
-
   {
     name: "Products",
     path: "/products",
     ready: true,
   },
-
   {
     name: "Customization",
     path: "/customize",
     ready: true,
   },
-
-  {
-    name: "Fulfilment",
-    path: "/fulfilment",
-    ready: true,
-  },
-
   {
     name: "Our Work",
     path: "/our-work",
     ready: true,
   },
-
   {
     name: "About Us",
     path: "/about",
@@ -36,18 +31,15 @@ export const navLinks = [
   },
 ];
 
-
 export const footerColumns = [
   {
     title: "Legal",
-
     links: [
       {
         name: "Terms of Service",
         path: "/terms",
         ready: true,
       },
-
       {
         name: "Privacy Policy",
         path: "/privacy",
@@ -55,17 +47,14 @@ export const footerColumns = [
       },
     ],
   },
-
   {
     title: "Support",
-
     links: [
       {
         name: "Contact Us",
         hash: "#footer",
         ready: true,
       },
-
       {
         name: "Enterprise FAQ",
         path: "/faq",
@@ -73,10 +62,8 @@ export const footerColumns = [
       },
     ],
   },
-
   {
     title: "Operations",
-
     links: [
       {
         name: "Pan-India Fulfilment",
