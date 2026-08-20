@@ -4,7 +4,7 @@ import axios from "axios";
 // SECONDARY: GoDaddy domain (only if Render fails)
 const BACKENDS = [
   import.meta.env.VITE_API_URL_SECONDARY ||
-  "https://terzooproductsbackend-9yc4.onrender.com", // ← Render (Primary - CORS OK)
+  "https://terzooproductsbackend-1.onrender.com", // ← Render (Primary - CORS OK)
 
   import.meta.env.VITE_API_URL ||
   "https://api.trazooglobal.com", // ← GoDaddy (Backup)
