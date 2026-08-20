@@ -14,7 +14,7 @@ let currentBackendIndex = 0;
 
 const API = axios.create({
   baseURL: BACKENDS[currentBackendIndex],
-  timeout: 8000,
+  timeout:  120000,
   withCredentials: true,
 });
 
