@@ -83,24 +83,32 @@ const FormModal = ({ isOpen, onClose }) => {
       {/* Modal - Slide in from right */}
       <div className="fixed right-0 top-0 h-full w-full max-w-xl bg-white z-50 shadow-2xl overflow-y-auto transform transition-transform duration-300">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-[#E8E8E8] p-6 md:p-8">
+        <div className="sticky top-0 relative overflow-hidden bg-[#B95816] p-6 md:p-8">
+          {/* Leather/warm texture overlay */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.12),transparent_28%),radial-gradient(circle_at_75%_60%,rgba(80,25,0,0.16),transparent_35%),linear-gradient(110deg,#C9681E,#A94B0D,#C15D13)]"
+          />
+
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 text-[#6B6B6B] hover:text-[#111111] transition-colors"
+            className="absolute top-6 right-6 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
             aria-label="Close"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
 
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#F36F21] mb-2">
-            Request a proposal
-          </p>
-          <h2 className="text-3xl md:text-4xl font-light text-[#111111] mb-3">
-            Give us the requirement.
-          </h2>
-          <p className="text-base text-[#6B6B6B]">
-            We come back with a curated shortlist and a committed delivery plan.
-          </p>
+          <div className="relative">
+            <p className="text-sm font-semibold uppercase tracking-widest text-white/80 mb-2">
+              Request a proposal
+            </p>
+            <h2 className="text-3xl md:text-4xl font-light text-white mb-3">
+              Give us the requirement.
+            </h2>
+            <p className="text-base text-white/70">
+              We come back with a curated shortlist and a committed delivery plan.
+            </p>
+          </div>
         </div>
 
         {/* Form Content */}
