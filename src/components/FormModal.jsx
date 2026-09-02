@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-
-const API = import.meta.env.VITE_API_URL;
+import API from "../config/api";
 
 const FormModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -31,59 +30,41 @@ const FormModal = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
 
     try {
-      // Map frontend field names to backend API expectations
       const payload = {
-        fullName: formData.name,
+        name: formData.name,
+        company: formData.company,
         email: formData.email,
         phone: formData.phone,
-        company: formData.company,
-        lookingFor: formData.programme,
-        quantity: formData.qty ? parseInt(formData.qty) : null,
-        requiredBy: formData.deadline || null,
-        requirement: formData.brief,
-        leadSource: "WEBSITE",
+        programme: formData.programme,
+        qty: formData.qty ? parseInt(formData.qty) : null,
+        deadline: formData.deadline || null,
+        brief: formData.brief,
       };
 
-      const response = await fetch(`${API}/api/enquiry`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      await API.post("/api/proposal-requests", payload);
+
+      setSubmitMessage("✓ Requirement received! We'll be in touch within 1 working day.");
+      setFormData({
+        name: "",
+        company: "",
+        email: "",
+        phone: "",
+        programme: "Employee Onboarding",
+        qty: "",
+        deadline: "",
+        brief: "",
       });
 
-      const contentType = response.headers.get("content-type") || "";
-      let data = {};
-      
-      if (contentType.includes("application/json")) {
-        data = await response.json();
-      }
-
-      if (response.ok) {
-        setSubmitMessage("✓ Requirement received! We'll be in touch within 1 working day.");
-        setFormData({
-          name: "",
-          company: "",
-          email: "",
-          phone: "",
-          programme: "Employee Onboarding",
-          qty: "",
-          deadline: "",
-          brief: "",
-        });
-
-        // Auto close after 2 seconds
-        setTimeout(() => {
-          onClose();
-          setSubmitMessage("");
-        }, 2000);
-      } else {
-        setSubmitMessage(`❌ ${data.message || `Server error (${response.status}). Please try again.`}`);
-      }
+      // Auto close after 2 seconds
+      setTimeout(() => {
+        onClose();
+        setSubmitMessage("");
+      }, 2000);
     } catch (error) {
       console.error("Submission error:", error);
-      console.log("📍 API URL being used:", `${API}/api/enquiry`);
-      setSubmitMessage(`❌ ${error.message || "Error submitting. Please try again."}`);
+      setSubmitMessage(
+        `❌ ${error.response?.data?.message || "Error submitting. Please try again."}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -102,24 +83,32 @@ const FormModal = ({ isOpen, onClose }) => {
       {/* Modal - Slide in from right */}
       <div className="fixed right-0 top-0 h-full w-full max-w-xl bg-white z-50 shadow-2xl overflow-y-auto transform transition-transform duration-300">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-[#E8E8E8] p-6 md:p-8">
+        <div className="sticky top-0 relative overflow-hidden bg-[#B95816] p-6 md:p-8">
+          {/* Leather/warm texture overlay */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.12),transparent_28%),radial-gradient(circle_at_75%_60%,rgba(80,25,0,0.16),transparent_35%),linear-gradient(110deg,#C9681E,#A94B0D,#C15D13)]"
+          />
+
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 text-[#6B6B6B] hover:text-[#111111] transition-colors"
+            className="absolute top-6 right-6 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors"
             aria-label="Close"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
 
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#F36F21] mb-2">
-            Request a proposal
-          </p>
-          <h2 className="text-3xl md:text-4xl font-light text-[#111111] mb-3">
-            Give us the requirement.
-          </h2>
-          <p className="text-base text-[#6B6B6B]">
-            We come back with a curated shortlist and a committed delivery plan.
-          </p>
+          <div className="relative">
+            <p className="text-sm font-semibold uppercase tracking-widest text-white/80 mb-2">
+              Request a proposal
+            </p>
+            <h2 className="text-3xl md:text-4xl font-light text-white mb-3">
+              Give us the requirement.
+            </h2>
+            <p className="text-base text-white/70">
+              We come back with a curated shortlist and a committed delivery plan.
+            </p>
+          </div>
         </div>
 
         {/* Form Content */}
