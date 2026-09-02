@@ -1,214 +1,351 @@
 import {
   Mail,
   Phone,
-  MapPin,
-  Linkedin,
+  Clock,
+  Facebook,
   Instagram,
-  LogIn,
+  Linkedin,
+  Globe,
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import logo from "../assets/logo.png";
-import footer from "../assets/footer.png";
 
-// Gmail vs default mail client
-const getMailHref = () => {
-  const isChrome =
-    typeof navigator !== "undefined" &&
-    navigator.userAgent.includes("Chrome");
-
-  return isChrome
-    ? "https://mail.google.com/mail/?view=cm&fs=1&to=contact@trazooglobal.com"
-    : "mailto:contact@trazooglobal.com";
-};
-
-// Footer links
-const footerColumns = [
-  {
-    title: "Company",
-    links: [
-      {
-        name: "About Us",
-        path: "/about",
-      },
-      {
-        name: "Contact Us",
-        path: "/requirements",
-      },
-      {
-        name: "Enterprise FAQ",
-        path: "/faq",
-      },
-    ],
-  },
-
-  {
-    title: "Services",
-    links: [
-      {
-        name: "Products",
-        path: "/products",
-      },
-      {
-        name: "Customisation",
-        path: "/customisation",
-      },
-      {
-        name: "Fulfilment",
-        path: "/fulfilment",
-      },
-      {
-        name: "Our Work",
-        path: "/our-work",
-      },
-    ],
-  },
-
-  {
-    title: "Legal",
-    links: [
-      {
-        name: "Terms of Service",
-        path: "/terms",
-      },
-      {
-        name: "Privacy Policy",
-        path: "/privacy",
-      },
-    ],
-  },
-];
+import logoImage from "../assets/branding/logo.webp";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  const giftingEvents = [
+    "Employee Onboarding",
+    "Festive Gifting",
+    "Rewards & Recognition",
+    "Events & Conferences",
+    "Client & Partner Gifting",
+    "Institutional Gifting",
+  ];
+
+  const products = [
+    "Apparel & Wearables",
+    "Drinkware",
+    "Bags & Travel",
+    "Stationery & Desk",
+    "Tech & Accessories",
+    "Gourmet & Packaging",
+  ];
+
   return (
-    <footer
-      id="footer"
-      className="bg-[#FFFDF9] border-t border-[#DED8D2] relative overflow-hidden"
-      style={{
-        backgroundImage: `url(${footer})`,
-        backgroundPosition: "right center",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "contain",
-        backgroundAttachment: "scroll",
-      }}
-    >
-      {/* ================= OVERLAY FOR READABILITY ================= */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#FFFDF9] via-[#FFFDF9] to-transparent pointer-events-none"></div>
+    <footer className="w-full bg-[#111111] text-white">
+      {/* ================= MAIN FOOTER ================= */}
+      <div className="border-b border-white/10">
+        <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4 md:gap-7 lg:gap-10">
 
-      {/* ================= FOOTER CONTENT ================= */}
-      <div className="max-w-7xl mx-auto px-6 py-14 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-
-          {/* ================= BRAND ================= */}
-          <div>
-            <Link to="/">
+            {/* ================= BRAND ================= */}
+            <div className="flex flex-col">
               <img
-                src={logo}
-                alt="Trazoo Global"
-                className="w-[120px] h-auto mb-5"
+                src={logoImage}
+                alt="Trazoo, joining with style"
+                className="mb-4 h-auto w-[155px] object-contain"
               />
-            </Link>
 
-            <p className="text-[#4A4644] leading-relaxed mb-6 max-w-xs">
-              Corporate gifting. Without the vendor chaos.
-            </p>
+              <p className="mb-5 max-w-[280px] text-[13px] leading-relaxed text-white/65">
+                Corporate gifting, executed end to end.
+              </p>
 
-            {/* ================= CONTACT ================= */}
-            <div className="space-y-3 text-sm">
+              {/* Social Icons */}
+              <div className="flex gap-3">
+                {/* LinkedIn */}
+                <a
+                  href="https://www.linkedin.com/company/trazoo-global-llp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="
+                    flex h-9 w-9 items-center justify-center
+                    rounded-full
+                    bg-[#2A1E17]
+                    text-[#F36F21]
+                    transition-all duration-200
+                    hover:bg-[#F36F21]
+                    hover:text-white
+                  "
+                >
+                  <Linkedin size={15} strokeWidth={1.8} />
+                </a>
 
-              <a
-                href={getMailHref()}
-                className="flex items-center gap-2 text-[#4A4644] hover:text-[#DF4607] transition-colors"
-              >
-                <Mail size={15} />
-                <span>contact@trazooglobal.com</span>
-              </a>
+                {/* Instagram */}
+                <a
+                  href="https://www.instagram.com/trazooglobal"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="
+                    flex h-9 w-9 items-center justify-center
+                    rounded-full
+                    bg-[#2A1E17]
+                    text-[#F36F21]
+                    transition-all duration-200
+                    hover:bg-[#F36F21]
+                    hover:text-white
+                  "
+                >
+                  <Instagram size={15} strokeWidth={1.8} />
+                </a>
 
-              <div className="flex items-center gap-2 text-[#4A4644]">
-                <Phone size={15} />
-                <span>+91 7024804838</span>
+                {/* Facebook */}
+                <a
+                  href="https://www.facebook.com/trazooglobal"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="
+                    flex h-9 w-9 items-center justify-center
+                    rounded-full
+                    bg-[#2A1E17]
+                    text-[#F36F21]
+                    transition-all duration-200
+                    hover:bg-[#F36F21]
+                    hover:text-white
+                  "
+                >
+                  <Facebook size={15} strokeWidth={1.8} />
+                </a>
               </div>
-
-              <div className="flex items-center gap-2 text-[#4A4644]">
-                <MapPin size={15} />
-                <span>India</span>
-              </div>
-
             </div>
 
-            {/* ================= SOCIAL ================= */}
-            <div className="flex gap-3 mt-6">
-
-              <a
-                href="https://www.linkedin.com/company/trazoo-global-llp/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Trazoo Global LLP LinkedIn"
-                className="p-2 rounded-full border border-[#DED8D2] text-[#4A4644] hover:border-[#DF4607] hover:text-[#DF4607] transition-colors"
+            {/* ================= GIFTING EVENTS ================= */}
+            <nav
+              className="flex flex-col"
+              aria-label="Gifting Events"
+            >
+              <h4
+                className="
+                  mb-4
+                  text-[11px]
+                  font-bold
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#F36F21]
+                "
               >
-                <Linkedin size={18} />
-              </a>
+                Gifting Events
+              </h4>
 
-              <a
-                href="https://www.instagram.com/trazooglobal/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Trazoo Global Instagram"
-                className="p-2 rounded-full border border-[#DED8D2] text-[#4A4644] hover:border-[#DF4607] hover:text-[#DF4607] transition-colors"
+              <ul className="space-y-2.5">
+                {giftingEvents.map((item) => (
+                  <li key={item}>
+                    <a
+                      href="#"
+                      className="
+                        text-[13px]
+                        font-medium
+                        text-white/65
+                        transition-colors
+                        duration-200
+                        hover:text-[#F36F21]
+                      "
+                    >
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* ================= PRODUCTS ================= */}
+            <nav
+              className="flex flex-col"
+              aria-label="Products"
+            >
+              <h4
+                className="
+                  mb-4
+                  text-[11px]
+                  font-bold
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#F36F21]
+                "
               >
-                <Instagram size={18} />
-              </a>
+                Products
+              </h4>
 
-            </div>
-          </div>
+              <ul className="space-y-2.5">
+                {products.map((item) => (
+                  <li key={item}>
+                    <a
+                      href="#"
+                      className="
+                        text-[13px]
+                        font-medium
+                        text-white/65
+                        transition-colors
+                        duration-200
+                        hover:text-[#F36F21]
+                      "
+                    >
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          {/* ================= FOOTER COLUMNS ================= */}
-          {footerColumns.map((col) => (
-            <div key={col.title}>
-
-              <h5 className="text-sm font-bold text-[#111111] mb-5">
-                {col.title}
-              </h5>
+            {/* ================= GET IN TOUCH ================= */}
+            <div className="flex flex-col">
+              <h4
+                className="
+                  mb-4
+                  text-[11px]
+                  font-bold
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#F36F21]
+                "
+              >
+                Get in Touch
+              </h4>
 
               <ul className="space-y-3">
 
-                {col.links.map((link) => (
-                  <li key={link.name}>
+                {/* Phone */}
+                <li className="flex items-center gap-3">
+                  <Phone
+                    size={14}
+                    strokeWidth={1.8}
+                    className="shrink-0 text-[#F36F21]"
+                  />
 
-                    <Link
-                      to={link.path}
-                      className="text-[#4A4644] hover:text-[#DF4607] transition-colors"
-                    >
-                      {link.name}
-                    </Link>
+                  <a
+                    href="tel:+917024804838"
+                    className="
+                      text-[13px]
+                      font-medium
+                      text-white/65
+                      transition-colors
+                      duration-200
+                      hover:text-[#F36F21]
+                    "
+                  >
+                    +91 70248 04838
+                  </a>
+                </li>
 
-                  </li>
-                ))}
+                {/* Email */}
+                <li className="flex items-center gap-3">
+                  <Mail
+                    size={14}
+                    strokeWidth={1.8}
+                    className="shrink-0 text-[#F36F21]"
+                  />
+
+                  <a
+                    href="mailto:contact@trazooglobal.com"
+                    className="
+                      break-all
+                      text-[13px]
+                      font-medium
+                      text-white/65
+                      transition-colors
+                      duration-200
+                      hover:text-[#F36F21]
+                    "
+                  >
+                    contact@trazooglobal.com
+                  </a>
+                </li>
+
+                {/* Website */}
+                <li className="flex items-center gap-3">
+                  <Globe
+                    size={14}
+                    strokeWidth={1.8}
+                    className="shrink-0 text-[#F36F21]"
+                  />
+
+                  <a
+                    href="https://www.trazooglobal.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="
+                      text-[13px]
+                      font-medium
+                      text-white/65
+                      transition-colors
+                      duration-200
+                      hover:text-[#F36F21]
+                    "
+                  >
+                    www.trazooglobal.com
+                  </a>
+                </li>
+
+                {/* Working Hours */}
+                <li className="flex items-start gap-3">
+                  <Clock
+                    size={14}
+                    strokeWidth={1.8}
+                    className="mt-0.5 shrink-0 text-[#F36F21]"
+                  />
+
+                  <span className="text-[13px] font-medium leading-relaxed text-white/65">
+                    Mon to Sat · 10:00 AM to 6:00 PM IST
+                  </span>
+                </li>
 
               </ul>
-
-              {/* ================= LOGIN ================= */}
-              {col.title === "Company" && (
-                <Link
-                  to="/auth"
-                  className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-[#DF4607] hover:bg-[#C93E05] text-white font-semibold text-sm rounded-lg transition-colors"
-                >
-                  <LogIn size={16} />
-                  Login
-                </Link>
-              )}
-
             </div>
-          ))}
-
+          </div>
         </div>
+      </div>
 
-        {/* ================= COPYRIGHT ================= */}
-        <div className="mt-14 pt-6 border-t border-[#DED8D2]">
-          <p className="text-sm text-[#6E6A67]">
-            © {new Date().getFullYear()} Trazoo Global. All rights reserved.
-          </p>
+      {/* ================= FOOTER BAR ================= */}
+      <div>
+        <div className="mx-auto max-w-[1400px] px-5 py-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+
+            {/* Copyright */}
+            <p className="text-[11px] text-white/45">
+              © {currentYear} Trazoo Global LLP
+            </p>
+
+            {/* Legal Links */}
+            <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-white/45">
+              <a
+                href="#about"
+                className="transition-colors hover:text-[#F36F21]"
+              >
+                About
+              </a>
+
+              <span>·</span>
+
+              <a
+                href="#process"
+                className="transition-colors hover:text-[#F36F21]"
+              >
+                How We Work
+              </a>
+
+              <span>·</span>
+
+              <a
+                href="#"
+                className="transition-colors hover:text-[#F36F21]"
+              >
+                Privacy
+              </a>
+
+              <span>·</span>
+
+              <a
+                href="#"
+                className="transition-colors hover:text-[#F36F21]"
+              >
+                Terms
+              </a>
+            </div>
+
+          </div>
         </div>
-
       </div>
     </footer>
   );

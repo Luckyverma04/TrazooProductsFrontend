@@ -1,439 +1,809 @@
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import heroVideo from "../assets/solution_video.mp4";
+import { useEffect, useState } from "react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
-import LogoCompany1 from "../assets/Logo_company1.jpeg";
-import LogoCompany2 from "../assets/Logo_company2.jpeg";
-import LogoCompany3 from "../assets/Logo_company3.jpeg";
-import LogoCompany4 from "../assets/Logo_company4.jpeg";
-import LogoCompany5 from "../assets/Logo_company5.jpeg";
-import Logo_company6 from "../assets/Logo_company7.png";
+/* ============================================================
+   IMPORT IMAGES
+   ============================================================ */
 
-// ================= COMPANY LOGOS DATA =================
-const companies = [
-  { name: "IIM Trichy", logo: LogoCompany1 },
-  { name: "IIT Mandi", logo: LogoCompany2 },
-  { name: "IIM Ranchi", logo: LogoCompany3 },
-  { name: "UPRIO", logo: LogoCompany4 },
-  { name: "IHUB DivyaSampark", logo: LogoCompany5 },
-  { name: "Masai", logo: Logo_company6 },
+import apparel from "../assets/slides/apparel.webp";
+import bags from "../assets/slides/bags.webp";
+import curatedKits from "../assets/slides/curated-kits.webp";
+import drinkware from "../assets/slides/drinkware.webp";
+import gourmet from "../assets/slides/gourmet.webp";
+import stationery from "../assets/slides/stationery.webp";
+import tech from "../assets/slides/tech.webp";
+import welcomeKits from "../assets/slides/welcome-kits.webp";
+
+/* ============================================================
+   HERO PRODUCT DATA
+   ============================================================ */
+
+const products = [
+  {
+    title: "Apparel",
+    subtitle: "Branded apparel curated for your teams",
+    image: apparel,
+  },
+  {
+    title: "Bags",
+    subtitle: "Smart bags designed around your brand",
+    image: bags,
+  },
+  {
+    title: "Curated Kits",
+    subtitle: "Mixed-range kits built to one brief",
+    image: curatedKits,
+  },
+  {
+    title: "Drinkware",
+    subtitle: "Everyday drinkware with your brand",
+    image: drinkware,
+  },
+  {
+    title: "Gourmet",
+    subtitle: "Thoughtful gourmet gifting for every occasion",
+    image: gourmet,
+  },
+  {
+    title: "Stationery",
+    subtitle: "Premium stationery made for work",
+    image: stationery,
+  },
+  {
+    title: "Tech",
+    subtitle: "Useful technology gifts with your identity",
+    image: tech,
+  },
+  {
+    title: "Welcome Kits",
+    subtitle: "Boxed sets, ready for day one",
+    image: welcomeKits,
+  },
 ];
 
-// Duplicate companies for seamless carousel loop
-const companiesWithDuplicate = [...companies, ...companies];
+/* ============================================================
+   HERO HOME
+   ============================================================ */
 
-// ================= DATA =================
-const stats = [
-  { value: "30,000+", label: "Shipments Delivered" },
-  { value: "12,000+", label: "PIN Codes Covered" },
-  { value: "2,600+", label: "Products Available" },
-  { value: "1,500+", label: "Brand Partners" },
-  { value: "3 days", label: "Average Turnaround" },
-  { value: "20+", label: "Enterprise Clients" },
-];
+export default function HeroHome({ onEnquireClick }) {
+  const [activeIndex, setActiveIndex] = useState(2);
+  const [isPaused, setIsPaused] = useState(false);
 
-const oldWayPoints = [
-  "Multiple fragmented suppliers",
-  "Inconsistent quality control",
-  "Logistics nightmares & delays",
-];
+  /* ==========================================================
+     AUTO SLIDER
+     ========================================================== */
 
-const trazooWayPoints = [
-  "Unified procurement platform",
-  "Guaranteed enterprise quality",
-  "Pan-India door-to-door fulfilment",
-];
+  useEffect(() => {
+    if (isPaused) return;
 
-const solutions = [
-  { name: "Corporate Gifting", price: "₹500 onwards" },
-  { name: "Festive & Holiday Gifting", price: "₹500 onwards" },
-  { name: "Events & Conferences", price: "₹500 onwards" },
-  { name: "Employee & Joining Kits", price: "₹500 onwards" },
-  { name: "Custom Merchandise", price: "₹500 onwards" },
-  { name: "Institutional Gifting", price: "₹500 onwards" },
-];
+    const interval = setInterval(() => {
+      setActiveIndex((current) => (current + 1) % products.length);
+    }, 2600);
 
-// ================= PAGE =================
-const HeroHome = () => {
-  const navigate = useNavigate();
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
-  const videoRef = useRef(null);
-  const playedThisVisitRef = useRef(false);
+  /* ==========================================================
+     PREVIOUS
+     ========================================================== */
 
-  const handleRequirement = () => {
-    navigate("/requirements");
+  const goPrevious = () => {
+    setActiveIndex((current) =>
+      current === 0 ? products.length - 1 : current - 1
+    );
   };
 
-  // ================= HERO VIDEO LOGIC =================
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+  /* ==========================================================
+     NEXT
+     ========================================================== */
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          if (!playedThisVisitRef.current) {
-            playedThisVisitRef.current = true;
+  const goNext = () => {
+    setActiveIndex((current) => (current + 1) % products.length);
+  };
 
-            video.currentTime = 0;
-            video.play().catch(() => {});
-          }
-        } else {
-          video.pause();
-          playedThisVisitRef.current = false;
-        }
-      },
-      { threshold: 0.35 }
-    );
+  /* ==========================================================
+     RELATIVE POSITION
+     ========================================================== */
 
-    observer.observe(video);
+  const getRelativeIndex = (index) => {
+    let relative = index - activeIndex;
 
-    return () => observer.disconnect();
-  }, []);
+    const half = Math.floor(products.length / 2);
+
+    if (relative > half) {
+      relative -= products.length;
+    }
+
+    if (relative < -half) {
+      relative += products.length;
+    }
+
+    return relative;
+  };
 
   return (
-    <>
-      {/* ================= HERO SECTION (2-COLUMN) ================= */}
-      <section id="hero" className="bg-[#FFFDF9] border-b border-[#DED8D2]">
-        <div className="w-full px-6 md:px-10 lg:px-14 xl:px-20 py-12 md:py-16 lg:py-20">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+    <section className="relative overflow-hidden bg-[#FFFDF9] py-0">
+      {/* ======================================================
+          HERO CONTENT
+      ====================================================== */}
 
-              {/* LEFT: Text Content */}
-              <div>
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] leading-[1.05] font-extrabold tracking-[-0.03em] text-[#111111]">
-                  Corporate gifting.
-                  <br />
-                  Without the vendor chaos.
-                </h1>
+      <div
+        className="
+          mx-auto
+          w-full
+          max-w-7xl
+          px-5
+          pb-3
+          pt-0
+          sm:px-6
+          md:pb-4
+          lg:px-6
+          lg:pt-0
+        "
+      >
+        <div
+          className="
+            grid
+            items-center
+            gap-4
+            lg:grid-cols-[0.9fr_1.1fr]
+            lg:gap-3
+          "
+        >
+          {/* ==================================================
+              LEFT CONTENT
+          ================================================== */}
 
-                <p className="mt-6 max-w-2xl text-base md:text-lg leading-7 md:leading-8 text-[#6E6A67]">
-                  From customised merchandise to thousands of individually
-                  packed gifts across India, Trazoo handles sourcing, branding,
-                  quality checks, packaging and delivery through one team.
-                </p>
-
-                <button
-                  type="button"
-                  onClick={handleRequirement}
-                  className="
-                    mt-8
-                    inline-flex
-                    items-center
-                    justify-center
-                    px-7
-                    py-3.5
-                    bg-[#DF4607]
-                    text-white
-                    text-sm
-                    md:text-base
-                    font-semibold
-                    rounded-lg
-                    hover:bg-[#C93E05]
-                    active:scale-[0.98]
-                    transition-all
-                  "
-                >
-                  Share Your Requirement
-                </button>
-              </div>
-
-              {/* RIGHT: HERO VIDEO */}
-              <div className="order-first lg:order-last">
-                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-[#DED8D2] bg-white shadow-lg">
-                  <video
-                    ref={videoRef}
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-cover"
-                  >
-                    <source
-                      src={heroVideo}
-                      type="video/mp4"
-                    />
-
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= STATS ================= */}
-      <section className="bg-[#FFFDF9] border-b border-[#DED8D2]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-14 xl:px-20 py-16 md:py-20">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-12 gap-y-14">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="text-3xl md:text-4xl font-extrabold text-[#DF4607] tracking-[-0.02em]">
-                  {stat.value}
-                </div>
-
-                <div className="mt-2 text-sm md:text-base text-[#6E6A67] font-medium">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL ================= */}
-      <section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
-        <div className="w-full py-14 md:py-16">
-
-          {/* Heading */}
-          <div className="text-center px-6 mb-10 md:mb-12">
-            <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em] text-[#DF4607]">
-              Trusted by Leading Organizations
-            </p>
-
-            <h2 className="mt-3 text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-[-0.03em] text-[#111111]">
-              Trusted by teams that value quality
-            </h2>
-
-            <p className="mt-3 max-w-2xl mx-auto text-sm md:text-base leading-6 text-[#6E6A67]">
-              Organizations trust Trazoo for reliable gifting, merchandise and
-              end-to-end fulfilment.
-            </p>
-          </div>
-
-          {/* Logos */}
-          <div className="w-full overflow-hidden">
-            {/* Mobile: Carousel Animation - FASTER */}
-            <div className="md:hidden">
-              <div className="mobile-carousel scrollbar-hide">
-                {companiesWithDuplicate.map((company, i) => (
-                  <div
-                    key={i}
-                    className="mobile-carousel-item flex items-center justify-center shrink-0"
-                  >
-                    <img
-                      src={company.logo}
-                      alt={company.name}
-                      className="
-                        h-12
-                        w-auto
-                        max-w-[120px]
-                        object-contain
-                        border-0
-                        outline-none
-                        shadow-none
-                        transition-transform duration-300
-                        hover:scale-105
-                      "
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Desktop: Static Grid (NO Animation) */}
-            <div className="hidden md:block">
-              <div className="flex items-center justify-center flex-wrap gap-10 md:gap-14 lg:gap-16 px-6">
-                {companies.map((company, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-center"
-                  >
-                    <img
-                      src={company.logo}
-                      alt={company.name}
-                      className="
-                        h-14
-                        md:h-16
-                        lg:h-[68px]
-                        w-auto
-                        max-w-[150px]
-                        md:max-w-[170px]
-                        lg:max-w-[180px]
-                        object-contain
-                        border-0
-                        outline-none
-                        shadow-none
-                        transition-transform duration-300
-                        hover:scale-105
-                      "
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ================= OLD WAY VS TRAZOO WAY ================= */}
-      <section className="bg-[#FFFDF9] border-b border-[#DED8D2]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-14 xl:px-20 py-16 md:py-20">
-
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-[-0.02em] text-[#111111] mb-3">
-            The Old Way vs. The Trazoo Way
-          </h2>
-
-          <p className="text-[#6E6A67] mb-10">
-            Why enterprises choose Trazoo for their gifting needs
-          </p>
-
-          <div className="space-y-5">
-
-            {/* Vendor Chaos */}
-            <div className="rounded-xl border border-[#DED8D2] bg-[#F7F2EC] px-8 py-8">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold">
-                  ✕
-                </span>
-
-                <h3 className="text-lg font-bold text-[#111111]">
-                  Vendor Chaos
-                </h3>
-              </div>
-
-              <ul className="space-y-2.5 pl-9">
-                {oldWayPoints.map((point) => (
-                  <li
-                    key={point}
-                    className="text-sm text-[#6E6A67] flex gap-3"
-                  >
-                    <span className="text-red-400">–</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Single Partner */}
-            <div className="relative rounded-xl border-2 border-[#DF4607] bg-[#FDEDE7] px-8 py-8">
-              <span className="absolute top-4 right-4 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#DF4607] text-xs font-bold">
-                ✓
-              </span>
-
-              <div className="flex items-center gap-3 mb-4">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#DF4607] text-white text-xs font-bold">
-                  ✓
-                </span>
-
-                <h3 className="text-lg font-bold text-[#111111]">
-                  Single Partner (Trazoo)
-                </h3>
-              </div>
-
-              <ul className="space-y-2.5 pl-9">
-                {trazooWayPoints.map((point) => (
-                  <li
-                    key={point}
-                    className="text-sm text-[#6E6A67] flex gap-3"
-                  >
-                    <span className="text-[#DF4607]">+</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ================= END-TO-END SOLUTIONS ================= */}
-      <section className="bg-[#FFFDF9] border-b border-[#DED8D2]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-14 xl:px-20 py-16 md:py-20">
-
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#DF4607]">
-            Our Expertise
-          </p>
-
-          <h2 className="mt-3 text-3xl md:text-4xl font-extrabold tracking-[-0.02em] text-[#111111] mb-10">
-            End-to-End Solutions
-          </h2>
-
-          <div className="space-y-3">
-            {solutions.map((item) => (
-              <button
-                key={item.name}
-                type="button"
-                className="
-                  w-full
-                  text-left
-                  flex
-                  items-center
-                  justify-between
-                  rounded-xl
-                  px-7
-                  py-6
-                  border
-                  border-[#DED8D2]
-                  bg-white
-                  transition-all
-                  duration-300
-                  font-medium
-                  hover:border-[#DF4607]
-                  hover:bg-[#FDEDE7]
-                  hover:shadow-md
-                "
-              >
-                <span className="text-[#111111] font-semibold">
-                  {item.name}
-                </span>
-
-                <span className="text-sm text-[#6E6A67]">
-                  {item.price}
-                </span>
-              </button>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* ================= BOTTOM CTA ================= */}
-      <section className="bg-[#FFFDF9]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-14 xl:px-20 py-16 md:py-20 text-center">
-
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#111111] mb-6">
-            Ready to Transform Your Gifting?
-          </h2>
-
-          <p className="text-lg text-[#6E6A67] mb-8 max-w-2xl mx-auto">
-            Share your requirement and let our team create the perfect solution
-            for your brand.
-          </p>
-
-          <button
-            type="button"
-            onClick={handleRequirement}
+          <div
             className="
-              inline-flex
-              items-center
-              justify-center
-              px-8
-              py-4
-              bg-[#DF4607]
-              text-white
-              text-base
-              font-semibold
-              rounded-lg
-              hover:bg-[#C93E05]
-              active:scale-[0.98]
-              transition-all
-              shadow-md
-              hover:shadow-lg
+              relative
+              z-40
+              -ml-1
+              w-full
+              max-w-[760px]
+              lg:-ml-2
             "
           >
-            Share Your Requirement
-          </button>
+            {/* CORPORATE GIFTING PARTNER */}
 
+            <div className="mb-3 ml-5 mt-12 inline-flex items-center">
+              <span
+                className="
+                  text-[12px]
+                  font-bold
+                  uppercase
+                  tracking-[0.18em]
+                  text-[#777]
+                "
+              >
+                Corporate Gifting Partner
+              </span>
+            </div>
+
+            {/* ==================================================
+                MAIN HEADING
+            ================================================== */}
+
+            <h1
+              className="
+                m-0
+                mt-1
+                ml-5
+                p-0
+                font-serif
+                text-[38px]
+                font-normal
+                leading-[0.92]
+                tracking-[-0.035em]
+                text-[#111]
+                sm:text-[48px]
+                md:text-[56px]
+                lg:text-[60px]
+              "
+              style={{
+                fontFamily: "'Fraunces', Georgia, 'Times New Roman', serif",
+              }}
+            >
+              <span className="block whitespace-nowrap">
+                We run the gifting.
+              </span>
+
+              <span
+                className="mt-2 block whitespace-nowrap text-[#F36F21]"
+                style={{
+                  fontStyle: "italic",
+                  fontFamily:
+                    "'Fraunces', Georgia, 'Times New Roman', serif",
+                  fontWeight: 300,
+                }}
+              >
+                You take the credit.
+              </span>
+            </h1>
+
+            {/* ==================================================
+                DESCRIPTION
+            ================================================== */}
+
+            <p
+              className="
+                mt-6
+                max-w-[600px]
+                text-[15px]
+                font-semibold
+                leading-[1.45]
+                text-[#707070]
+                sm:text-[16px]
+              "
+            >
+              From one brief to thousands of deliveries, Trazoo curates,
+              <br />
+              brands and executes corporate gifting across India.
+            </p>
+
+            {/* ==================================================
+                CTA
+            ================================================== */}
+
+            <div className="mt-7 flex flex-wrap items-center gap-4">
+              {/* PRIMARY BUTTON */}
+
+              <button
+                type="button"
+                onClick={onEnquireClick}
+                className="
+                  group
+                  inline-flex
+                  h-[58px]
+                  items-center
+                  gap-3
+                  rounded-[18px]
+                  bg-[#F36F21]
+                  px-10
+                  text-[16px]
+                  font-bold
+                  text-white
+                  transition-all
+                  duration-300
+                  hover:bg-[#df5f16]
+                  hover:shadow-lg
+                "
+              >
+                Request a Proposal
+
+                <ArrowRight
+                  size={20}
+                  strokeWidth={2}
+                  className="
+                    transition-transform
+                    duration-300
+                    group-hover:translate-x-1
+                  "
+                />
+              </button>
+
+              {/* SECONDARY BUTTON */}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const element = document.getElementById("process");
+
+                  if (element) {
+                    element.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }
+                }}
+                className="
+                  hidden
+                  h-[58px]
+                  items-center
+                  rounded-full
+                  border
+                  border-[#D9D9D9]
+                  bg-white
+                  px-8
+                  text-[16px]
+                  font-semibold
+                  text-[#222]
+                  transition-all
+                  duration-300
+                  hover:border-[#F36F21]
+                  hover:text-[#F36F21]
+                  lg:inline-flex
+                "
+              >
+                How we work
+              </button>
+            </div>
+
+            {/* ==================================================
+                STATS
+            ================================================== */}
+
+            <div
+              className="
+                mt-7
+                flex
+                flex-wrap
+                items-center
+                gap-x-5
+                gap-y-2
+                text-[14px]
+                text-[#777]
+              "
+            >
+              <div className="whitespace-nowrap">
+                <span className="font-bold text-[#F36F21]">
+                  30,000+
+                </span>{" "}
+                kits shipped
+              </div>
+
+              <span className="h-5 w-px bg-[#D8D8D8]" />
+
+              <div className="whitespace-nowrap">
+                <span className="font-bold text-[#F36F21]">
+                  12,000+
+                </span>{" "}
+                PIN codes reached
+              </div>
+
+              <span className="h-5 w-px bg-[#D8D8D8]" />
+
+              <div className="whitespace-nowrap">
+                <span className="font-bold text-[#F36F21]">
+                  12+
+                </span>{" "}
+                enterprise clients
+              </div>
+            </div>
+          </div>
+
+          {/* ==================================================
+              RIGHT PRODUCT CAROUSEL
+          ================================================== */}
+
+          <div
+            className="
+              relative
+              z-20
+              h-[300px]
+              w-full
+              sm:h-[340px]
+              lg:h-[380px]
+            "
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            {/* =================================================
+                SOFT BACKGROUND GLOW
+            ================================================= */}
+
+            <div
+              className="
+                pointer-events-none
+                absolute
+                left-1/2
+                top-1/2
+                h-[200px]
+                w-[200px]
+                -translate-x-1/2
+                -translate-y-1/2
+                rounded-full
+                bg-[#F36F21]/10
+                blur-3xl
+              "
+            />
+
+            {/* =================================================
+                PRODUCT CARDS
+            ================================================= */}
+
+            <div className="absolute inset-0">
+              {products.map((product, index) => {
+                const relative = getRelativeIndex(index);
+
+                if (Math.abs(relative) > 2) {
+                  return null;
+                }
+
+                const isActive = relative === 0;
+
+                let transform = "";
+                let opacity = 1;
+                let zIndex = 20;
+
+                /* CENTER */
+
+                if (relative === 0) {
+                  transform =
+                    "translateX(-50%) translateY(-50%) translateX(0px) translateY(0px) scale(1)";
+                  opacity = 1;
+                  zIndex = 30;
+                }
+
+                /* LEFT */
+
+                else if (relative === -1) {
+                  transform =
+                    "translateX(-50%) translateY(-50%) translateX(-140px) translateY(15px) scale(0.78)";
+                  opacity = 0.5;
+                  zIndex = 20;
+                }
+
+                /* RIGHT */
+
+                else if (relative === 1) {
+                  transform =
+                    "translateX(-50%) translateY(-50%) translateX(140px) translateY(15px) scale(0.78)";
+                  opacity = 0.5;
+                  zIndex = 20;
+                }
+
+                /* FAR LEFT */
+
+                else if (relative === -2) {
+                  transform =
+                    "translateX(-50%) translateY(-50%) translateX(-240px) translateY(35px) scale(0.62)";
+                  opacity = 0.2;
+                  zIndex = 10;
+                }
+
+                /* FAR RIGHT */
+
+                else {
+                  transform =
+                    "translateX(-50%) translateY(-50%) translateX(240px) translateY(35px) scale(0.62)";
+                  opacity = 0.2;
+                  zIndex = 10;
+                }
+
+                return (
+                  <div
+                    key={`${product.title}-${index}`}
+                    onClick={() => setActiveIndex(index)}
+                    className={`
+                      absolute
+                      left-1/2
+                      top-1/2
+                      w-[180px]
+                      cursor-pointer
+                      overflow-hidden
+                      rounded-[16px]
+                      border
+                      border-[#E8E8E8]
+                      bg-white
+                      shadow-[0_12px_30px_rgba(0,0,0,0.06)]
+                      transition-all
+                      duration-700
+                      ease-out
+                      sm:w-[220px]
+                      md:w-[260px]
+                      ${
+                        isActive
+                          ? "shadow-[0_20px_50px_rgba(0,0,0,0.1)]"
+                          : ""
+                      }
+                    `}
+                    style={{
+                      transform,
+                      opacity,
+                      zIndex,
+                    }}
+                  >
+                    {/* IMAGE */}
+
+                    <div className="relative aspect-[1/0.88] overflow-hidden bg-[#F6F5F1]">
+                      <img
+                        src={product.image}
+                        alt={product.title}
+                        className="
+                          h-full
+                          w-full
+                          object-cover
+                          transition-transform
+                          duration-700
+                        "
+                        draggable="false"
+                      />
+
+                      {/* NUMBER */}
+
+                      {isActive && (
+                        <div
+                          className="
+                            absolute
+                            right-2
+                            top-2
+                            flex
+                            h-7
+                            w-7
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-white
+                            text-[10px]
+                            font-bold
+                            text-[#F36F21]
+                            shadow-sm
+                          "
+                        >
+                          {String(index + 1).padStart(2, "0")}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ACTIVE CARD CONTENT */}
+
+                    {isActive && (
+                      <div className="px-3 pb-3 pt-2">
+                        <div className="mb-2 h-px w-full bg-[#E7E7E7]" />
+
+                        <h2 className="text-[13px] font-bold text-[#222]">
+                          {product.title}
+                        </h2>
+
+                        <p className="mt-0.5 text-[10px] leading-4 text-[#777]">
+                          {product.subtitle}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* =================================================
+                CAROUSEL ARROWS
+            ================================================= */}
+
+            <button
+              type="button"
+              onClick={goPrevious}
+              aria-label="Previous product"
+              className="
+                absolute
+                left-1
+                top-1/2
+                z-40
+                flex
+                h-9
+                w-9
+                -translate-y-1/2
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#E2E2E2]
+                bg-white
+                text-[#222]
+                shadow-sm
+                transition-all
+                duration-300
+                hover:border-[#F36F21]
+                hover:text-[#F36F21]
+                hover:shadow-md
+              "
+            >
+              <ChevronLeft size={18} />
+            </button>
+
+            <button
+              type="button"
+              onClick={goNext}
+              aria-label="Next product"
+              className="
+                absolute
+                right-1
+                top-1/2
+                z-40
+                flex
+                h-9
+                w-9
+                -translate-y-1/2
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#E2E2E2]
+                bg-white
+                text-[#222]
+                shadow-sm
+                transition-all
+                duration-300
+                hover:border-[#F36F21]
+                hover:text-[#F36F21]
+                hover:shadow-md
+              "
+            >
+              <ChevronRight size={18} />
+            </button>
+
+            {/* =================================================
+                DOTS
+            ================================================= */}
+
+            <div
+              className="
+                absolute
+                bottom-2
+                left-1/2
+                z-40
+                flex
+                -translate-x-1/2
+                items-center
+                gap-1.5
+              "
+            >
+              {products.map((product, index) => (
+                <button
+                  key={product.title}
+                  type="button"
+                  onClick={() => setActiveIndex(index)}
+                  aria-label={`Go to ${product.title}`}
+                  className={`
+                    h-1
+                    rounded-full
+                    transition-all
+                    duration-300
+                    ${
+                      index === activeIndex
+                        ? "w-5 bg-[#F36F21]"
+                        : "w-1 bg-[#D5D5D5]"
+                    }
+                  `}
+                />
+              ))}
+            </div>
+          </div>
         </div>
-      </section>
-    </>
-  );
-};
+      </div>
 
-export default HeroHome;
+      {/* ======================================================
+          MARQUEE SECTION
+      ====================================================== */}
+
+      <div className="relative overflow-hidden border-t border-[#ECECEC] bg-[#FFFDF9]">
+        <style>{`
+          @keyframes marquee {
+            0% {
+              transform: translateX(0);
+            }
+
+            100% {
+              transform: translateX(-50%);
+            }
+          }
+
+          .tz-marquee__track {
+            display: flex;
+            width: max-content;
+            align-items: center;
+            gap: 2rem;
+            animation: marquee 40s linear infinite;
+            will-change: transform;
+          }
+
+          .tz-marquee:hover .tz-marquee__track {
+            animation-play-state: paused;
+          }
+
+          .tz-marquee__item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555555;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            flex-shrink: 0;
+          }
+
+          .tz-marquee__item i {
+            display: inline-block;
+            height: 6px;
+            width: 6px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background-color: #F36F21;
+          }
+        `}</style>
+
+        <div className="tz-marquee overflow-hidden px-5 py-2 sm:px-6 lg:px-6">
+          <div className="tz-marquee__track" id="tzMarquee">
+            {/* ==================================================
+                FIRST SET
+            ================================================== */}
+
+            <span className="tz-marquee__item">
+              <i></i>
+              Employee onboarding kits
+            </span>
+
+            <span className="tz-marquee__item">
+              <i></i>
+              Festive gifting programmes
+            </span>
+
+            <span className="tz-marquee__item">
+              <i></i>
+              Rewards &amp; recognition
+            </span>
+
+            <span className="tz-marquee__item">
+              <i></i>
+              Event &amp; conference merchandise
+            </span>
+
+            <span className="tz-marquee__item">
+              <i></i>
+              Client &amp; partner gifting
+            </span>
+
+            <span className="tz-marquee__item">
+              <i></i>
+              Institutional programmes
+            </span>
+
+            {/* ==================================================
+                DUPLICATE SET FOR SEAMLESS LOOP
+            ================================================== */}
+
+            <span
+              className="tz-marquee__item"
+              aria-hidden="true"
+            >
+              <i></i>
+              Employee onboarding kits
+            </span>
+
+            <span
+              className="tz-marquee__item"
+              aria-hidden="true"
+            >
+              <i></i>
+              Festive gifting programmes
+            </span>
+
+            <span
+              className="tz-marquee__item"
+              aria-hidden="true"
+            >
+              <i></i>
+              Rewards &amp; recognition
+            </span>
+
+            <span
+              className="tz-marquee__item"
+              aria-hidden="true"
+            >
+              <i></i>
+              Event &amp; conference merchandise
+            </span>
+
+            <span
+              className="tz-marquee__item"
+              aria-hidden="true"
+            >
+              <i></i>
+              Client &amp; partner gifting
+            </span>
+
+            <span
+              className="tz-marquee__item"
+              aria-hidden="true"
+            >
+              <i></i>
+              Institutional programmes
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

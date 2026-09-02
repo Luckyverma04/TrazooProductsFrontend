@@ -1,181 +1,241 @@
-import { useState } from "react";
-import { Menu, X, LogOut } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import storageUtils from "../utils/storageUtils";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { navLinks } from "../config/navigation";
+import logoImage from "../assets/branding/logo.webp";
 
-import logo from "../assets/logo.png";
-import { navLinks } from "../config/navConfig";
+const Ticker = () => {
+  const tickerItems = [
+    {
+      normal: "30,000+ kits shipped in the last 12 months · ",
+      highlight: "12,000+ PIN codes",
+      end: " reached",
+    },
+    {
+      normal: "Same-day dispatch in ",
+      highlight: "40+ cities",
+      end: " · 22 delivery hubs across India",
+    },
+    {
+      normal: "Requirement to first shortlist in ",
+      highlight: "1 working day",
+      end: "",
+    },
+  ];
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => {
+        let next;
+
+        do {
+          next = Math.floor(Math.random() * tickerItems.length);
+        } while (next === prev && tickerItems.length > 1);
+
+        return next;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const item = tickerItems[activeIndex];
+
+  return (
+    <div className="w-full bg-[#1A1A1A] py-[9px] text-white">
+      <div className="flex min-h-[20px] w-full items-center justify-center overflow-hidden px-4">
+        <span
+          key={activeIndex}
+          className="whitespace-nowrap text-center font-manrope text-[12px] font-normal text-white/90 animate-ticker-fade md:text-[14px]"
+        >
+          {item.normal}
+
+          <span className="font-semibold text-[#F36F21]">
+            {item.highlight}
+          </span>
+
+          {item.end}
+        </span>
+      </div>
+
+      <style>{`
+        @keyframes tickerFade {
+          0% {
+            opacity: 0;
+            transform: translateY(5px);
+          }
+
+          15% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+
+          85% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+
+          100% {
+            opacity: 0;
+            transform: translateY(-5px);
+          }
+        }
+
+        .animate-ticker-fade {
+          animation: tickerFade 5s ease-in-out;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const Navbar = ({ onMobileNavOpen }) => {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // ✅ Check if user is logged in
-  const token = storageUtils.getItem("token");
-  const rawUser = storageUtils.getItem("user");
-  const isLoggedIn = !!(token && rawUser);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // ✅ Get user role for dashboard redirect
-  let userRole = null;
-  if (rawUser) {
-    try {
-      const user = JSON.parse(rawUser);
-      userRole = user.role?.toLowerCase();
-    } catch (err) {
-      console.error("Error parsing user:", err);
-    }
-  }
+  const isLoggedIn = !!localStorage.getItem("authToken");
+  const userRole = localStorage.getItem("userRole");
 
-  const isActive = (path) => location.pathname === path;
+  const filteredNavLinks = navLinks.filter((link) => {
+    if (link.requiresAuth && !isLoggedIn) return false;
+    if (link.adminOnly && userRole !== "admin") return false;
 
-  const handleNavClick = (path) => {
-    // ✅ Special handling for Dashboard link
-    if (path === "/dashboard") {
-      if (userRole === "admin") {
-        navigate("/admin/dashboard");
-      } else if (userRole === "associate") {
-        navigate("/associate");
-      } else {
-        navigate("/"); // Fallback
-      }
-    } else {
-      navigate(path);
-    }
-    setIsOpen(false);
-  };
-
-  const handleShare = () => {
-    navigate("/requirements");
-  };
-
-  // ✅ LOGOUT FUNCTION - Go to HOME
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      storageUtils.clear();
-      navigate("/", { replace: true }); // ✅ HOME PAGE, NOT /auth
-    }
-  };
-
-  // ✅ Filter navLinks - hide Dashboard if not logged in
-  const filteredNavLinks = navLinks.filter((item) => {
-    if (item.requiresAuth && !isLoggedIn) {
-      return false; // Hide if requires auth and user not logged in
-    }
     return true;
   });
 
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("user");
+
+    setIsMenuOpen(false);
+    navigate("/auth");
+  };
+
+  const closeMobileMenu = () => {
+    setIsMenuOpen(false);
+  };
+
+  const handleMobileMenuToggle = () => {
+    const nextState = !isMenuOpen;
+
+    setIsMenuOpen(nextState);
+
+    if (nextState && onMobileNavOpen) {
+      onMobileNavOpen();
+    }
+  };
+
+  const handleNavClick = (path) => {
+    closeMobileMenu();
+
+    if (path.startsWith("/#")) {
+      const hash = path.substring(1);
+
+      if (window.location.pathname === "/") {
+        setTimeout(() => {
+          const element = document.querySelector(hash);
+
+          if (element) {
+            element.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        }, 50);
+      }
+    }
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-[#DED8D2] z-50">
-      <div className="px-6 md:px-10 lg:px-14 xl:px-20 py-3 md:py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
+    <>
+      {/* TOP TICKER */}
+      <Ticker />
 
-          {/* Logo - LEFT */}
-          <button
-            onClick={() => handleNavClick("/")}
-            className="flex-shrink-0 hover:opacity-80 transition-opacity"
-          >
-            <img
-              src={logo}
-              alt="Trazoo"
-              className="h-10 md:h-12 w-auto"
-            />
-          </button>
+      {/* NAVBAR */}
+      <header className="sticky top-0 z-50 w-full border-b border-[#E8E8E8] bg-white">
+        <nav className="mx-auto w-full max-w-[1400px] px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12">
 
-          {/* Desktop Menu - CENTER */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8 flex-1 justify-center">
-            {filteredNavLinks.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => handleNavClick(item.path)}
-                className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                  item.path === "/dashboard"
-                    ? "text-[#DF4607]" // Highlight dashboard
-                    : isActive(item.path)
-                    ? "text-[#DF4607]"
-                    : "text-[#4A4644] hover:text-[#111111]"
-                }`}
-              >
-                {item.name}
-              </button>
-            ))}
+          {/* NAVBAR INNER */}
+          <div className="flex h-[56px] items-center justify-between gap-3 md:h-[62px] lg:gap-8">
+
+            {/* LOGO */}
+            <Link
+              to="/"
+              onClick={closeMobileMenu}
+              className="-ml-2 flex shrink-0 items-center md:-ml-3"
+            >
+              <img
+                src={logoImage}
+                alt="Trazoo"
+                className="block h-[31px] w-auto object-contain md:h-[36px]"
+              />
+            </Link>
+
+            {/* DESKTOP NAVIGATION */}
+            <div className="ml-auto hidden items-center gap-7 lg:flex">
+              {filteredNavLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  onClick={() => handleNavClick(link.path)}
+                  className="whitespace-nowrap font-manrope text-[15px] font-medium text-[#161616] transition-colors duration-200 hover:text-[#F36F21]"
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+
+            {/* MOBILE MENU BUTTON */}
+            <button
+              type="button"
+              onClick={handleMobileMenuToggle}
+              className="flex h-[38px] w-[38px] items-center justify-center rounded-[9px] border border-[#E5E5E5] text-[#161616] transition-colors hover:border-[#F36F21] hover:text-[#F36F21] lg:hidden"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {isMenuOpen ? (
+                <X size={19} strokeWidth={2} />
+              ) : (
+                <Menu size={19} strokeWidth={2} />
+              )}
+            </button>
           </div>
 
-          {/* RIGHT SIDE - Desktop */}
-          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
-            {isLoggedIn ? (
-              // ✅ LOGOUT BUTTON - Show when logged in
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-[#DF4607] border border-[#DF4607] rounded-md hover:bg-[#FFF5EF] font-semibold text-xs md:text-sm transition-colors flex items-center gap-2 whitespace-nowrap"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
-            ) : (
-              // ✅ SHARE BUTTON - Show when not logged in
-              <button
-                onClick={handleShare}
-                className="px-4 md:px-5 py-2 md:py-2.5 bg-[#DF4607] text-white text-xs md:text-sm font-semibold rounded-md hover:bg-[#C93E05] transition-colors whitespace-nowrap"
-              >
-                Share Your Requirement
-              </button>
-            )}
-          </div>
+          {/* MOBILE NAVIGATION */}
+          {isMenuOpen && (
+            <div className="border-t border-[#E8E8E8] py-4 lg:hidden">
+              <div className="flex flex-col">
 
-          {/* Mobile Menu Button - RIGHT */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 hover:bg-[#F7F2EC] rounded-lg transition-colors"
-          >
-            {isOpen ? (
-              <X size={24} className="text-[#111111]" />
-            ) : (
-              <Menu size={24} className="text-[#111111]" />
-            )}
-          </button>
-        </div>
+                {filteredNavLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    onClick={() => handleNavClick(link.path)}
+                    className="border-b border-[#F0F0F0] px-2 py-3 font-manrope text-[15px] font-medium text-[#161616] transition-colors hover:text-[#F36F21]"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
 
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden mt-4 pb-4 space-y-2 border-t border-[#DED8D2] pt-4">
-            {filteredNavLinks.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => handleNavClick(item.path)}
-                className={`block w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(item.path)
-                    ? "bg-[#FDEDE7] text-[#DF4607]"
-                    : "text-[#4A4644] hover:bg-[#F7F2EC]"
-                }`}
-              >
-                {item.name}
-              </button>
-            ))}
-            
-            {isLoggedIn ? (
-              // ✅ LOGOUT BUTTON - Mobile
-              <button
-                onClick={handleLogout}
-                className="w-full mt-4 px-4 py-2.5 text-[#DF4607] border border-[#DF4607] rounded-md hover:bg-[#FFF5EF] font-semibold text-sm transition-colors flex items-center justify-center gap-2"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
-            ) : (
-              // ✅ SHARE BUTTON - Mobile
-              <button
-                onClick={handleShare}
-                className="w-full mt-4 px-4 py-2.5 bg-[#DF4607] text-white text-sm font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
-              >
-                Share Your Requirement
-              </button>
-            )}
-          </div>
-        )}
-
-      </div>
-    </nav>
+                {/* LOGOUT */}
+                {isLoggedIn && (
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="mt-3 w-full rounded-[11px] border border-[#E5E5E5] px-4 py-3 text-left font-manrope text-[15px] font-medium text-[#555] hover:border-[#F36F21] hover:text-[#F36F21]"
+                  >
+                    Logout
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </nav>
+      </header>
+    </>
   );
 };
 

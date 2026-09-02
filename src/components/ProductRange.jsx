@@ -1,116 +1,317 @@
-import { useSEO } from "../hooks/useSEO";
-import { seoMetadata } from "../utils/seo";
-import { useState, useMemo, useEffect } from "react";
-import { X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
+import { useState, useEffect, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Footer from "./Footer";
-
-// Fallback images
+import Navbar from "./Navbar";
+import FormModal from "./FormModal";   
+     
+// Import fallback images
 import firstImg from "../assets/First.png";
-import secondImg from "../assets/Second.png";
-import thirdImg from "../assets/Third.png";
-import bottlesImg from "../assets/Bottles.png";
-import bagsImg from "../assets/BagsandNotebooks.png";
-import notebooksImg from "../assets/Notebooks.png";
 
-// Company Logos
-import LogoCompany1 from "../assets/Logo_company1.jpeg";
-import LogoCompany2 from "../assets/Logo_company2.jpeg";
-import LogoCompany3 from "../assets/Logo_company3.jpeg";
-import LogoCompany4 from "../assets/Logo_company4.jpeg";
-import LogoCompany5 from "../assets/Logo_company5.jpeg";
-import Logo_company6 from "../assets/Logo_company7.png";
-
-// Fallback images mapping
-const FALLBACK_IMAGES = {
-  Apparel: thirdImg,
-  Stationery: notebooksImg,
-  Drinkware: bottlesImg,
-  Bags: bagsImg,
-  Packaging: secondImg,
-  Electronics: thirdImg,
-  "Electronics & Tech": thirdImg,
-  Travel: bagsImg,
-  Wellness: bottlesImg,
-  "Food & Hampers": firstImg,
-  "Awards & Recognition": secondImg,
-  "Event Merchandise": firstImg,
-};
-
-// Company logos data
-const companies = [
-  { name: "IIM Trichy", logo: LogoCompany1 },
-  { name: "IIT Mandi", logo: LogoCompany2 },
-  { name: "IIM Ranchi", logo: LogoCompany3 },
-  { name: "UPRIO", logo: LogoCompany4 },
-  { name: "IHUB DivyaSampark", logo: LogoCompany5 },
-  { name: "Masai", logo: Logo_company6 },
+// Programme cards data - using programmes folder images
+const PROGRAMMES = [
+  {
+    id: 1,
+    title: 'Employee Onboarding',
+    icon: '👥',
+    image: new URL('../assets/programmes/onboarding.webp', import.meta.url).href,
+  },
+  {
+    id: 2,
+    title: 'Festive Gifting',
+    icon: '📦',
+    image: new URL('../assets/programmes/festive.webp', import.meta.url).href,
+  },
+  {
+    id: 3,
+    title: 'Rewards & Recognition',
+    icon: '🏆',
+    image: new URL('../assets/programmes/rewards.webp', import.meta.url).href,
+  },
+  {
+    id: 4,
+    title: 'Events & Conferences',
+    icon: '🎤',
+    image: new URL('../assets/programmes/events.webp', import.meta.url).href,
+  },
+  {
+    id: 5,
+    title: 'Client & Partner Gifting',
+    icon: '🤝',
+    image: new URL('../assets/programmes/client.webp', import.meta.url).href,
+  },
+  {
+    id: 6,
+    title: 'Institutional Gifting',
+    icon: '🏛️',
+    image: new URL('../assets/programmes/institutional.webp', import.meta.url).href,
+  },
 ];
 
-// Duplicate companies for seamless carousel loop
-const companiesWithDuplicate = [...companies, ...companies];
+// Product ranges
+const PRODUCT_RANGES = [
+  {
+    id: 1,
+    name: 'Apparel & Wearables',
+    spec: 'T-shirts, polos, jackets, caps',
+    price: 500,
+    image: new URL('../assets/range/apparel.webp', import.meta.url).href,
+  },
+  {
+    id: 2,
+    name: 'Drinkware',
+    spec: 'Bottles, tumblers, flasks, mugs',
+    price: 500,
+    image: new URL('../assets/range/drinkware.webp', import.meta.url).href,
+  },
+  {
+    id: 3,
+    name: 'Bags & Travel',
+    spec: 'Backpacks, laptop bags, totes',
+    price: 500,
+    image: new URL('../assets/range/bags.webp', import.meta.url).href,
+  },
+  {
+    id: 4,
+    name: 'Stationery & Desk',
+    spec: 'Notebooks, diaries, pens, planners',
+    price: 500,
+    image: new URL('../assets/range/stationery.webp', import.meta.url).href,
+  },
+  {
+    id: 5,
+    name: 'Tech & Accessories',
+    spec: 'Chargers, speakers, headphones',
+    price: 500,
+    image: new URL('../assets/range/tech.webp', import.meta.url).href,
+  },
+  {
+    id: 6,
+    name: 'Gourmet & Packaging',
+    spec: 'Hampers, boxes, sleeves, inserts',
+    price: 500,
+    image: new URL('../assets/range/gourmet.webp', import.meta.url).href,
+  },
+  {
+    id: 7,
+    name: 'Welcome Kits',
+    spec: 'Boxed sets, ready for day one',
+    price: 500,
+    image: new URL('../assets/range/welcome-kits.webp', import.meta.url).href,
+  },
+  {
+    id: 8,
+    name: 'Curated Kits',
+    spec: 'Mixed-range kits built to one brief',
+    price: 500,
+    image: new URL('../assets/range/curated-kits.webp', import.meta.url).href,
+  },
+];
 
-/* ================= FILTER OPTIONS ================= */
+// Filter categories
 const CATEGORIES = [
-  "Apparel",
-  "Drinkware",
-  "Stationery",
-  "Bags",
-  "Electronics & Tech",
-  "Travel",
-  "Wellness",
-  "Food & Hampers",
-  "Awards & Recognition",
-  "Event Merchandise",
-  "Packaging",
+  'Apparel',
+  'Drinkware',
+  'Stationery',
+  'Bags',
+  'Electronics & Tech',
+  'Travel',
+  'Wellness',
+  'Food & Hampers',
 ];
 
 const PRICE_RANGES = [
-  { label: "Under ₹500", min: 0, max: 499 },
-  { label: "₹500 - ₹1,000", min: 500, max: 1000 },
-  { label: "₹1,000 - ₹2,500", min: 1001, max: 2500 },
-  { label: "₹2,500+", min: 2501, max: Infinity },
-  { label: "Custom Budget", min: 0, max: Infinity },
+  { label: 'Under ₹500', min: 0, max: 499 },
+  { label: '₹500 to ₹1,000', min: 500, max: 1000 },
+  { label: '₹1,000 to ₹2,500', min: 1001, max: 2500 },
+  { label: '₹2,500+', min: 2501, max: Infinity },
 ];
 
-const CUSTOMISATION = [
-  "Printing",
-  "Embroidery",
-  "Engraving",
-  "Personalisation",
-  "Custom Packaging",
-  "Other",
+const BEST_FOR = [
+  'Onboarding',
+  'Festive',
+  'Events',
+  'Rewards',
+  'Client gifting',
 ];
 
-const USE_CASES = [
-  "Employee Joining",
-  "Festival",
-  "Event",
-  "Client Gifting",
-  "Recognition",
-  "Institutional",
-  "Custom Merchandise",
-];
+/* ================= PROGRAMME CAROUSEL ================= */
+const ProgrammeCarousel = () => {
+  const carouselRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
-const QUANTITIES = ["10–25", "25–50", "50–100", "100–500", "500+"];
+  const updateScrollState = () => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = carousel;
+    const maxScroll = Math.max(scrollWidth - clientWidth, 0);
+
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft < maxScroll - 5);
+    setScrollProgress(maxScroll > 0 ? (scrollLeft / maxScroll) * 100 : 0);
+  };
+
+  const scroll = (direction) => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    // Move by one complete visible "page" instead of a fixed 320px.
+    // This keeps the carousel aligned even when the browser is zoomed.
+    const amount = carousel.clientWidth * 0.85;
+
+    carousel.scrollBy({
+      left: direction === 'left' ? -amount : amount,
+      behavior: 'smooth',
+    });
+  };
+
+  useEffect(() => {
+    updateScrollState();
+
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    carousel.addEventListener('scroll', updateScrollState, { passive: true });
+    window.addEventListener('resize', updateScrollState);
+
+    return () => {
+      carousel.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, []);
+
+  return (
+    <div className="relative mb-12">
+      {/* Hide the native browser scrollbar */}
+      <style>{`
+        .programme-carousel-scroll {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        .programme-carousel-scroll::-webkit-scrollbar {
+          display: none;
+        }
+
+        .programme-card {
+          flex: 0 0 calc((100% - 72px) / 4);
+          height: auto;
+          aspect-ratio: 0.86 / 1;
+        }
+
+        @media (max-width: 1024px) {
+          .programme-card {
+            flex-basis: calc((100% - 24px) / 2);
+            aspect-ratio: 1 / 0.9;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .programme-card {
+            flex-basis: 100%;
+            aspect-ratio: 1 / 0.9;
+          }
+        }
+      `}</style>
+
+      {/* Navigation arrows */}
+      <div className="absolute -left-14 top-1/2 -translate-y-1/2 z-20 hidden xl:block">
+        <button
+          onClick={() => scroll('left')}
+          disabled={!canScrollLeft}
+          aria-label="Previous programmes"
+          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+        >
+          <ChevronLeft size={20} color="#111111" strokeWidth={2} />
+        </button>
+      </div>
+
+      <div className="absolute -right-14 top-1/2 -translate-y-1/2 z-20 hidden xl:block">
+        <button
+          onClick={() => scroll('right')}
+          disabled={!canScrollRight}
+          aria-label="Next programmes"
+          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+        >
+          <ChevronRight size={20} color="#111111" strokeWidth={2} />
+        </button>
+      </div>
+
+      {/* Four cards visible on desktop */}
+      <div className="overflow-hidden">
+        <div
+          ref={carouselRef}
+          className="programme-carousel-scroll flex gap-6 overflow-x-auto scroll-smooth px-0"
+          style={{ scrollBehavior: 'smooth' }}
+        >
+          {PROGRAMMES.map((prog) => (
+            <div
+              key={prog.id}
+              className="programme-card rounded-3xl overflow-hidden group cursor-pointer"
+            >
+              <div className="relative w-full h-full">
+                <img
+                  src={prog.image}
+                  alt={prog.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.src = firstImg;
+                    e.target.style.backgroundColor = '#E8E8E8';
+                  }}
+                />
+
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+                {/* Icon - Top Right */}
+                <div className="absolute top-4 right-4">
+                  <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white text-lg font-bold shadow-lg">
+                    {prog.icon}
+                  </div>
+                </div>
+
+                {/* Title - Bottom Left */}
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-white text-xl font-semibold leading-tight">
+                    {prog.title}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Single slider/progress line — no native scrollbar */}
+      <div className="mt-6 w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-orange-500 rounded-full transition-all duration-300"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+    </div>
+  );
+};
 
 /* ================= FILTER GROUP ================= */
 const FilterGroup = ({ title, options, selected, onToggle }) => (
   <div className="mb-8">
-    <h4 className="text-xs font-bold tracking-[0.1em] uppercase text-[#111111] mb-3">
+    <h4 className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-4">
       {title}
     </h4>
-    <div className="space-y-2">
+    <div className="space-y-3">
       {options.map((opt) => (
-        <label key={opt} className="flex items-center gap-2.5 cursor-pointer group">
+        <label key={opt} className="flex items-center gap-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={selected.includes(opt)}
             onChange={() => onToggle(opt)}
-            className="w-3.5 h-3.5 rounded-sm border-[#DED8D2] text-[#DF4607] focus:ring-[#DF4607] focus:ring-offset-0 cursor-pointer"
+            className="w-4 h-4 rounded border-gray-300 text-orange-500 cursor-pointer"
           />
-          <span className="text-[13px] text-[#4A4644] group-hover:text-[#111111] transition-colors">
+          <span className="text-sm text-gray-700 group-hover:text-gray-900">
             {opt}
           </span>
         </label>
@@ -121,78 +322,49 @@ const FilterGroup = ({ title, options, selected, onToggle }) => (
 
 /* ================= PRODUCT CARD ================= */
 const ProductCard = ({ product, isShortlisted, onShortlist }) => {
-  const navigate = useNavigate();
-
-  const handleCustomizeClick = () => {
-    // ✅ Navigate to customize with product pre-selected
-    navigate("/customize", {
-      state: {
-        preSelectedProduct: {
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          category: product.category,
-          image: product.image,
-          spec: product.spec,
-        }
-      }
-    });
-  };
-
   return (
-    <div className="rounded-lg border border-[#DED8D2] bg-white overflow-hidden flex flex-col group">
-      {/* Image — beige backdrop */}
-      <div className="aspect-square bg-[#EDE4DA] overflow-hidden">
+    <div className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white">
+      {/* Image */}
+      <div className="aspect-square bg-gray-100 overflow-hidden">
         <img
           src={product.image}
-          alt={product.title}
+          alt={product.name}
+          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
           loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
-            e.target.src = FALLBACK_IMAGES[product.category] || firstImg;
+            e.target.src = firstImg;
+            e.target.style.backgroundColor = '#E8E8E8';
           }}
         />
       </div>
 
-      {/* Body */}
-      <div className="p-3.5 flex flex-col flex-1">
-        <h3 className="text-[13px] font-bold text-[#111111] leading-snug mb-0.5">
-          {product.title}
+      {/* Content */}
+      <div className="p-4">
+        <h3 className="font-semibold text-gray-900 text-sm mb-1">
+          {product.name}
         </h3>
-        <p className="text-[11px] text-[#6E6A67] mb-2">
-          {product.spec || "Premium quality product"}
+        <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+          {product.spec}
         </p>
 
-        <p className="text-[13px] font-semibold text-[#DF4607] mb-1.5">
-          ₹{product.price.toLocaleString("en-IN")} onwards
+        <p className="text-orange-500 font-bold text-sm mb-4">
+          From ₹{product.price}
         </p>
 
-        <div className="flex items-center gap-1.5 text-[10px] text-[#4A4644] mb-3">
-          <svg className="w-3 h-3 text-[#DF4607]" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-          <span>Custom branding available</span>
-        </div>
-
-        <div className="flex flex-col gap-1.5 mt-auto">
-          {/* ✅ SINGLE CUSTOMIZE BUTTON - Auto-select product */}
-          <button
-            onClick={handleCustomizeClick}
-            className="w-full py-2.5 bg-[#DF4607] text-white text-[12px] font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
-          >
+        {/* Buttons */}
+        <div className="space-y-2">
+          <button className="w-full bg-black text-white text-xs font-semibold py-2.5 rounded-md hover:bg-gray-900 transition-colors">
             Customize
           </button>
-          {/* Add to Shortlist Button */}
           <button
             onClick={() => onShortlist(product)}
-            className={`w-full py-2 text-[12px] font-semibold rounded-md border transition-colors ${
+            className={`w-full text-xs font-semibold py-2 rounded-md border transition-colors ${
               isShortlisted
-                ? "border-[#DF4607] text-[#DF4607] bg-[#FFF3EE]"
-                : "border-[#DED8D2] text-[#111111] hover:border-[#111111]"
+                ? 'border-orange-500 text-orange-500 bg-orange-50'
+                : 'border-gray-300 text-gray-900 hover:border-gray-400 hover:bg-gray-50'
             }`}
           >
-            {isShortlisted ? "Added" : "Add to Shortlist"}
+            {isShortlisted ? '✓ Added to Shortlist' : 'Add to Shortlist'}
           </button>
         </div>
       </div>
@@ -200,77 +372,15 @@ const ProductCard = ({ product, isShortlisted, onShortlist }) => {
   );
 };
 
-/* ================= MAIN ================= */
+/* ================= MAIN COMPONENT ================= */
 const ProductRange = () => {
-  useSEO(seoMetadata.products);
   const [filters, setFilters] = useState({
     category: [],
     price: [],
-    customisation: [],
-    useCase: [],
-    quantity: [],
+    bestFor: [],
   });
   const [shortlist, setShortlist] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // ✅ SMART API URL - LOCAL vs DEPLOYED
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-
-        // 🔧 Smart API URL selection based on hostname
-        let API_BASE;
-
-        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-          // LOCAL DEVELOPMENT
-          API_BASE = "http://localhost:5000";
-        } else {
-          // PRODUCTION/DEPLOYED
-          API_BASE = import.meta.env.VITE_API_URL || "https://api.trazooglobal.com";
-        }
-
-        const API_URL = `${API_BASE}/api/products/active`;
-
-        console.log("🌍 Hostname:", window.location.hostname);
-        console.log("🔗 Fetching from:", API_URL);
-
-        const response = await fetch(API_URL);
-
-        console.log("📊 Response status:", response.status);
-
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status} - ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        console.log("✅ Products fetched:", data.length);
-
-        // Map backend response to component format
-        const mappedProducts = data.map((product) => ({
-          id: product._id,
-          title: product.name,
-          spec: product.spec || "Premium quality product",
-          price: product.unitPrice,
-          category: product.category,
-          image: product.images?.[0] || FALLBACK_IMAGES[product.category],
-          useCases: product.useCases || [],
-        }));
-
-        setProducts(mappedProducts);
-        setError(null);
-      } catch (err) {
-        console.error("❌ Error fetching products:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -291,268 +401,159 @@ const ProductRange = () => {
         : [...prev, product]
     );
 
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      const catOk =
-        filters.category.length === 0 || filters.category.includes(p.category);
-
-      const priceOk =
-        filters.price.length === 0 ||
-        filters.price.some((label) => {
-          const r = PRICE_RANGES.find((x) => x.label === label);
-          return r && p.price >= r.min && p.price <= r.max;
-        });
-
-      const useOk =
-        filters.useCase.length === 0 ||
-        filters.useCase.some((u) => p.useCases?.includes(u));
-
-      return catOk && priceOk && useOk;
-    });
-  }, [filters, products]);
-
-  const clearAll = () =>
+  const clearFilters = () =>
     setFilters({
       category: [],
       price: [],
-      customisation: [],
-      useCase: [],
-      quantity: [],
+      bestFor: [],
     });
 
-  const activeCount = Object.values(filters).reduce((n, a) => n + a.length, 0);
+  const openForm = () => {
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+  };
 
   return (
     <>
-      <main id="products" className="bg-[#FFFDF9] pt-28 pb-24 px-6">
+      {/* Navbar */}
+      <Navbar />
+
+      <main className="bg-white pt-20 pb-20 px-6 md:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* ---------- HEADING ---------- */}
-          <h1 className="text-lg md:text-xl font-semibold text-[#111111] mb-3">
-            If it can carry your brand, chances are we can source it.
-          </h1>
-          <p className="text-sm text-[#4A4644] leading-relaxed max-w-2xl mb-12">
-            Browse commonly requested categories or tell us what you're looking
-            for. Trazoo can source and customise products across the corporate
-            gifting and merchandise market.
-          </p>
+          {/* ===== BREADCRUMB ===== */}
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-8">
+            <a href="/" className="hover:text-gray-900">Home</a>
+            <span>/</span>
+            <span className="text-gray-900 font-medium">Products</span>
+          </div>
 
-          {/* ---------- FILTERS + GRID ---------- */}
-          <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-10">
-            {/* ===== SIDEBAR ===== */}
-            <aside>
-              {activeCount > 0 && (
-                <button
-                  onClick={clearAll}
-                  className="text-xs font-semibold text-[#DF4607] hover:underline mb-6"
-                >
-                  Clear all ({activeCount})
-                </button>
-              )}
+          {/* ===== HEADING ===== */}
+          <div className="mb-16">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">
+              Gifting Events
+            </p>
+            <h1 className="text-5xl md:text-5xl font-serif text-gray-900 mb-12">
+              Every occasion a company <span className="text-orange-500 italic font-serif">gifts on.</span>
+            </h1>
 
-              <FilterGroup
-                title="Category"
-                options={CATEGORIES}
-                selected={filters.category}
-                onToggle={toggle("category")}
-              />
-              <FilterGroup
-                title="Price"
-                options={PRICE_RANGES.map((r) => r.label)}
-                selected={filters.price}
-                onToggle={toggle("price")}
-              />
-              <FilterGroup
-                title="Customisation"
-                options={CUSTOMISATION}
-                selected={filters.customisation}
-                onToggle={toggle("customisation")}
-              />
-              <FilterGroup
-                title="Use Case"
-                options={USE_CASES}
-                selected={filters.useCase}
-                onToggle={toggle("useCase")}
-              />
-              <FilterGroup
-                title="Quantity"
-                options={QUANTITIES}
-                selected={filters.quantity}
-                onToggle={toggle("quantity")}
-              />
-            </aside>
+            {/* ===== PROGRAMME CAROUSEL ===== */}
+            <ProgrammeCarousel />
+          </div>
 
-            {/* ===== GRID ===== */}
-            <div>
-              {loading ? (
-                <div className="text-center py-12">
-                  <p className="text-sm text-[#6E6A67]">Loading products...</p>
+          {/* ===== PRODUCT SECTION ===== */}
+          <div>
+            <div className="mb-10">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">
+                Product Range
+              </p>
+              <h2 className="text-3xl font-serif text-gray-900">
+                Pick what goes in the box.
+              </h2>
+            </div>
+
+            {/* ===== FILTERS + GRID ===== */}
+            <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-12">
+              {/* SIDEBAR */}
+              <aside className="md:border-r md:border-gray-200 md:pr-8">
+                <div className="sticky top-24">
+                  <div className="mb-8">
+                    <button
+                      onClick={clearFilters}
+                      className="text-orange-500 text-sm font-bold hover:underline"
+                    >
+                      Refine
+                    </button>
+                  </div>
+
+                  <FilterGroup
+                    title="Category"
+                    options={CATEGORIES}
+                    selected={filters.category}
+                    onToggle={toggle('category')}
+                  />
+
+                  <FilterGroup
+                    title="Budget"
+                    options={PRICE_RANGES.map((r) => r.label)}
+                    selected={filters.price}
+                    onToggle={toggle('price')}
+                  />
+
+                  <FilterGroup
+                    title="Best For"
+                    options={BEST_FOR}
+                    selected={filters.bestFor}
+                    onToggle={toggle('bestFor')}
+                  />
                 </div>
-              ) : error ? (
-                <div className="rounded-lg border border-dashed border-[#DED8D2] p-12 text-center">
-                  <p className="text-sm text-red-500 mb-3">❌ Error: {error}</p>
-                  <p className="text-xs text-[#6E6A67] mb-3">
-                    Check browser console for details
-                  </p>
+              </aside>
+
+              {/* PRODUCT GRID */}
+              <div>
+                <div className="mb-8 text-sm text-gray-600">
+                  Show {PRODUCT_RANGES.length} products
                 </div>
-              ) : filtered.length ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filtered.map((p) => (
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                  {PRODUCT_RANGES.map((product) => (
                     <ProductCard
-                      key={p.id}
-                      product={p}
-                      isShortlisted={shortlist.some((s) => s.id === p.id)}
+                      key={product.id}
+                      product={product}
+                      isShortlisted={shortlist.some((p) => p.id === product.id)}
                       onShortlist={toggleShortlist}
                     />
                   ))}
                 </div>
-              ) : (
-                <div className="rounded-lg border border-dashed border-[#DED8D2] p-12 text-center">
-                  <p className="text-sm text-[#6E6A67] mb-3">
-                    In filters se koi product match nahi hua.
-                  </p>
-                  <button
-                    onClick={clearAll}
-                    className="text-sm text-[#DF4607] font-semibold hover:underline"
-                  >
-                    Clear all filters
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           </div>
+
+          {/* ===== CTA SECTION ===== */}
+          <section className="mt-24 text-center py-16">
+            <p className="text-xs font-bold uppercase tracking-widest text-orange-500 mb-4">
+              Next Steps
+            </p>
+            <h2 className="text-4xl font-serif text-gray-900 mb-4">
+              Tell us what you need to send.
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto mb-8 text-base">
+              Quantity, budget, audience and timeline. Enough for a shortlist and a delivery plan.
+            </p>
+            <button 
+              onClick={openForm}
+              className="px-8 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              Request a Proposal
+            </button>
+          </section>
         </div>
       </main>
 
-      {/* ================= TRUSTED BY / LOGOS - MOBILE CAROUSEL FAST ================= */}
-      <section className="bg-[#FFFDF9] border-b border-[#DED8D2] overflow-hidden">
-        <div className="w-full py-14 md:py-16">
-
-          {/* Heading */}
-          <div className="text-center px-6 mb-10 md:mb-12">
-            <p className="text-xs md:text-sm font-bold uppercase tracking-[0.18em] text-[#DF4607]">
-              Trusted by Leading Organizations
-            </p>
-
-            <h2 className="mt-3 text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-[-0.03em] text-[#111111]">
-              Trusted by teams that value quality
-            </h2>
-
-            <p className="mt-3 max-w-2xl mx-auto text-sm md:text-base leading-6 text-[#6E6A67]">
-              Organizations trust Trazoo for reliable gifting, merchandise and
-              end-to-end fulfilment.
-            </p>
-          </div>
-
-          {/* Logos */}
-          <div className="w-full overflow-hidden">
-            {/* Mobile: Carousel Animation - FASTER with SPACING */}
-            <div className="md:hidden">
-              <div className="mobile-carousel scrollbar-hide">
-                {companiesWithDuplicate.map((company, i) => (
-                  <div
-                    key={i}
-                    className="mobile-carousel-item flex items-center justify-center shrink-0"
-                  >
-                    <img
-                      src={company.logo}
-                      alt={company.name}
-                      className="
-                        h-12
-                        w-auto
-                        max-w-[120px]
-                        object-contain
-                        border-0
-                        outline-none
-                        shadow-none
-                        transition-transform duration-300
-                        hover:scale-105
-                      "
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Desktop: Static Grid (NO Animation) */}
-            <div className="hidden md:block">
-              <div className="flex items-center justify-center flex-wrap gap-10 md:gap-14 lg:gap-16 px-6">
-                {companies.map((company, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-center"
-                  >
-                    <img
-                      src={company.logo}
-                      alt={company.name}
-                      className="
-                        h-14
-                        md:h-16
-                        lg:h-[68px]
-                        w-auto
-                        max-w-[150px]
-                        md:max-w-[170px]
-                        lg:max-w-[180px]
-                        object-contain
-                        border-0
-                        outline-none
-                        shadow-none
-                        transition-transform duration-300
-                        hover:scale-105
-                      "
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <Footer />
-
-      {/* ---------- SHORTLIST BAR ---------- */}
+      {/* ===== SHORTLIST BAR ===== */}
       {shortlist.length > 0 && (
-        <div className="fixed bottom-0 left-0 w-full bg-[#1A1210] z-40">
-          <div className="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold tracking-[0.1em] uppercase text-white">
-                Requirement Shortlist
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#DF4607] text-white text-[11px] font-semibold">
-                {shortlist.length} Item{shortlist.length > 1 ? "s" : ""}
-              </span>
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 border-t border-gray-800">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <div className="text-sm font-semibold">
+              Shortlist ({shortlist.length} {shortlist.length === 1 ? 'item' : 'items'})
             </div>
-
-            <div className="hidden lg:flex flex-wrap gap-2 flex-1 justify-center">
-              {shortlist.map((p) => (
-                <span
-                  key={p.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[11px] text-white/80"
-                >
-                  {p.title}
-                  <button
-                    onClick={() => toggleShortlist(p)}
-                    aria-label={`Remove ${p.title}`}
-                    className="hover:text-[#DF4607]"
-                  >
-                    <X size={11} />
-                  </button>
-                </span>
-              ))}
-            </div>
-
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="px-5 py-2.5 bg-[#DF4607] text-white text-[13px] font-semibold rounded-md hover:bg-[#C93E05] transition-colors"
-            >
-              Enquire for Selected Products
+            <button className="px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors">
+              View Shortlist
             </button>
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <Footer />
+
+      {/* ===== FORM MODAL ===== */}
+      <FormModal
+        isOpen={isFormOpen}
+        onClose={closeForm}
+      />
     </>
   );
 };

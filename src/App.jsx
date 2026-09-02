@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import {
   Routes,
   Route,
@@ -6,105 +7,114 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
+// ============================================
+// PUBLIC PAGES
+// ============================================
 
-// Public pages
-import Home from "./pages/Home";
-import Hero from "./components/Hero";
-import About from "./pages/About";
-import ProductRange from "./components/ProductRange";
-import Customization from "./components/Customization";
-import Requirements from "./components/Requirements";
-import Fulfilment from "./components/Fulfilment";
-import OurWork from "./components/OurWork";
+import LandingPage from "./components/LandingPage";
 import FAQ from "./pages/FAQ";
-import Footer from "./components/Footer";
+import Products from "./components/ProductRange";
 
-// Legal pages
+// ============================================
+// LEGAL
+// ============================================
+
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 
-// Auth
+// ============================================
+// AUTH
+// ============================================
+
 import CombinedAuth from "./pages/CombinedAuth";
 import VerifyOTP from "./pages/VerifyOTP";
 
-// Admin
+// ============================================
+// ADMIN
+// ============================================
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import KitEnquiries from "./pages/admin/KitEnquiries";
 import ProductsManager from "./pages/admin/ProductsManager";
 import AdminLeadDetails from "./pages/admin/AdminLeadDetails";
 
-// Associate
+// ============================================
+// ASSOCIATE
+// ============================================
+
 import AssociateDashboard from "./pages/associate/AssociateDashboard";
 import MyLeads from "./pages/associate/MyLeads";
 import LeadDetail from "./pages/associate/LeadDetail";
 
-// Protection
+// ============================================
+// ROUTE PROTECTION
+// ============================================
+
 import AdminRoute from "./routes/AdminRoute";
 import AssociateRoute from "./routes/AssociateRoute";
 
+// ============================================
+// SCROLL / HASH HANDLER
+// ============================================
 
-// ======================================================
-// SCROLL TO TOP
-// ======================================================
-
-function ScrollToTop() {
-  const { pathname } = useLocation();
+function ScrollHandler() {
+  const location = useLocation();
 
   useEffect(() => {
+    // ============================================
+    // HASH PRESENT
+    // Example:
+    // /#why
+    // /#about
+    // ============================================
+
+    if (location.hash) {
+      const scrollToHash = () => {
+        const id = location.hash.substring(1);
+
+        const element = document.getElementById(id);
+
+        if (element) {
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      };
+
+      // Give LandingPage time to render
+      const timer = setTimeout(scrollToHash, 100);
+
+      return () => clearTimeout(timer);
+    }
+
+    // ============================================
+    // NORMAL PAGE / ROUTE CHANGE
+    // ============================================
+
     window.scrollTo({
       top: 0,
       left: 0,
       behavior: "instant",
     });
-  }, [pathname]);
+  }, [location.pathname, location.hash]);
 
   return null;
 }
 
-
-// ======================================================
-// NAVBAR VISIBILITY LOGIC - HIDE ON ADMIN/ASSOCIATE
-// ======================================================
-
-function NavbarWrapper() {
-  const location = useLocation();
-
-  // ✅ HIDE NAVBAR for admin and associate routes
-  const isAdminRoute = location.pathname.startsWith("/admin");
-  const isAssociateRoute = location.pathname.startsWith("/associate");
-  const isAuthRoute = location.pathname === "/auth" || location.pathname === "/verify-otp";
-
-  if (isAdminRoute || isAssociateRoute || isAuthRoute) {
-    return null; // Don't show navbar
-  }
-
-  return <Navbar />; // Show navbar for public pages
-}
-
-
-// ======================================================
-// SOLUTIONS PAGE
-// ======================================================
-
-function SolutionsPage() {
-  return (
-    <>
-      <Hero />
-      <Footer />
-    </>
-  );
-}
-
-
-// ======================================================
+// ============================================
 // APP
-// ======================================================
+// ============================================
 
 function App() {
+  // ============================================
+  // LOAD MANROPE FONT
+  // ============================================
+
   useEffect(() => {
     const id = "trazoo-manrope-font";
 
+    // Don't load twice
     if (document.getElementById(id)) {
       return;
     }
@@ -113,6 +123,7 @@ function App() {
 
     link.id = id;
     link.rel = "stylesheet";
+
     link.href =
       "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap";
 
@@ -121,93 +132,100 @@ function App() {
 
   return (
     <div
-      className="min-h-screen bg-[#FFFDF9] text-[#222222] antialiased"
+      className="
+        min-h-screen
+        bg-[#FFFDF9]
+        text-[#222222]
+        antialiased
+      "
       style={{
         fontFamily: "'Manrope', system-ui, sans-serif",
       }}
     >
+      {/* ============================================
+          GLOBAL SCROLL HANDLER
+          ============================================ */}
 
-      {/* ✅ CONDITIONAL NAVBAR - ONLY ON PUBLIC PAGES */}
-      <NavbarWrapper />
-
-      {/* RESET SCROLL POSITION ON EVERY ROUTE CHANGE */}
-      <ScrollToTop />
+      <ScrollHandler />
 
       <Routes>
 
-        {/* ================= PUBLIC ================= */}
+        {/* ============================================
+            PUBLIC
+            ============================================ */}
 
-        {/* HOME */}
+        {/* HOME PAGE */}
         <Route
           path="/"
-          element={<Home />}
+          element={<LandingPage />}
         />
 
-        {/* ABOUT US */}
+        {/* ============================================
+            ABOUT
+            ============================================
+
+            About is NOT a separate page anymore.
+
+            Old /about URL automatically goes to:
+            /#about
+        */}
+
         <Route
           path="/about"
-          element={<About />}
+          element={
+            <Navigate
+              to="/#about"
+              replace
+            />
+          }
         />
 
-        {/* SOLUTIONS */}
-        <Route
-          path="/solutions"
-          element={<SolutionsPage />}
-        />
+        {/* ============================================
+            HOW WE WORK
+            ============================================
 
-        {/* PRODUCTS */}
+            Client website:
+            How We Work -> Gallery.jsx
+        */}
+
+        {/* ============================================
+            PRODUCT
+            ============================================
+
+            Product is the ONLY separate main page.
+        */}
+
         <Route
           path="/products"
-          element={<ProductRange />}
+          element={<Products />}
         />
 
-        {/* ✅ CUSTOMIZATION - FIXED PATH */}
-        <Route
-          path="/customize"
-          element={<Customization />}
-        />
+        {/* ============================================
+            FAQ
+            ============================================ */}
 
-        {/* REQUIREMENTS */}
-        <Route
-          path="/requirements"
-          element={<Requirements />}
-        />
-
-        {/* FULFILMENT */}
-        <Route
-          path="/fulfilment"
-          element={<Fulfilment />}
-        />
-
-        {/* OUR WORK */}
-        <Route
-          path="/our-work"
-          element={<OurWork />}
-        />
-
-        {/* FAQ */}
         <Route
           path="/faq"
           element={<FAQ />}
         />
 
+        {/* ============================================
+            LEGAL
+            ============================================ */}
 
-        {/* ================= LEGAL ================= */}
-
-        {/* TERMS OF SERVICE */}
         <Route
           path="/terms"
           element={<Terms />}
         />
 
-        {/* PRIVACY POLICY */}
         <Route
           path="/privacy"
           element={<Privacy />}
         />
 
-
-        {/* ================= AUTH ================= */}
+        {/* ============================================
+            AUTH
+            ============================================ */}
 
         <Route
           path="/auth"
@@ -219,8 +237,9 @@ function App() {
           element={<VerifyOTP />}
         />
 
-
-        {/* ================= ADMIN ================= */}
+        {/* ============================================
+            ADMIN
+            ============================================ */}
 
         <Route
           path="/admin/dashboard"
@@ -258,8 +277,9 @@ function App() {
           }
         />
 
-
-        {/* ================= ASSOCIATE ================= */}
+        {/* ============================================
+            ASSOCIATE
+            ============================================ */}
 
         <Route
           path="/associate"
@@ -288,8 +308,9 @@ function App() {
           }
         />
 
-
-        {/* ================= 404 ================= */}
+        {/* ============================================
+            404
+            ============================================ */}
 
         <Route
           path="*"
