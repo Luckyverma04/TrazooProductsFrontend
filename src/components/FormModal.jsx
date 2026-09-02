@@ -30,20 +30,18 @@ const FormModal = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
 
     try {
-      // Map frontend field names to backend API expectations
       const payload = {
-        fullName: formData.name,
+        name: formData.name,
+        company: formData.company,
         email: formData.email,
         phone: formData.phone,
-        company: formData.company,
-        lookingFor: formData.programme,
-        quantity: formData.qty ? parseInt(formData.qty) : null,
-        requiredBy: formData.deadline || null,
-        requirement: formData.brief,
-        leadSource: "WEBSITE",
+        programme: formData.programme,
+        qty: formData.qty ? parseInt(formData.qty) : null,
+        deadline: formData.deadline || null,
+        brief: formData.brief,
       };
 
-      await API.post("/api/enquiry", payload);
+      await API.post("/api/proposal-requests", payload);
 
       setSubmitMessage("✓ Requirement received! We'll be in touch within 1 working day.");
       setFormData({
