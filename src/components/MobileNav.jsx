@@ -1,14 +1,10 @@
+import { Link } from "react-router-dom";
 import { X } from "lucide-react";
+import logoImage from "../assets/branding/logo-sm.webp";
+import { mobileNavLinks } from "../config/navigation";
 
 const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
   if (!isOpen) return null;
-
-  const navLinks = [
-    { label: "Why Us", href: "#why" },
-    { label: "About Us", href: "#about" },
-    { label: "How We Work", href: "#process" },
-    { label: "Product", href: "products.html" },
-  ];
 
   return (
     <>
@@ -23,7 +19,7 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[#E8E8E8]">
           <img
-            src="/assets/images/branding/logo-sm.webp"
+            src={logoImage}
             alt="Trazoo"
             className="h-8"
           />
@@ -38,15 +34,15 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
 
         {/* Navigation Links */}
         <nav className="p-6 space-y-2">
-          {navLinks.map((link, idx) => (
-            <a
+          {mobileNavLinks.map((link, idx) => (
+            <Link
               key={idx}
-              href={link.href}
+              to={link.href}
               onClick={onClose}
               className="block py-3 px-4 text-[15px] font-semibold text-[#111111] border-b border-[#E8E8E8] hover:text-[#F36F21] transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
