@@ -10,11 +10,7 @@ import {
   FileImage
 } from "lucide-react";
 
-// Note: Replace with actual import
-// import API from "../../config/api";
-const API = {
-  post: async () => ({ data: { logoUrl: "https://example.com/logo.png" } })
-};
+import API from "../../config/api";
 
 const StepLogo = ({ onNext, onBack }) => {
   const [file, setFile] = useState(null);
@@ -88,20 +84,17 @@ const StepLogo = ({ onNext, onBack }) => {
 
     setLoading(true);
     try {
-      // Upload to server (optional)
       const formData = new FormData();
       formData.append("productImage", file);
-      
-      // Uncomment this if you want to upload first
-      // const res = await API.post("/api/upload/logo", formData, {
-      //   headers: { "Content-Type": "multipart/form-data" },
-      // });
 
-      // Pass the FILE OBJECT to next step - This is the key fix!
-      onNext(file);
-      
+      const res = await API.post("/api/upload/logo", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      // Pass the uploaded Cloudinary URL to the next step
+      onNext(res.data.logoUrl);
     } catch (error) {
-      alert("Failed to process logo");
+      alert(error.response?.data?.message || "Failed to upload logo");
     } finally {
       setLoading(false);
     }
