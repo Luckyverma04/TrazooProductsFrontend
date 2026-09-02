@@ -557,5 +557,4 @@ const ProductRange = () => {
     </>
   );
 };
-
 export default ProductRange;
