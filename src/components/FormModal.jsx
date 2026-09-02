@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-
-const API = import.meta.env.VITE_API_URL;
+import API from "../config/api";
 
 const FormModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -44,46 +43,30 @@ const FormModal = ({ isOpen, onClose }) => {
         leadSource: "WEBSITE",
       };
 
-      const response = await fetch(`${API}/api/enquiry`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      await API.post("/api/enquiry", payload);
+
+      setSubmitMessage("✓ Requirement received! We'll be in touch within 1 working day.");
+      setFormData({
+        name: "",
+        company: "",
+        email: "",
+        phone: "",
+        programme: "Employee Onboarding",
+        qty: "",
+        deadline: "",
+        brief: "",
       });
 
-      const contentType = response.headers.get("content-type") || "";
-      let data = {};
-      
-      if (contentType.includes("application/json")) {
-        data = await response.json();
-      }
-
-      if (response.ok) {
-        setSubmitMessage("✓ Requirement received! We'll be in touch within 1 working day.");
-        setFormData({
-          name: "",
-          company: "",
-          email: "",
-          phone: "",
-          programme: "Employee Onboarding",
-          qty: "",
-          deadline: "",
-          brief: "",
-        });
-
-        // Auto close after 2 seconds
-        setTimeout(() => {
-          onClose();
-          setSubmitMessage("");
-        }, 2000);
-      } else {
-        setSubmitMessage(`❌ ${data.message || `Server error (${response.status}). Please try again.`}`);
-      }
+      // Auto close after 2 seconds
+      setTimeout(() => {
+        onClose();
+        setSubmitMessage("");
+      }, 2000);
     } catch (error) {
       console.error("Submission error:", error);
-      console.log("📍 API URL being used:", `${API}/api/enquiry`);
-      setSubmitMessage(`❌ ${error.message || "Error submitting. Please try again."}`);
+      setSubmitMessage(
+        `❌ ${error.response?.data?.message || "Error submitting. Please try again."}`
+      );
     } finally {
       setIsSubmitting(false);
     }
