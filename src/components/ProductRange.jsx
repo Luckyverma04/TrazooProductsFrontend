@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
-import FormModal from "./FormModal";   
+import FormModal from "./FormModal";
+import SEO from "./SEO";   
      
 // Import fallback images
 import firstImg from "../assets/First.png";
@@ -418,6 +419,13 @@ const ProductRange = () => {
 
   return (
     <>
+      {/* SEO */}
+      <SEO
+        title="Corporate Gifting Products | Branded Merchandise & Custom Kits | Trazoo"
+        description="Explore Trazoo corporate gifting products: branded apparel, drinkware, bags, stationery, tech accessories, gourmet hampers and custom kits for employees, clients and events across India."
+        path="/products"
+      />
+
       {/* Navbar */}
       <Navbar />
 

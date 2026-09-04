@@ -1,5 +1,4 @@
 import IndiaMap from "./IndiaMap";
-
 export default function About({ onEnquireClick }) {
   const processSteps = ["Source", "Customise", "Brand", "Pack", "Deliver"];
 
@@ -31,6 +30,7 @@ export default function About({ onEnquireClick }) {
   ];
 
   return (
+
     <section
       id="about"
       className="w-full bg-[#FAF9F6] py-12 sm:py-14 md:py-16"

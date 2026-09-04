@@ -10,14 +10,11 @@ import AboutSection from "./AboutSection";
 import FormModal from "./FormModal";
 import MobileNav from "./MobileNav";
 import HailButton from "./HailButton";
+import SEO from "./SEO";
 
 export default function LandingPage() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-
-  // ============================================
-  // FORM
-  // ============================================
 
   const openForm = () => {
     setIsFormOpen(true);
@@ -26,10 +23,6 @@ export default function LandingPage() {
   const closeForm = () => {
     setIsFormOpen(false);
   };
-
-  // ============================================
-  // MOBILE NAV
-  // ============================================
 
   const openMobileNav = () => {
     setIsMobileNavOpen(true);
@@ -42,46 +35,39 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#FFFDF9]">
 
-      {/* ============================================
-          INTRO
-      ============================================ */}
+      {/* SEO */}
+      <SEO
+        title="Trazoo | Corporate Gifting & Custom Merchandise in India"
+        description="Trazoo is a corporate gifting partner in India for employee onboarding, client gifting, events and rewards. Explore branded merchandise, custom kits, hampers and end-to-end delivery."
+        path="/"
+      />
 
+      {/* INTRO */}
       <Intro />
 
-      {/* ============================================
-          NAVBAR
-      ============================================ */}
-
+      {/* NAVBAR */}
       <Navbar
         onMobileNavOpen={openMobileNav}
         onEnquireClick={openForm}
       />
 
-      {/* ============================================
-          MAIN
-      ============================================ */}
-
+      {/* MAIN */}
       <main>
 
-        {/* ============================================
-            HERO
-        ============================================ */}
-
+        {/* HERO */}
         <HeroHome
           onEnquireClick={openForm}
         />
 
-        {/* ============================================
-            ABOUT
-            Navbar → About Us → /#about
-        ============================================ */}
-   <section
+        {/* WHY US */}
+        <section
           id="why"
           className="scroll-mt-24"
         >
           <WhyUs />
         </section>
 
+        {/* ABOUT */}
         <section
           id="about"
           className="scroll-mt-24"
@@ -91,9 +77,7 @@ export default function LandingPage() {
           />
         </section>
 
-
-     
-
+        {/* PROCESS / GALLERY */}
         <section
           id="process"
           className="scroll-mt-24"
@@ -105,35 +89,23 @@ export default function LandingPage() {
 
       </main>
 
-      {/* ============================================
-          FOOTER
-      ============================================ */}
-
+      {/* FOOTER */}
       <Footer />
 
-      {/* ============================================
-          FORM MODAL
-      ============================================ */}
-
+      {/* FORM MODAL */}
       <FormModal
         isOpen={isFormOpen}
         onClose={closeForm}
       />
 
-      {/* ============================================
-          MOBILE NAVIGATION
-      ============================================ */}
-
+      {/* MOBILE NAVIGATION */}
       <MobileNav
         isOpen={isMobileNavOpen}
         onClose={closeMobileNav}
         onEnquireClick={openForm}
       />
 
-      {/* ============================================
-          FLOATING ENQUIRE BUTTON
-      ============================================ */}
-
+      {/* FLOATING ENQUIRE BUTTON */}
       <HailButton
         onEnquireClick={openForm}
       />
