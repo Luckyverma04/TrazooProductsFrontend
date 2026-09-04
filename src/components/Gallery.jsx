@@ -128,26 +128,14 @@ const Gallery = ({ onEnquireClick }) => {
     .filter((image) => image.src);
 
   // ============================================================
-  // RANDOM STEP ACTIVATION
+  // SEQUENTIAL STEP ACTIVATION
   // ============================================================
 
-  const [activeSteps, setActiveSteps] = useState([0]);
+  const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const numActive = Math.floor(Math.random() * 3) + 1;
-      const newActive = [];
-
-      while (newActive.length < numActive) {
-        const randomIndex = Math.floor(Math.random() * 6);
-
-        if (!newActive.includes(randomIndex)) {
-          newActive.push(randomIndex);
-        }
-      }
-
-      newActive.sort((a, b) => a - b);
-      setActiveSteps(newActive);
+      setActiveStep((prev) => (prev + 1) % workSteps.length);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -459,7 +447,7 @@ const Gallery = ({ onEnquireClick }) => {
 
               {workSteps.map((step, index) => {
                 const Icon = step.icon;
-                const isActive = activeSteps.includes(index);
+                const isActive = index === activeStep;
 
                 return (
                   <div
