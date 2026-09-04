@@ -1,39 +1,39 @@
 import { useEffect, useState } from "react";
 import { Users, ShieldCheck, Sparkles, MapPin } from "lucide-react";
 
-const WhyUs = () => {
-  const reasons = [
-    {
-      number: "01",
-      icon: Users,
-      title: "One Point of Accountability",
-      description:
-        "One team owns your requirement from the first brief to the final delivery.",
-    },
-    {
-      number: "02",
-      icon: ShieldCheck,
-      title: "Honest Commitments",
-      description:
-        "No overpromising to win an order. If we see a risk in quality, availability or timelines, you hear it from us first.",
-    },
-    {
-      number: "03",
-      icon: Sparkles,
-      title: "Curated Around You",
-      description:
-        "We shortlist around your audience, budget and brand, not around what we need to sell.",
-    },
-    {
-      number: "04",
-      icon: MapPin,
-      title: "Execution at Scale",
-      description:
-        "From one location to thousands of individual addresses, we manage the programme without compromising the experience.",
-    },
-  ];
+const reasons = [
+  {
+    number: "01",
+    icon: Users,
+    title: "One Point of Accountability",
+    description:
+      "One team owns your requirement from the first brief to the final delivery.",
+  },
+  {
+    number: "02",
+    icon: ShieldCheck,
+    title: "Honest Commitments",
+    description:
+      "No overpromising to win an order. If we see a risk in quality, availability or timelines, you hear it from us first.",
+  },
+  {
+    number: "03",
+    icon: Sparkles,
+    title: "Curated Around You",
+    description:
+      "We shortlist around your audience, budget and brand, not around what we need to sell.",
+  },
+  {
+    number: "04",
+    icon: MapPin,
+    title: "Execution at Scale",
+    description:
+      "From one location to thousands of individual addresses, we manage the programme without compromising the experience.",
+  },
+];
 
-  const [activeCard, setActiveCard] = useState(1);
+const WhyUs = () => {
+  const [activeCard, setActiveCard] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -47,27 +47,24 @@ const WhyUs = () => {
     <section
       id="why"
       aria-labelledby="whyTitle"
-      className="w-full bg-white py-12 sm:py-14 md:py-16"
+      className="w-full overflow-x-hidden bg-white py-12 sm:py-14 md:py-16"
     >
-    
       <div
-  className="
-    mx-auto
-    w-full
-    max-w-[1180px]
-    px-5
-    sm:px-8
-    lg:px-10
-    xl:-ml-14
-  "
->
+        className="
+          mx-auto
+          w-full
+          max-w-[1180px]
+          px-5
+          sm:px-8
+          lg:px-10
+        "
+      >
         {/* ==================================================
             HEADING
         ================================================== */}
 
-        <div className="mb-8 max-w-[760px] md:mb-10">
-          {/* EYEBROW */}
-
+        <div className="mb-8 w-full max-w-[760px] md:mb-10">
+          {/* Eyebrow */}
           <p
             className="
               mb-3
@@ -81,8 +78,7 @@ const WhyUs = () => {
             Why teams choose us
           </p>
 
-          {/* HEADING */}
-
+          {/* Main Heading */}
           <h2
             id="whyTitle"
             className="
@@ -97,17 +93,16 @@ const WhyUs = () => {
               lg:text-[44px]
             "
           >
-            <span className="block whitespace-nowrap">
+            <span className="block">
               Most vendors sell you products.
             </span>
 
-            <span className="block whitespace-nowrap italic text-[#F36F21]">
+            <span className="block italic text-[#F36F21]">
               We take responsibility for the outcome.
             </span>
           </h2>
 
-          {/* DESCRIPTION */}
-
+          {/* Description */}
           <p
             className="
               mt-4
@@ -123,12 +118,12 @@ const WhyUs = () => {
             possible, what is not, and where we see a risk, before you commit.
           </p>
 
-          {/* PLEDGE */}
-
+          {/* Pledge */}
           <p
             className="
               mt-5
               inline-block
+              max-w-full
               border-l-[3px]
               border-[#F36F21]
               bg-[#FEF1E9]
@@ -166,16 +161,17 @@ const WhyUs = () => {
                   relative
                   grid
                   min-h-[96px]
-                  grid-cols-[72px_1fr]
+                  w-full
+                  grid-cols-[72px_minmax(0,1fr)]
                   overflow-hidden
                   rounded-[12px]
                   border
                   transition-all
                   duration-500
                   ease-out
-                  sm:grid-cols-[82px_1fr]
+                  sm:grid-cols-[82px_minmax(0,1fr)]
                   md:min-h-[104px]
-                  md:grid-cols-[92px_1fr]
+                  md:grid-cols-[92px_minmax(0,1fr)]
                   ${
                     isActive
                       ? "border-[#F36F21] bg-white shadow-[0_6px_24px_rgba(0,0,0,0.045)]"
@@ -183,8 +179,7 @@ const WhyUs = () => {
                   }
                 `}
               >
-                {/* ACTIVE ORANGE LINE */}
-
+                {/* Active Orange Line */}
                 <span
                   aria-hidden="true"
                   className={`
