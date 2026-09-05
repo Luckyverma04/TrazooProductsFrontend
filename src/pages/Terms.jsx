@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Footer from "../components/Footer";
-
+import SEO from "../components/SEO";
 const Terms = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -8,6 +8,11 @@ const Terms = () => {
 
   return (
     <>
+     <SEO
+      title="Terms of Service | Trazoo Global"
+      description="Read the Terms of Service for Trazoo Global, including website usage, licensing, limitations, governing law and service terms."
+      path="/terms"
+    />
       <main className="bg-[#FFFDF9] min-h-screen">
         <div className="max-w-4xl mx-auto px-6 md:px-10 lg:px-14 py-16 md:py-20">
           

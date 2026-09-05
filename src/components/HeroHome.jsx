@@ -5,59 +5,68 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
    IMPORT IMAGES
    ============================================================ */
 
-import apparel from "../assets/slides/apparel.webp";
-import bags from "../assets/slides/bags.webp";
-import curatedKits from "../assets/slides/curated-kits.webp";
-import drinkware from "../assets/slides/drinkware.webp";
-import gourmet from "../assets/slides/gourmet.webp";
-import stationery from "../assets/slides/stationery.webp";
-import tech from "../assets/slides/tech.webp";
-import welcomeKits from "../assets/slides/welcome-kits.webp";
+const slideFiles = import.meta.glob("../assets/slides/optimized/*.webp", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+const getOptimizedSlide = (name) => {
+  const get = (width) =>
+    slideFiles[`../assets/slides/optimized/${name}-${width}.webp`];
+
+  return {
+    src: get(640),
+    srcSet: `${get(320)} 320w, ${get(480)} 480w, ${get(640)} 640w`,
+  };
+};
 
 /* ============================================================
    HERO PRODUCT DATA
    ============================================================ */
 
+const AUTO_SLIDE_INTERVAL = 2600;
+
 const products = [
   {
     title: "Apparel",
     subtitle: "Branded apparel curated for your teams",
-    image: apparel,
+    image: getOptimizedSlide("apparel"),
   },
   {
     title: "Bags",
     subtitle: "Smart bags designed around your brand",
-    image: bags,
+    image: getOptimizedSlide("bags"),
   },
   {
     title: "Curated Kits",
     subtitle: "Mixed-range kits built to one brief",
-    image: curatedKits,
+    image: getOptimizedSlide("curated-kits"),
   },
   {
     title: "Drinkware",
     subtitle: "Everyday drinkware with your brand",
-    image: drinkware,
+    image: getOptimizedSlide("drinkware"),
   },
   {
     title: "Gourmet",
     subtitle: "Thoughtful gourmet gifting for every occasion",
-    image: gourmet,
+    image: getOptimizedSlide("gourmet"),
   },
   {
     title: "Stationery",
     subtitle: "Premium stationery made for work",
-    image: stationery,
+    image: getOptimizedSlide("stationery"),
   },
   {
     title: "Tech",
     subtitle: "Useful technology gifts with your identity",
-    image: tech,
+    image: getOptimizedSlide("tech"),
   },
   {
     title: "Welcome Kits",
     subtitle: "Boxed sets, ready for day one",
-    image: welcomeKits,
+    image: getOptimizedSlide("welcome-kits"),
   },
 ];
 
@@ -78,7 +87,7 @@ export default function HeroHome({ onEnquireClick }) {
 
     const interval = setInterval(() => {
       setActiveIndex((current) => (current + 1) % products.length);
-    }, 2600);
+    }, AUTO_SLIDE_INTERVAL);
 
     return () => clearInterval(interval);
   }, [isPaused]);
@@ -263,7 +272,7 @@ export default function HeroHome({ onEnquireClick }) {
                   text-[16px]
                   font-bold
                   text-white
-                  transition-all
+                  transition-[background-color,box-shadow]
                   duration-300
                   hover:bg-[#df5f16]
                   hover:shadow-lg
@@ -308,7 +317,7 @@ export default function HeroHome({ onEnquireClick }) {
                   text-[16px]
                   font-semibold
                   text-[#222]
-                  transition-all
+                  transition-[width,background-color]
                   duration-300
                   hover:border-[#F36F21]
                   hover:text-[#F36F21]
@@ -498,7 +507,9 @@ export default function HeroHome({ onEnquireClick }) {
 
                     <div className="relative aspect-[1/0.88] overflow-hidden bg-[#F6F5F1]">
                       <img
-                        src={product.image}
+                        src={product.image.src}
+                        srcSet={product.image.srcSet}
+                        sizes="(max-width: 640px) 180px, (max-width: 768px) 220px, 260px"
                         alt={product.title}
                         className="
                           h-full
@@ -507,6 +518,11 @@ export default function HeroHome({ onEnquireClick }) {
                           transition-transform
                           duration-700
                         "
+                        loading={isActive ? "eager" : "lazy"}
+                        fetchPriority={isActive ? "high" : "low"}
+                        decoding="async"
+                        width="260"
+                        height="229"
                         draggable="false"
                       />
 
@@ -581,7 +597,7 @@ export default function HeroHome({ onEnquireClick }) {
                 bg-white
                 text-[#222]
                 shadow-sm
-                transition-all
+                transition-[border-color,color,box-shadow]
                 duration-300
                 hover:border-[#F36F21]
                 hover:text-[#F36F21]
@@ -612,7 +628,7 @@ export default function HeroHome({ onEnquireClick }) {
                 bg-white
                 text-[#222]
                 shadow-sm
-                transition-all
+                transition-[border-color,color,box-shadow]
                 duration-300
                 hover:border-[#F36F21]
                 hover:text-[#F36F21]
@@ -647,7 +663,7 @@ export default function HeroHome({ onEnquireClick }) {
                   className={`
                     h-1
                     rounded-full
-                    transition-all
+                    transition-[width,background-color]
                     duration-300
                     ${
                       index === activeIndex
@@ -689,6 +705,13 @@ export default function HeroHome({ onEnquireClick }) {
 
           .tz-marquee:hover .tz-marquee__track {
             animation-play-state: paused;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .tz-marquee__track {
+              animation: none;
+              transform: none;
+            }
           }
 
           .tz-marquee__item {

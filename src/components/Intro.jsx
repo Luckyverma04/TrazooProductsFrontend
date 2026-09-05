@@ -4,11 +4,14 @@ import closedGift from "../assets/loader/closed.webp";
 import openingGift from "../assets/loader/opening.webp";
 import burstGift from "../assets/loader/burst.webp";
 
+const INTRO_DURATION = 3800;
+const INTRO_STORAGE_KEY = "tz_intro_seen";
+
 const Intro = () => {
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem("tz_intro_seen");
+    const seen = sessionStorage.getItem(INTRO_STORAGE_KEY);
 
     if (seen) {
       setShowIntro(false);
@@ -17,58 +20,55 @@ const Intro = () => {
 
     const timer = setTimeout(() => {
       setShowIntro(false);
-      sessionStorage.setItem("tz_intro_seen", "true");
-    }, 3800);
+      sessionStorage.setItem(INTRO_STORAGE_KEY, "true");
+    }, INTRO_DURATION);
 
     return () => clearTimeout(timer);
   }, []);
 
   const handleSkip = () => {
     setShowIntro(false);
-    sessionStorage.setItem("tz_intro_seen", "true");
+    sessionStorage.setItem(INTRO_STORAGE_KEY, "true");
   };
 
   if (!showIntro) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-white">
       {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="pointer-events-none absolute inset-0">
         <div
           className="
             absolute
-            top-1/2
             left-1/2
+            top-1/2
+            h-80
+            w-80
             -translate-x-1/2
             -translate-y-1/2
-            w-80
-            h-80
-            md:w-96
-            md:h-96
+            rounded-full
             bg-gradient-to-r
             from-[#F36F21]/20
             to-transparent
-            rounded-full
             blur-3xl
             animate-pulse
+            md:h-96
+            md:w-96
           "
         />
       </div>
 
       {/* Gift animation */}
-      <div className="relative z-10 w-64 h-64 md:w-72 md:h-72 mb-8 md:mb-10">
+      <div className="relative z-10 mb-8 h-64 w-64 md:mb-10 md:h-72 md:w-72">
         {/* Closed gift */}
         <img
           src={closedGift}
           alt=""
           aria-hidden="true"
-          className="
-            absolute
-            inset-0
-            w-full
-            h-full
-            object-contain
-          "
+          width="288"
+          height="288"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-contain"
           style={{
             animation: "tzGiftClosed 0.8s ease-out forwards",
           }}
@@ -79,13 +79,10 @@ const Intro = () => {
           src={openingGift}
           alt=""
           aria-hidden="true"
-          className="
-            absolute
-            inset-0
-            w-full
-            h-full
-            object-contain
-          "
+          width="288"
+          height="288"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-contain"
           style={{
             opacity: 0,
             animation: "tzGiftOpening 1s ease-out 0.8s forwards",
@@ -97,14 +94,16 @@ const Intro = () => {
           src={burstGift}
           alt=""
           aria-hidden="true"
+          width="360"
+          height="360"
+          decoding="async"
           className="
             absolute
-            inset-0
-            w-[125%]
-            h-[125%]
-            object-contain
-            -top-[12.5%]
             -left-[12.5%]
+            -top-[12.5%]
+            h-[125%]
+            w-[125%]
+            object-contain
           "
           style={{
             opacity: 0,
@@ -119,22 +118,22 @@ const Intro = () => {
           relative
           z-10
           text-5xl
-          md:text-6xl
           font-extrabold
           tracking-tight
           text-[#111111]
+          md:text-6xl
         "
       >
         Trazoo
       </h1>
 
       {/* Progress */}
-      <div className="relative z-10 mt-8 w-32 md:w-40 h-1 bg-gray-200 rounded-full overflow-hidden">
+      <div className="relative z-10 mt-8 h-1 w-32 overflow-hidden rounded-full bg-gray-200 md:w-40">
         <div
-          className="h-full bg-gradient-to-r from-[#F36F21] to-[#FF8C42] rounded-full"
+          className="h-full rounded-full bg-gradient-to-r from-[#F36F21] to-[#FF8C42]"
           style={{
             width: "0%",
-            animation: "tzProgress 3.8s ease-in-out forwards",
+            animation: `tzProgress ${INTRO_DURATION}ms ease-in-out forwards`,
           }}
         />
       </div>
@@ -145,18 +144,18 @@ const Intro = () => {
         onClick={handleSkip}
         className="
           absolute
-          top-6
           right-6
-          md:top-8
-          md:right-8
+          top-6
           z-20
           px-3
           py-2
           text-sm
           font-medium
           text-gray-500
-          hover:text-[#111111]
           transition-colors
+          hover:text-[#111111]
+          md:right-8
+          md:top-8
         "
       >
         Skip

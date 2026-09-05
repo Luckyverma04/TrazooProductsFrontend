@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 
 import {
   Routes,
@@ -11,40 +11,65 @@ import {
 // PUBLIC PAGES
 // ============================================
 
+// Keep the homepage eager because it is the main/LCP page.
 import LandingPage from "./components/LandingPage";
-import FAQ from "./pages/FAQ";
-import Products from "./components/ProductRange";
 
 // ============================================
-// LEGAL
+// PUBLIC PAGES - LAZY LOADED
 // ============================================
 
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Products = lazy(() => import("./components/ProductRange"));
 
 // ============================================
-// AUTH
+// LEGAL - LAZY LOADED
 // ============================================
 
-import CombinedAuth from "./pages/CombinedAuth";
-import VerifyOTP from "./pages/VerifyOTP";
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 // ============================================
-// ADMIN
+// AUTH - LAZY LOADED
 // ============================================
 
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import KitEnquiries from "./pages/admin/KitEnquiries";
-import ProductsManager from "./pages/admin/ProductsManager";
-import AdminLeadDetails from "./pages/admin/AdminLeadDetails";
+const CombinedAuth = lazy(() => import("./pages/CombinedAuth"));
+const VerifyOTP = lazy(() => import("./pages/VerifyOTP"));
 
 // ============================================
-// ASSOCIATE
+// ADMIN - LAZY LOADED
 // ============================================
 
-import AssociateDashboard from "./pages/associate/AssociateDashboard";
-import MyLeads from "./pages/associate/MyLeads";
-import LeadDetail from "./pages/associate/LeadDetail";
+const AdminDashboard = lazy(
+  () => import("./pages/admin/AdminDashboard")
+);
+
+const KitEnquiries = lazy(
+  () => import("./pages/admin/KitEnquiries")
+);
+
+const ProductsManager = lazy(
+  () => import("./pages/admin/ProductsManager")
+);
+
+const AdminLeadDetails = lazy(
+  () => import("./pages/admin/AdminLeadDetails")
+);
+
+// ============================================
+// ASSOCIATE - LAZY LOADED
+// ============================================
+
+const AssociateDashboard = lazy(
+  () => import("./pages/associate/AssociateDashboard")
+);
+
+const MyLeads = lazy(
+  () => import("./pages/associate/MyLeads")
+);
+
+const LeadDetail = lazy(
+  () => import("./pages/associate/LeadDetail")
+);
 
 // ============================================
 // ROUTE PROTECTION
@@ -71,7 +96,6 @@ function ScrollHandler() {
     if (location.hash) {
       const scrollToHash = () => {
         const id = location.hash.substring(1);
-
         const element = document.getElementById(id);
 
         if (element) {
@@ -82,7 +106,7 @@ function ScrollHandler() {
         }
       };
 
-      // Give LandingPage time to render
+      // Give LandingPage time to render.
       const timer = setTimeout(scrollToHash, 100);
 
       return () => clearTimeout(timer);
@@ -103,33 +127,24 @@ function ScrollHandler() {
 }
 
 // ============================================
+// LOADING FALLBACK
+// ============================================
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#FFFDF9] text-[#222222] antialiased">
+      <div className="text-sm font-medium">
+        Loading...
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // APP
 // ============================================
 
 function App() {
-  // ============================================
-  // LOAD MANROPE FONT
-  // ============================================
-
-  useEffect(() => {
-    const id = "trazoo-manrope-font";
-
-    // Don't load twice
-    if (document.getElementById(id)) {
-      return;
-    }
-
-    const link = document.createElement("link");
-
-    link.id = id;
-    link.rel = "stylesheet";
-
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap";
-
-    document.head.appendChild(link);
-  }, []);
-
   return (
     <div
       className="
@@ -148,181 +163,183 @@ function App() {
 
       <ScrollHandler />
 
-      <Routes>
+      {/* ============================================
+          LAZY PAGE LOADING
+          ============================================ */}
 
-        {/* ============================================
-            PUBLIC
-            ============================================ */}
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
 
-        {/* HOME PAGE */}
-        <Route
-          path="/"
-          element={<LandingPage />}
-        />
+          {/* ============================================
+              PUBLIC
+              ============================================ */}
 
-        {/* ============================================
-            ABOUT
-            ============================================
+          {/* HOME PAGE */}
+          <Route
+            path="/"
+            element={<LandingPage />}
+          />
 
-            About is NOT a separate page anymore.
+          {/* ============================================
+              ABOUT
+              ============================================
+              About is NOT a separate page anymore.
+              Old /about URL automatically goes to:
+              /#about
+          */}
 
-            Old /about URL automatically goes to:
-            /#about
-        */}
+          <Route
+            path="/about"
+            element={
+              <Navigate
+                to="/#about"
+                replace
+              />
+            }
+          />
 
-        <Route
-          path="/about"
-          element={
-            <Navigate
-              to="/#about"
-              replace
-            />
-          }
-        />
+          {/* ============================================
+              HOW WE WORK
+              ============================================
+              Client website:
+              How We Work -> Gallery.jsx
+          */}
 
-        {/* ============================================
-            HOW WE WORK
-            ============================================
+          {/* ============================================
+              PRODUCT
+              ============================================
+              Product is the ONLY separate main page.
+          */}
 
-            Client website:
-            How We Work -> Gallery.jsx
-        */}
+          <Route
+            path="/products"
+            element={<Products />}
+          />
 
-        {/* ============================================
-            PRODUCT
-            ============================================
+          {/* ============================================
+              FAQ
+              ============================================ */}
 
-            Product is the ONLY separate main page.
-        */}
+          <Route
+            path="/faq"
+            element={<FAQ />}
+          />
 
-        <Route
-          path="/products"
-          element={<Products />}
-        />
+          {/* ============================================
+              LEGAL
+              ============================================ */}
 
-        {/* ============================================
-            FAQ
-            ============================================ */}
+          <Route
+            path="/terms"
+            element={<Terms />}
+          />
 
-        <Route
-          path="/faq"
-          element={<FAQ />}
-        />
+          <Route
+            path="/privacy"
+            element={<Privacy />}
+          />
 
-        {/* ============================================
-            LEGAL
-            ============================================ */}
+          {/* ============================================
+              AUTH
+              ============================================ */}
 
-        <Route
-          path="/terms"
-          element={<Terms />}
-        />
+          <Route
+            path="/auth"
+            element={<CombinedAuth />}
+          />
 
-        <Route
-          path="/privacy"
-          element={<Privacy />}
-        />
+          <Route
+            path="/verify-otp"
+            element={<VerifyOTP />}
+          />
 
-        {/* ============================================
-            AUTH
-            ============================================ */}
+          {/* ============================================
+              ADMIN
+              ============================================ */}
 
-        <Route
-          path="/auth"
-          element={<CombinedAuth />}
-        />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
 
-        <Route
-          path="/verify-otp"
-          element={<VerifyOTP />}
-        />
+          <Route
+            path="/admin/products"
+            element={
+              <AdminRoute>
+                <ProductsManager />
+              </AdminRoute>
+            }
+          />
 
-        {/* ============================================
-            ADMIN
-            ============================================ */}
+          <Route
+            path="/admin/kit-enquiries"
+            element={
+              <AdminRoute>
+                <KitEnquiries />
+              </AdminRoute>
+            }
+          />
 
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
+          <Route
+            path="/admin/lead/:id"
+            element={
+              <AdminRoute>
+                <AdminLeadDetails />
+              </AdminRoute>
+            }
+          />
 
-        <Route
-          path="/admin/products"
-          element={
-            <AdminRoute>
-              <ProductsManager />
-            </AdminRoute>
-          }
-        />
+          {/* ============================================
+              ASSOCIATE
+              ============================================ */}
 
-        <Route
-          path="/admin/kit-enquiries"
-          element={
-            <AdminRoute>
-              <KitEnquiries />
-            </AdminRoute>
-          }
-        />
+          <Route
+            path="/associate"
+            element={
+              <AssociateRoute>
+                <AssociateDashboard />
+              </AssociateRoute>
+            }
+          />
 
-        <Route
-          path="/admin/lead/:id"
-          element={
-            <AdminRoute>
-              <AdminLeadDetails />
-            </AdminRoute>
-          }
-        />
+          <Route
+            path="/associate/leads"
+            element={
+              <AssociateRoute>
+                <MyLeads />
+              </AssociateRoute>
+            }
+          />
 
-        {/* ============================================
-            ASSOCIATE
-            ============================================ */}
+          <Route
+            path="/associate/leads/:id"
+            element={
+              <AssociateRoute>
+                <LeadDetail />
+              </AssociateRoute>
+            }
+          />
 
-        <Route
-          path="/associate"
-          element={
-            <AssociateRoute>
-              <AssociateDashboard />
-            </AssociateRoute>
-          }
-        />
+          {/* ============================================
+              404
+              ============================================ */}
 
-        <Route
-          path="/associate/leads"
-          element={
-            <AssociateRoute>
-              <MyLeads />
-            </AssociateRoute>
-          }
-        />
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to="/"
+                replace
+              />
+            }
+          />
 
-        <Route
-          path="/associate/leads/:id"
-          element={
-            <AssociateRoute>
-              <LeadDetail />
-            </AssociateRoute>
-          }
-        />
-
-        {/* ============================================
-            404
-            ============================================ */}
-
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
-        />
-
-      </Routes>
+        </Routes>
+      </Suspense>
     </div>
   );
 }

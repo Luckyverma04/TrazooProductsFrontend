@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import FormModal from "./FormModal";
 import SEO from "./SEO";   
      
-// Import fallback images
-import firstImg from "../assets/First.png";
 
 // Programme cards data - using programmes folder images
 const PROGRAMMES = [
@@ -223,7 +222,7 @@ const ProgrammeCarousel = () => {
           onClick={() => scroll('left')}
           disabled={!canScrollLeft}
           aria-label="Previous programmes"
-          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity shadow-sm"
         >
           <ChevronLeft size={20} color="#111111" strokeWidth={2} />
         </button>
@@ -234,7 +233,7 @@ const ProgrammeCarousel = () => {
           onClick={() => scroll('right')}
           disabled={!canScrollRight}
           aria-label="Next programmes"
-          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity shadow-sm"
         >
           <ChevronRight size={20} color="#111111" strokeWidth={2} />
         </button>
@@ -433,7 +432,7 @@ const ProductRange = () => {
         <div className="max-w-7xl mx-auto">
           {/* ===== BREADCRUMB ===== */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-8">
-            <a href="/" className="hover:text-gray-900">Home</a>
+           <Link to="/" className="hover:text-gray-900">Home</Link>
             <span>/</span>
             <span className="text-gray-900 font-medium">Products</span>
           </div>

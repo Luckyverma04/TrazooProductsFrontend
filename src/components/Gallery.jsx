@@ -14,7 +14,7 @@ import {
 // ============================================================
 
 const galleryFiles = import.meta.glob(
-  "../assets/gallery/*.{jpeg,jpg,png,webp}",
+  "../assets/gallery/optimized/*.webp",
   {
     eager: true,
     query: "?url",
@@ -56,12 +56,30 @@ const imageNames = [
   "Gallery-17.jpeg",
 ];
 
-const getImageUrl = (fileName) => {
-  const key = Object.keys(galleryFiles).find(
-    (path) => path.endsWith(`/${fileName}`)
-  );
+const getOptimizedImage = (fileName) => {
+  const baseName = fileName.replace(/\\.(jpeg|jpg|png|webp)$/i, "");
 
-  return key ? galleryFiles[key] : null;
+  const findUrl = (width) => {
+    const key = Object.keys(galleryFiles).find(
+      (path) => path.endsWith(`/${baseName}-${width}.webp`)
+    );
+    return key ? galleryFiles[key] : null;
+  };
+
+  const url320 = findUrl(320);
+  const url480 = findUrl(480);
+  const url640 = findUrl(640);
+
+  return {
+    src: url640,
+    srcSet: [
+      url320 && `${url320} 320w`,
+      url480 && `${url480} 480w`,
+      url640 && `${url640} 640w`,
+    ]
+      .filter(Boolean)
+      .join(", "),
+  };
 };
 
 // ============================================================
@@ -121,37 +139,35 @@ const Gallery = ({ onEnquireClick }) => {
   const scrollRef = useRef(null);
 
   const galleryImages = imageNames
-    .map((name) => ({
-      name,
-      src: getImageUrl(name),
-    }))
+    .map((name) => {
+      const optimized = getOptimizedImage(name);
+
+      return {
+        name,
+        src: optimized.src,
+        srcSet: optimized.srcSet,
+      };
+    })
     .filter((image) => image.src);
 
   // ============================================================
-  // RANDOM STEP ACTIVATION
+  // STEP ACTIVATION — EXACT CLIENT SEQUENCE
+  // 01 → 02 → 03 → 04 → 03 → 05 → 06 → repeat
   // ============================================================
 
-  const [activeSteps, setActiveSteps] = useState([0]);
+  const stepSequence = [0, 1, 2, 3, 2, 4, 5];
+
+  const [sequenceIndex, setSequenceIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const numActive = Math.floor(Math.random() * 3) + 1;
-      const newActive = [];
-
-      while (newActive.length < numActive) {
-        const randomIndex = Math.floor(Math.random() * 6);
-
-        if (!newActive.includes(randomIndex)) {
-          newActive.push(randomIndex);
-        }
-      }
-
-      newActive.sort((a, b) => a - b);
-      setActiveSteps(newActive);
-    }, 3000);
+      setSequenceIndex((prev) => (prev + 1) % stepSequence.length);
+    }, 900);
 
     return () => clearInterval(interval);
   }, []);
+
+  const activeStep = stepSequence[sequenceIndex];
 
   // ============================================================
   // AUTO SCROLL GALLERY
@@ -459,7 +475,7 @@ const Gallery = ({ onEnquireClick }) => {
 
               {workSteps.map((step, index) => {
                 const Icon = step.icon;
-                const isActive = activeSteps.includes(index);
+                const isActive = activeStep === index;
 
                 return (
                   <div
@@ -701,9 +717,11 @@ const Gallery = ({ onEnquireClick }) => {
                 >
                   <img
                     src={image.src}
-                    alt={`Trazoo work ${
-                      (index % galleryImages.length) + 1
-                    }`}
+                    srcSet={image.srcSet}
+                    sizes="(min-width: 1024px) 315px, (min-width: 768px) 290px, (min-width: 640px) 260px, 230px"
+                    alt={`Trazoo corporate gifting work sample ${(index % galleryImages.length) + 1}`}
+                    width="315"
+                    height="245"
                     className="
                       block
                       h-full
@@ -713,7 +731,9 @@ const Gallery = ({ onEnquireClick }) => {
                       duration-500
                       hover:scale-[1.03]
                     "
-                    loading={index < 8 ? "eager" : "lazy"}
+                    loading={index < 2 ? "eager" : "lazy"}
+                    decoding="async"
+                    fetchPriority={index < 2 ? "high" : "auto"}
                     draggable="false"
                   />
                 </div>

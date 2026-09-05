@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Footer from "../components/Footer";
-
+import SEO from "../components/SEO";
 const Privacy = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -8,6 +8,11 @@ const Privacy = () => {
 
   return (
     <>
+     <SEO
+      title="Privacy Policy | Trazoo Global"
+      description="Read the Privacy Policy of Trazoo Global to understand how we collect, use and protect personal information when you use our website and services."
+      path="/privacy"
+    />
       <main className="bg-[#FFFDF9] min-h-screen">
         <div className="max-w-4xl mx-auto px-6 md:px-10 lg:px-14 py-16 md:py-20">
           
