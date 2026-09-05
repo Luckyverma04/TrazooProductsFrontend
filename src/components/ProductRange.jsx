@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
@@ -140,6 +140,7 @@ const ProgrammeCarousel = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const autoScrollIntervalRef = useRef(null);
 
   const updateScrollState = () => {
     const carousel = carouselRef.current;
@@ -167,16 +168,46 @@ const ProgrammeCarousel = () => {
     });
   };
 
+  // Auto-scroll function
+  const autoScroll = () => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = carousel;
+    const maxScroll = scrollWidth - clientWidth;
+
+    // If reached end, scroll back to start
+    if (scrollLeft >= maxScroll - 10) {
+      carousel.scrollTo({
+        left: 0,
+        behavior: 'smooth',
+      });
+    } else {
+      const amount = carousel.clientWidth * 0.85;
+      carousel.scrollBy({
+        left: amount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  // Start auto-scroll on mount
   useEffect(() => {
     updateScrollState();
 
     const carousel = carouselRef.current;
     if (!carousel) return;
 
+    // Auto-scroll every 5 seconds
+    autoScrollIntervalRef.current = setInterval(autoScroll, 5000);
+
     carousel.addEventListener('scroll', updateScrollState, { passive: true });
     window.addEventListener('resize', updateScrollState);
 
     return () => {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+      }
       carousel.removeEventListener('scroll', updateScrollState);
       window.removeEventListener('resize', updateScrollState);
     };
@@ -216,24 +247,24 @@ const ProgrammeCarousel = () => {
         }
       `}</style>
 
-      {/* Navigation arrows */}
-      <div className="absolute -left-14 top-1/2 -translate-y-1/2 z-20 hidden xl:block">
+      {/* Navigation arrows - Desktop Only */}
+      <div className="absolute -left-14 top-1/2 -translate-y-1/2 z-20 hidden 2xl:block">
         <button
           onClick={() => scroll('left')}
           disabled={!canScrollLeft}
           aria-label="Previous programmes"
-          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity shadow-sm"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-white shadow-sm transition-opacity hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
         >
           <ChevronLeft size={20} color="#111111" strokeWidth={2} />
         </button>
       </div>
 
-      <div className="absolute -right-14 top-1/2 -translate-y-1/2 z-20 hidden xl:block">
+      <div className="absolute -right-14 top-1/2 -translate-y-1/2 z-20 hidden 2xl:block">
         <button
           onClick={() => scroll('right')}
           disabled={!canScrollRight}
           aria-label="Next programmes"
-          className="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity shadow-sm"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-white shadow-sm transition-opacity hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30"
         >
           <ChevronRight size={20} color="#111111" strokeWidth={2} />
         </button>
@@ -255,12 +286,11 @@ const ProgrammeCarousel = () => {
                 <img
                   src={prog.image}
                   alt={prog.title}
+                  width="640"
+                  height="744"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
-                  onError={(e) => {
-                    e.target.src = firstImg;
-                    e.target.style.backgroundColor = '#E8E8E8';
-                  }}
+                  decoding="async"
                 />
 
                 {/* Dark overlay */}
@@ -320,6 +350,89 @@ const FilterGroup = ({ title, options, selected, onToggle }) => (
   </div>
 );
 
+/* ================= MOBILE FILTER DRAWER ================= */
+const MobileFilterDrawer = ({ isOpen, onClose, filters, onToggle, onClearFilters }) => {
+  return (
+    <>
+      {/* Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Drawer */}
+      <div
+        className={`fixed inset-0 bg-white z-40 md:hidden overflow-y-auto transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-y-0' : 'translate-y-full'
+        }`}
+        style={{
+          top: 'auto',
+          bottom: isOpen ? 0 : 'auto',
+          maxHeight: isOpen ? '90vh' : 0,
+        }}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-600 hover:text-gray-900"
+            aria-label="Close filters"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* Filter Content */}
+        <div className="p-4 pb-24">
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="min-h-11 text-orange-500 text-sm font-bold hover:underline mb-6"
+          >
+            Clear All Filters
+          </button>
+
+          <FilterGroup
+            title="Category"
+            options={CATEGORIES}
+            selected={filters.category}
+            onToggle={onToggle('category')}
+          />
+
+          <FilterGroup
+            title="Budget"
+            options={PRICE_RANGES.map((r) => r.label)}
+            selected={filters.price}
+            onToggle={onToggle('price')}
+          />
+
+          <FilterGroup
+            title="Best For"
+            options={BEST_FOR}
+            selected={filters.bestFor}
+            onToggle={onToggle('bestFor')}
+          />
+        </div>
+
+        {/* Footer Action */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 md:hidden">
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-11 w-full rounded-lg bg-orange-500 py-3 font-semibold text-white transition-colors hover:bg-orange-600"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+
 /* ================= PRODUCT CARD ================= */
 const ProductCard = ({ product, isShortlisted, onShortlist }) => {
   return (
@@ -329,12 +442,11 @@ const ProductCard = ({ product, isShortlisted, onShortlist }) => {
         <img
           src={product.image}
           alt={product.name}
+          width="640"
+          height="640"
           className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
           loading="lazy"
-          onError={(e) => {
-            e.target.src = firstImg;
-            e.target.style.backgroundColor = '#E8E8E8';
-          }}
+          decoding="async"
         />
       </div>
 
@@ -353,12 +465,15 @@ const ProductCard = ({ product, isShortlisted, onShortlist }) => {
 
         {/* Buttons */}
         <div className="space-y-2">
-          <button className="w-full bg-black text-white text-xs font-semibold py-2.5 rounded-md hover:bg-gray-900 transition-colors">
+          <button
+            type="button"
+            className="min-h-11 w-full rounded-md bg-black py-2.5 text-xs font-semibold text-white transition-colors hover:bg-gray-900"
+          >
             Customize
           </button>
           <button
             onClick={() => onShortlist(product)}
-            className={`w-full text-xs font-semibold py-2 rounded-md border transition-colors ${
+            className={`min-h-11 w-full rounded-md border py-2 text-xs font-semibold transition-colors ${
               isShortlisted
                 ? 'border-orange-500 text-orange-500 bg-orange-50'
                 : 'border-gray-300 text-gray-900 hover:border-gray-400 hover:bg-gray-50'
@@ -381,6 +496,11 @@ const ProductRange = () => {
   });
   const [shortlist, setShortlist] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+
+  // Count active filters
+  const activeFilterCount = 
+    filters.category.length + filters.price.length + filters.bestFor.length;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -428,11 +548,11 @@ const ProductRange = () => {
       {/* Navbar */}
       <Navbar />
 
-      <main className="bg-white pt-20 pb-20 px-6 md:px-8">
+      <main className="bg-white pt-20 pb-20 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
           {/* ===== BREADCRUMB ===== */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-8">
-           <Link to="/" className="hover:text-gray-900">Home</Link>
+            <Link to="/" className="hover:text-gray-900">Home</Link>
             <span>/</span>
             <span className="text-gray-900 font-medium">Products</span>
           </div>
@@ -442,7 +562,7 @@ const ProductRange = () => {
             <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">
               Gifting Events
             </p>
-            <h1 className="text-5xl md:text-5xl font-serif text-gray-900 mb-12">
+            <h1 className="text-4xl md:text-5xl font-serif text-gray-900 mb-12">
               Every occasion a company <span className="text-orange-500 italic font-serif">gifts on.</span>
             </h1>
 
@@ -462,57 +582,77 @@ const ProductRange = () => {
             </div>
 
             {/* ===== FILTERS + GRID ===== */}
-            <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-12">
-              {/* SIDEBAR */}
-              <aside className="md:border-r md:border-gray-200 md:pr-8">
-                <div className="sticky top-24">
-                  <div className="mb-8">
-                    <button
-                      onClick={clearFilters}
-                      className="text-orange-500 text-sm font-bold hover:underline"
-                    >
-                      Refine
-                    </button>
+            <div>
+              {/* Mobile Filter Button */}
+              <div className="mb-6 md:hidden">
+                <button
+                  type="button"
+                  onClick={() => setIsFilterDrawerOpen(true)}
+                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-3 font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+                >
+                  <Filter size={20} />
+                  <span>Filters</span>
+                  {activeFilterCount > 0 && (
+                    <span className="ml-auto bg-orange-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Desktop Sidebar + Mobile Products Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-12">
+                {/* Desktop SIDEBAR - Hidden on mobile */}
+                <aside className="hidden md:block md:border-r md:border-gray-200 md:pr-8">
+                  <div className="sticky top-24">
+                    <div className="mb-8">
+                      <button
+                        onClick={clearFilters}
+                        className="min-h-11 text-orange-500 text-sm font-bold hover:underline"
+                      >
+                        Refine
+                      </button>
+                    </div>
+
+                    <FilterGroup
+                      title="Category"
+                      options={CATEGORIES}
+                      selected={filters.category}
+                      onToggle={toggle('category')}
+                    />
+
+                    <FilterGroup
+                      title="Budget"
+                      options={PRICE_RANGES.map((r) => r.label)}
+                      selected={filters.price}
+                      onToggle={toggle('price')}
+                    />
+
+                    <FilterGroup
+                      title="Best For"
+                      options={BEST_FOR}
+                      selected={filters.bestFor}
+                      onToggle={toggle('bestFor')}
+                    />
+                  </div>
+                </aside>
+
+                {/* PRODUCT GRID - Full width on mobile */}
+                <div>
+                  <div className="mb-8 text-sm text-gray-600">
+                    Show {PRODUCT_RANGES.length} products
                   </div>
 
-                  <FilterGroup
-                    title="Category"
-                    options={CATEGORIES}
-                    selected={filters.category}
-                    onToggle={toggle('category')}
-                  />
-
-                  <FilterGroup
-                    title="Budget"
-                    options={PRICE_RANGES.map((r) => r.label)}
-                    selected={filters.price}
-                    onToggle={toggle('price')}
-                  />
-
-                  <FilterGroup
-                    title="Best For"
-                    options={BEST_FOR}
-                    selected={filters.bestFor}
-                    onToggle={toggle('bestFor')}
-                  />
-                </div>
-              </aside>
-
-              {/* PRODUCT GRID */}
-              <div>
-                <div className="mb-8 text-sm text-gray-600">
-                  Show {PRODUCT_RANGES.length} products
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-                  {PRODUCT_RANGES.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      isShortlisted={shortlist.some((p) => p.id === product.id)}
-                      onShortlist={toggleShortlist}
-                    />
-                  ))}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+                    {PRODUCT_RANGES.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        isShortlisted={shortlist.some((p) => p.id === product.id)}
+                        onShortlist={toggleShortlist}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -523,15 +663,15 @@ const ProductRange = () => {
             <p className="text-xs font-bold uppercase tracking-widest text-orange-500 mb-4">
               Next Steps
             </p>
-            <h2 className="text-4xl font-serif text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">
               Tell us what you need to send.
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto mb-8 text-base">
+            <p className="text-gray-600 max-w-2xl mx-auto mb-8 text-sm md:text-base">
               Quantity, budget, audience and timeline. Enough for a shortlist and a delivery plan.
             </p>
             <button 
               onClick={openForm}
-              className="px-8 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
+              className="min-h-11 rounded-lg bg-orange-500 px-8 py-3 font-semibold text-white transition-colors hover:bg-orange-600"
             >
               Request a Proposal
             </button>
@@ -541,12 +681,12 @@ const ProductRange = () => {
 
       {/* ===== SHORTLIST BAR ===== */}
       {shortlist.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 border-t border-gray-800">
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-4 md:px-6 border-t border-gray-800">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div className="text-sm font-semibold">
               Shortlist ({shortlist.length} {shortlist.length === 1 ? 'item' : 'items'})
             </div>
-            <button className="px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors">
+            <button className="px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors text-sm md:text-base">
               View Shortlist
             </button>
           </div>
@@ -556,6 +696,15 @@ const ProductRange = () => {
       {/* Footer */}
       <Footer />
 
+      {/* ===== MOBILE FILTER DRAWER ===== */}
+      <MobileFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={filters}
+        onToggle={toggle}
+        onClearFilters={clearFilters}
+      />
+
       {/* ===== FORM MODAL ===== */}
       <FormModal
         isOpen={isFormOpen}
@@ -564,4 +713,5 @@ const ProductRange = () => {
     </>
   );
 };
+
 export default ProductRange;
