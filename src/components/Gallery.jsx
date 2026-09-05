@@ -365,7 +365,7 @@ const Gallery = ({ onEnquireClick }) => {
             "
           >
             Proposal
-            <ArrowRight size={15} />
+            <ArrowRight size={15} aria-hidden="true" />
           </button>
         </div>
       </section>
@@ -376,6 +376,7 @@ const Gallery = ({ onEnquireClick }) => {
 
       <section
         id="how-we-work"
+        aria-labelledby="how-we-work-title"
         className="
           bg-[#FAFAF8]
           py-16
@@ -417,7 +418,7 @@ const Gallery = ({ onEnquireClick }) => {
               }}
             >
               From brief to{" "}
-              <em className="italic text-[#F36F21]">
+              <em className="italic text-[#B84D0D]">
                 doorstep.
               </em>
             </h2>
@@ -453,7 +454,7 @@ const Gallery = ({ onEnquireClick }) => {
                 top-[77px]
                 hidden
                 h-1
-                bg-[#F36F21]/20
+                bg-[#B84D0D]/20
                 md:block
               "
             >
@@ -461,7 +462,7 @@ const Gallery = ({ onEnquireClick }) => {
                 className="
                   h-full
                   origin-left
-                  bg-[#F36F21]
+                  bg-[#B84D0D]
                 "
                 style={{
                   animation:
@@ -500,8 +501,8 @@ const Gallery = ({ onEnquireClick }) => {
                         md:text-[15px]
                         ${
                           isActive
-                            ? "text-[#F36F21]"
-                            : "text-[#999]"
+                            ? "text-[#B84D0D]"
+                            : "text-[#777]"
                         }
                       `}
                     >
@@ -562,7 +563,7 @@ const Gallery = ({ onEnquireClick }) => {
                           mt-4
                           h-[3px]
                           w-[40px]
-                          bg-[#F36F21]
+                          bg-[#B84D0D]
                           rounded-full
                         "
                       />
@@ -586,7 +587,7 @@ const Gallery = ({ onEnquireClick }) => {
                         max-w-[145px]
                         text-[10px]
                         leading-[1.5]
-                        text-[#888]
+                        text-[#666]
                         md:text-[12px]
                       "
                     >
@@ -657,6 +658,7 @@ const Gallery = ({ onEnquireClick }) => {
           </p>
 
           <h2
+            id="how-we-work-title"
             className="
               font-serif
               text-[30px]
@@ -671,7 +673,7 @@ const Gallery = ({ onEnquireClick }) => {
             }}
           >
             Work we have{" "}
-            <em className="italic text-[#F36F21]">
+            <em className="italic text-[#B84D0D]">
               shipped.
             </em>
           </h2>
@@ -764,7 +766,7 @@ const Gallery = ({ onEnquireClick }) => {
               font-semibold
               uppercase
               tracking-[0.25em]
-              text-[#F36F21]
+              text-[#B84D0D]
             "
           >
             Show us what you are
@@ -788,7 +790,7 @@ const Gallery = ({ onEnquireClick }) => {
               max-w-md
               text-[11px]
               leading-relaxed
-              text-[#888]
+              text-[#666]
               md:text-[12px]
             "
           >
@@ -805,7 +807,7 @@ const Gallery = ({ onEnquireClick }) => {
               items-center
               gap-3
               rounded-[8px]
-              bg-[#F36F21]
+              bg-[#B84D0D]
               px-6
               py-3
               text-[12px]
@@ -813,11 +815,11 @@ const Gallery = ({ onEnquireClick }) => {
               text-white
               transition-colors
               duration-200
-              hover:bg-[#e76116]
+              hover:bg-[#963D0A]
             "
           >
             Request a Proposal
-            <ArrowRight size={15} />
+            <ArrowRight size={15} aria-hidden="true" />
           </button>
         </div>
       </section>

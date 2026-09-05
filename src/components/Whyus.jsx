@@ -54,7 +54,7 @@ const WhyUs = () => {
     >
       <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8 lg:px-10">
         <div className="mb-8 w-full max-w-[760px] md:mb-10">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#F36F21]">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#B84D0D]">
             Why teams choose us
           </p>
 
@@ -63,7 +63,7 @@ const WhyUs = () => {
             className="font-serif text-[29px] font-medium leading-[1.1] tracking-[-0.025em] text-[#111] sm:text-[34px] md:text-[40px] lg:text-[44px]"
           >
             <span className="block">Most vendors sell you products.</span>
-            <span className="block italic text-[#F36F21]">
+            <span className="block italic text-[#B84D0D]">
               We take responsibility for the outcome.
             </span>
           </h2>
@@ -123,7 +123,7 @@ const WhyUs = () => {
                     {reason.title}
                   </h3>
 
-                  <p className="mt-1.5 max-w-[850px] text-[13px] leading-[1.45] text-[#777] md:text-[14px]">
+                  <p className="mt-1.5 max-w-[850px] text-[13px] leading-[1.45] text-[#666] md:text-[14px]">
                     {reason.description}
                   </p>
                 </div>

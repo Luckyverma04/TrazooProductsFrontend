@@ -25,8 +25,9 @@ const HailButton = ({ onEnquireClick }) => {
             href="tel:+917024804838"
             className="flex items-center justify-center gap-2 bg-white text-[#111111] px-4 py-3 rounded-full shadow-lg hover:bg-[#F36F21] hover:text-white transition-[background-color,color] duration-300 animate-slideUp"
             title="Call Trazoo"
+            aria-label="Call Trazoo"
           >
-            <Phone size={18} />
+            <Phone size={18} aria-hidden="true" />
             <span className="text-sm font-semibold hidden sm:inline">
               Call us
             </span>
@@ -39,8 +40,9 @@ const HailButton = ({ onEnquireClick }) => {
             className="flex items-center justify-center gap-2 bg-white text-[#111111] px-4 py-3 rounded-full shadow-lg hover:bg-[#25D366] hover:text-white transition-[background-color,color] duration-300 animate-slideUp"
             style={{ animationDelay: "0.1s" }}
             title="Chat on WhatsApp"
+            aria-label="Chat on WhatsApp"
           >
-            <MessageSquare size={18} />
+            <MessageSquare size={18} aria-hidden="true" />
             <span className="text-sm font-semibold hidden sm:inline">
               WhatsApp
             </span>
@@ -49,14 +51,17 @@ const HailButton = ({ onEnquireClick }) => {
       )}
 
       <button
+        type="button"
         onClick={handleMainClick}
+        aria-label={isExpanded ? "Enquire" : "Enquire Now"}
+        aria-expanded={isExpanded}
         className={`flex items-center justify-center gap-2 px-5 py-4 rounded-full font-semibold shadow-lg transition-[background-color,color,box-shadow,transform] duration-300 transform hover:scale-110 ${
           isExpanded
             ? "bg-[#F36F21] text-white"
             : "bg-gradient-to-r from-[#F36F21] to-[#FF8C42] text-white"
         }`}
       >
-        <MessageCircle size={20} />
+        <MessageCircle size={20} aria-hidden="true" />
 
         <span className="hidden sm:inline">
           {isExpanded ? "Enquire" : "Enquire Now"}
@@ -67,6 +72,7 @@ const HailButton = ({ onEnquireClick }) => {
         <div
           className="fixed inset-0 z-[-1]"
           onClick={handleBackdropClick}
+          aria-hidden="true"
         />
       )}
 

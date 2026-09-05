@@ -182,7 +182,7 @@ export default function HeroHome({ onEnquireClick }) {
                   font-bold
                   uppercase
                   tracking-[0.18em]
-                  text-[#777]
+                  text-[#666]
                 "
               >
                 Corporate Gifting Partner
@@ -218,7 +218,7 @@ export default function HeroHome({ onEnquireClick }) {
               </span>
 
               <span
-                className="mt-2 block whitespace-nowrap text-[#F36F21]"
+                className="mt-2 block whitespace-nowrap text-[#B84D0D]"
                 style={{
                   fontStyle: "italic",
                   fontFamily:
@@ -267,7 +267,7 @@ export default function HeroHome({ onEnquireClick }) {
                   items-center
                   gap-3
                   rounded-[18px]
-                  bg-[#F36F21]
+                  bg-[#B84D0D]
                   px-10
                   text-[16px]
                   font-bold
@@ -320,7 +320,7 @@ export default function HeroHome({ onEnquireClick }) {
                   transition-[width,background-color]
                   duration-300
                   hover:border-[#F36F21]
-                  hover:text-[#F36F21]
+                  hover:text-[#B84D0D]
                   lg:inline-flex
                 "
               >
@@ -341,11 +341,11 @@ export default function HeroHome({ onEnquireClick }) {
                 gap-x-5
                 gap-y-2
                 text-[14px]
-                text-[#777]
+                text-[#666]
               "
             >
               <div className="whitespace-nowrap">
-                <span className="font-bold text-[#F36F21]">
+                <span className="font-bold text-[#B84D0D]">
                   30,000+
                 </span>{" "}
                 kits shipped
@@ -354,7 +354,7 @@ export default function HeroHome({ onEnquireClick }) {
               <span className="h-5 w-px bg-[#D8D8D8]" />
 
               <div className="whitespace-nowrap">
-                <span className="font-bold text-[#F36F21]">
+                <span className="font-bold text-[#B84D0D]">
                   12,000+
                 </span>{" "}
                 PIN codes reached
@@ -363,7 +363,7 @@ export default function HeroHome({ onEnquireClick }) {
               <span className="h-5 w-px bg-[#D8D8D8]" />
 
               <div className="whitespace-nowrap">
-                <span className="font-bold text-[#F36F21]">
+                <span className="font-bold text-[#B84D0D]">
                   12+
                 </span>{" "}
                 enterprise clients
@@ -402,7 +402,7 @@ export default function HeroHome({ onEnquireClick }) {
                 -translate-x-1/2
                 -translate-y-1/2
                 rounded-full
-                bg-[#F36F21]/10
+                bg-[#B84D0D]/10
                 blur-3xl
               "
             />
@@ -543,7 +543,7 @@ export default function HeroHome({ onEnquireClick }) {
                             bg-white
                             text-[10px]
                             font-bold
-                            text-[#F36F21]
+                            text-[#B84D0D]
                             shadow-sm
                           "
                         >
@@ -562,7 +562,7 @@ export default function HeroHome({ onEnquireClick }) {
                           {product.title}
                         </h2>
 
-                        <p className="mt-0.5 text-[10px] leading-4 text-[#777]">
+                        <p className="mt-0.5 text-[10px] leading-4 text-[#666]">
                           {product.subtitle}
                         </p>
                       </div>
@@ -586,8 +586,8 @@ export default function HeroHome({ onEnquireClick }) {
                 top-1/2
                 z-40
                 flex
-                h-9
-                w-9
+                h-11
+                w-11
                 -translate-y-1/2
                 items-center
                 justify-center
@@ -600,11 +600,11 @@ export default function HeroHome({ onEnquireClick }) {
                 transition-[border-color,color,box-shadow]
                 duration-300
                 hover:border-[#F36F21]
-                hover:text-[#F36F21]
+                hover:text-[#B84D0D]
                 hover:shadow-md
               "
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={18} aria-hidden="true" />
             </button>
 
             <button
@@ -617,8 +617,8 @@ export default function HeroHome({ onEnquireClick }) {
                 top-1/2
                 z-40
                 flex
-                h-9
-                w-9
+                h-11
+                w-11
                 -translate-y-1/2
                 items-center
                 justify-center
@@ -631,11 +631,11 @@ export default function HeroHome({ onEnquireClick }) {
                 transition-[border-color,color,box-shadow]
                 duration-300
                 hover:border-[#F36F21]
-                hover:text-[#F36F21]
+                hover:text-[#B84D0D]
                 hover:shadow-md
               "
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={18} aria-hidden="true" />
             </button>
 
             {/* =================================================
@@ -660,18 +660,33 @@ export default function HeroHome({ onEnquireClick }) {
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   aria-label={`Go to ${product.title}`}
-                  className={`
-                    h-1
+                  className="
+                    flex
+                    h-11
+                    w-11
+                    shrink-0
+                    items-center
+                    justify-center
                     rounded-full
-                    transition-[width,background-color]
-                    duration-300
-                    ${
-                      index === activeIndex
-                        ? "w-5 bg-[#F36F21]"
-                        : "w-1 bg-[#D5D5D5]"
-                    }
-                  `}
-                />
+                    p-0
+                  "
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`
+                      block
+                      h-1
+                      rounded-full
+                      transition-[width,background-color]
+                      duration-300
+                      ${
+                        index === activeIndex
+                          ? "w-5 bg-[#B84D0D]"
+                          : "w-1 bg-[#888888]"
+                      }
+                    `}
+                  />
+                </button>
               ))}
             </div>
           </div>
