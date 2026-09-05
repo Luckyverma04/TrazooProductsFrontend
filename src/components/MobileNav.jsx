@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
+import logoImage from "../assets/branding/logo.webp";
 
 const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
   if (!isOpen) return null;
@@ -14,7 +15,6 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
   const handleNavClick = (href) => {
     onClose();
 
-    // Small delay ensures the drawer closes before navigation/scroll
     if (href.startsWith("#")) {
       setTimeout(() => {
         const element = document.querySelector(href);
@@ -47,33 +47,44 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E8E8E8] p-6">
-          <Link to="/" onClick={onClose} aria-label="Trazoo Home">
+          <Link
+            to="/"
+            onClick={onClose}
+            aria-label="Trazoo Home"
+            className="inline-flex items-center"
+          >
             <img
-              src="/assets/images/branding/logo-sm.webp"
+              src={logoImage}
               alt="Trazoo"
-              className="h-8"
+              className="block h-auto w-[120px] object-contain"
+              width="120"
+              height="33"
+              decoding="async"
             />
           </Link>
 
           <button
             type="button"
             onClick={onClose}
-            className="text-[#6B6B6B] transition-colors hover:text-[#111111]"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#6B6B6B] transition-colors hover:bg-[#F5F5F5] hover:text-[#111111]"
             aria-label="Close menu"
           >
-            <X size={24} />
+            <X size={24} aria-hidden="true" />
           </button>
         </div>
 
         {/* Navigation Links */}
-        <nav className="space-y-2 p-6" aria-label="Mobile navigation">
+        <nav
+          className="space-y-2 p-6"
+          aria-label="Mobile navigation"
+        >
           {navLinks.map((link) =>
             link.href.startsWith("#") ? (
               <button
                 key={link.label}
                 type="button"
                 onClick={() => handleNavClick(link.href)}
-                className="block w-full border-b border-[#E8E8E8] px-4 py-3 text-left text-[15px] font-semibold text-[#111111] transition-colors hover:text-[#F36F21]"
+                className="block min-h-[48px] w-full border-b border-[#E8E8E8] px-4 py-3 text-left text-[15px] font-semibold text-[#111111] transition-colors hover:text-[#F36F21]"
               >
                 {link.label}
               </button>
@@ -82,7 +93,7 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
                 key={link.label}
                 to={link.href}
                 onClick={onClose}
-                className="block w-full border-b border-[#E8E8E8] px-4 py-3 text-[15px] font-semibold text-[#111111] transition-colors hover:text-[#F36F21]"
+                className="flex min-h-[48px] w-full items-center border-b border-[#E8E8E8] px-4 py-3 text-[15px] font-semibold text-[#111111] transition-colors hover:text-[#F36F21]"
               >
                 {link.label}
               </Link>
@@ -98,7 +109,7 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
               onEnquireClick();
               onClose();
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#F36F21] to-[#FF8C42] py-3 font-semibold text-white transition-all hover:shadow-lg"
+            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#F36F21] to-[#FF8C42] py-3 font-semibold text-white transition-[box-shadow,transform] duration-200 hover:shadow-lg"
           >
             Request a Proposal
 
@@ -123,7 +134,7 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
           {/* Phone */}
           <a
             href="tel:+917024804838"
-            className="flex items-center gap-3 text-sm text-[#6B6B6B] transition-colors hover:text-[#F36F21]"
+            className="flex min-h-[44px] items-center gap-3 text-sm text-[#6B6B6B] transition-colors hover:text-[#F36F21]"
             onClick={onClose}
           >
             <svg
@@ -144,7 +155,7 @@ const MobileNav = ({ isOpen, onClose, onEnquireClick }) => {
           {/* Email */}
           <a
             href="mailto:contact@trazooglobal.com"
-            className="flex items-center gap-3 text-sm text-[#6B6B6B] transition-colors hover:text-[#F36F21]"
+            className="flex min-h-[44px] items-center gap-3 text-sm text-[#6B6B6B] transition-colors hover:text-[#F36F21]"
             onClick={onClose}
           >
             <svg
