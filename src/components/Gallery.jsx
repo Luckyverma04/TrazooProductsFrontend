@@ -57,8 +57,7 @@ const imageNames = [
 ];
 
 const getOptimizedImage = (fileName) => {
-  const baseName = fileName.replace(/\\.(jpeg|jpg|png|webp)$/i, "");
-
+const baseName = fileName.replace(/\.(jpeg|jpg|png|webp)$/i, "");
   const findUrl = (width) => {
     const key = Object.keys(galleryFiles).find(
       (path) => path.endsWith(`/${baseName}-${width}.webp`)
