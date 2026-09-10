@@ -2,7 +2,7 @@ import { useState, lazy, Suspense } from "react";
 
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import Intro from "./Intro";
+// import Intro from "./Intro";
 import HeroHome from "./HeroHome";
 import Gallery from "./Gallery";
 import WhyUs from "./Whyus";
@@ -35,7 +35,7 @@ export default function LandingPage() {
       />
 
       {/* INTRO */}
-      <Intro />
+      {/* <Intro /> */}
 
       {/* NAVBAR */}
       <Navbar
