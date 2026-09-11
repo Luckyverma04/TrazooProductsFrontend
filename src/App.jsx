@@ -11,7 +11,7 @@ import {
 // PUBLIC PAGES
 // ============================================
 
-// Keep the homepage eager because it is the main/LCP page.
+// Keep homepage eager because it is the main/LCP page.
 import LandingPage from "./components/LandingPage";
 
 // ============================================
@@ -77,6 +77,12 @@ const LeadDetail = lazy(
 
 import AdminRoute from "./routes/AdminRoute";
 import AssociateRoute from "./routes/AssociateRoute";
+
+// ============================================
+// 404 PAGE
+// ============================================
+
+import NotFound from "./pages/NotFound";
 
 // ============================================
 // SCROLL / HASH HANDLER
@@ -175,6 +181,7 @@ function App() {
               ============================================ */}
 
           {/* HOME PAGE */}
+
           <Route
             path="/"
             element={<LandingPage />}
@@ -183,7 +190,9 @@ function App() {
           {/* ============================================
               ABOUT
               ============================================
+
               About is NOT a separate page anymore.
+
               Old /about URL automatically goes to:
               /#about
           */}
@@ -199,16 +208,10 @@ function App() {
           />
 
           {/* ============================================
-              HOW WE WORK
-              ============================================
-              Client website:
-              How We Work -> Gallery.jsx
-          */}
-
-          {/* ============================================
               PRODUCT
               ============================================
-              Product is the ONLY separate main page.
+
+              Product is the only separate main page.
           */}
 
           <Route
@@ -326,16 +329,15 @@ function App() {
 
           {/* ============================================
               404
-              ============================================ */}
+              ============================================
+
+              Any unknown route now shows the proper
+              Not Found page instead of redirecting home.
+          */}
 
           <Route
             path="*"
-            element={
-              <Navigate
-                to="/"
-                replace
-              />
-            }
+            element={<NotFound />}
           />
 
         </Routes>
