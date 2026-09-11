@@ -56,29 +56,38 @@ function generateSeoPages() {
       );
 
       for (const [route, seo] of Object.entries(SEO_PAGES)) {
-        const url = route === "/" ? SITE_URL : `${SITE_URL}${route}`;
+        const url =
+          route === "/" ? SITE_URL : `${SITE_URL}${route}`;
 
         let html = sourceHtml;
 
-        // Title
+        // =========================
+        // PAGE TITLE
+        // =========================
         html = html.replace(
           /<title>[\s\S]*?<\/title>/i,
           `<title>${seo.title}</title>`
         );
 
-        // Meta description
+        // =========================
+        // META DESCRIPTION
+        // =========================
         html = html.replace(
           /<meta\s+name=["']description["'][\s\S]*?>/i,
           `<meta name="description" content="${seo.description}" />`
         );
 
-        // Canonical
+        // =========================
+        // CANONICAL
+        // =========================
         html = html.replace(
           /<link\s+rel=["']canonical["'][\s\S]*?>/i,
           `<link rel="canonical" href="${url}" />`
         );
 
-        // Open Graph
+        // =========================
+        // OPEN GRAPH
+        // =========================
         html = html.replace(
           /<meta\s+property=["']og:title["'][\s\S]*?>/i,
           `<meta property="og:title" content="${seo.title}" />`
@@ -94,7 +103,9 @@ function generateSeoPages() {
           `<meta property="og:url" content="${url}" />`
         );
 
-        // Twitter
+        // =========================
+        // TWITTER
+        // =========================
         html = html.replace(
           /<meta\s+name=["']twitter:title["'][\s\S]*?>/i,
           `<meta name="twitter:title" content="${seo.title}" />`
@@ -105,13 +116,17 @@ function generateSeoPages() {
           `<meta name="twitter:description" content="${seo.description}" />`
         );
 
-        // Static H1
+        // =========================
+        // STATIC H1
+        // =========================
         html = html.replace(
           /<div id=["']root["']><\/div>/i,
           `<div id="root"><h1>${seo.h1}</h1></div>`
         );
 
-        // Home stays at /index.html
+        // =========================
+        // HOME PAGE
+        // =========================
         if (route === "/") {
           fs.writeFileSync(
             path.join(distPath, "index.html"),
@@ -122,13 +137,21 @@ function generateSeoPages() {
           continue;
         }
 
-        // Create /products/index.html etc.
-        const routePath = path.join(distPath, route);
-
-        fs.mkdirSync(routePath, { recursive: true });
+        // =========================
+        // ROUTE-SPECIFIC HTML FILE
+        //
+        // /products  -> products.html
+        // /faq       -> faq.html
+        // /privacy   -> privacy.html
+        // /terms     -> terms.html
+        // =========================
+        const routeFile = path.join(
+          distPath,
+          `${route.replace("/", "")}.html`
+        );
 
         fs.writeFileSync(
-          path.join(routePath, "index.html"),
+          routeFile,
           html,
           "utf-8"
         );
@@ -136,10 +159,10 @@ function generateSeoPages() {
 
       console.log("✅ SEO HTML pages generated:");
       console.log("   /");
-      console.log("   /products");
-      console.log("   /faq");
-      console.log("   /privacy");
-      console.log("   /terms");
+      console.log("   /products → products.html");
+      console.log("   /faq → faq.html");
+      console.log("   /privacy → privacy.html");
+      console.log("   /terms → terms.html");
     },
   };
 }
