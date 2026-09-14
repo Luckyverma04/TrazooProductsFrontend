@@ -12,14 +12,14 @@ import {
 // ============================================
 
 // Keep homepage eager because it is the main/LCP page.
-import LandingPage from "./components/LandingPage";
+import LandingPage from "./pages/LandingPage";
 
 // ============================================
 // PUBLIC PAGES - LAZY LOADED
 // ============================================
 
 const FAQ = lazy(() => import("./pages/FAQ"));
-const Products = lazy(() => import("./components/ProductRange"));
+const Products = lazy(() => import("./pages/ProductRange"));
 
 // ============================================
 // LEGAL - LAZY LOADED

@@ -1,19 +1,19 @@
 import { useState, lazy, Suspense } from "react";
 
-import Navbar from "./Navbar";
-import Footer from "./Footer";
-// import Intro from "./Intro";
-import HeroHome from "./HeroHome";
-import Gallery from "./Gallery";
-import WhyUs from "./Whyus";
-import AboutSection from "./AboutSection";
-import HailButton from "./HailButton";
-import SEO from "./SEO";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+// import Intro from "../components/Intro";
+import HeroHome from "../components/HeroHome";
+import Gallery from "../components/Gallery";
+import WhyUs from "../components/Whyus";
+import AboutSection from "../components/AboutSection";
+import HailButton from "../components/HailButton";
+import SEO from "../components/SEO";
 
 // Load these only when the user actually opens them.
 // This keeps their JavaScript out of the initial homepage bundle.
-const FormModal = lazy(() => import("./FormModal"));
-const MobileNav = lazy(() => import("./MobileNav"));
+const FormModal = lazy(() => import("../components/FormModal"));
+const MobileNav = lazy(() => import("../components/MobileNav"));
 
 export default function LandingPage() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);

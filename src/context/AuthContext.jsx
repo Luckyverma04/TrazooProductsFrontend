@@ -1,15 +1,10 @@
 import { createContext, useState, useEffect } from "react";
 
 /**
- * AuthContext - Global authentication state
- * 
- * Use this file to set up proper authentication in your app
- * 
- * Installation:
- * 1. Create folder: src/context/
- * 2. Create file: src/context/AuthContext.jsx
- * 3. Copy this entire code
- * 4. Update App.jsx to wrap with AuthProvider
+ * AuthContext - Global authentication state.
+ *
+ * Not currently wrapped around the app in App.jsx — wrap the tree with
+ * <AuthProvider> there if this context is needed.
  */
 
 export const AuthContext = createContext();
