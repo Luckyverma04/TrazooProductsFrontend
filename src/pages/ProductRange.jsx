@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import Footer from "./Footer";
-import Navbar from "./Navbar";
-import FormModal from "./FormModal";
-import SEO from "./SEO";   
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+import FormModal from "../components/FormModal";
+import SEO from "../components/SEO";   
      
 
 // Programme cards data - using programmes folder images
