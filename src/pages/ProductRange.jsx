@@ -54,6 +54,8 @@ const PRODUCT_RANGES = [
     name: 'Apparel & Wearables',
     spec: 'T-shirts, polos, jackets, caps',
     price: 249,
+    categories: ['Apparel'],
+    bestFor: ['Onboarding', 'Festive', 'Events'],
     image: new URL('../assets/range/apparel.webp', import.meta.url).href,
   },
   {
@@ -61,6 +63,8 @@ const PRODUCT_RANGES = [
     name: 'Drinkware',
     spec: 'Bottles, tumblers, flasks, mugs',
     price: 149,
+    categories: ['Drinkware'],
+    bestFor: ['Onboarding', 'Festive', 'Events', 'Rewards'],
     image: new URL('../assets/range/drinkware.webp', import.meta.url).href,
   },
   {
@@ -68,6 +72,8 @@ const PRODUCT_RANGES = [
     name: 'Bags & Travel',
     spec: 'Backpacks, laptop bags, totes',
     price: 399,
+    categories: ['Bags', 'Travel'],
+    bestFor: ['Onboarding', 'Rewards', 'Client gifting'],
     image: new URL('../assets/range/bags.webp', import.meta.url).href,
   },
   {
@@ -75,6 +81,8 @@ const PRODUCT_RANGES = [
     name: 'Stationery & Desk',
     spec: 'Notebooks, diaries, pens, planners',
     price: 99,
+    categories: ['Stationery'],
+    bestFor: ['Onboarding', 'Events'],
     image: new URL('../assets/range/stationery.webp', import.meta.url).href,
   },
   {
@@ -82,6 +90,8 @@ const PRODUCT_RANGES = [
     name: 'Tech & Accessories',
     spec: 'Chargers, speakers, headphones',
     price: 399,
+    categories: ['Electronics & Tech'],
+    bestFor: ['Festive', 'Rewards', 'Client gifting'],
     image: new URL('../assets/range/tech.webp', import.meta.url).href,
   },
   {
@@ -89,6 +99,8 @@ const PRODUCT_RANGES = [
     name: 'Gourmet & Packaging',
     spec: 'Hampers, boxes, sleeves, inserts',
     price: 149,
+    categories: ['Food & Hampers'],
+    bestFor: ['Festive', 'Client gifting'],
     image: new URL('../assets/range/gourmet.webp', import.meta.url).href,
   },
   {
@@ -96,6 +108,8 @@ const PRODUCT_RANGES = [
     name: 'Welcome Kits',
     spec: 'Boxed sets, ready for day one',
     price: 299,
+    categories: ['Apparel', 'Drinkware', 'Stationery', 'Bags'],
+    bestFor: ['Onboarding'],
     image: new URL('../assets/range/welcome-kits.webp', import.meta.url).href,
   },
   {
@@ -103,6 +117,8 @@ const PRODUCT_RANGES = [
     name: 'Curated Kits',
     spec: 'Mixed-range kits built to one brief',
     price: 499,
+    categories: ['Wellness', 'Food & Hampers', 'Electronics & Tech'],
+    bestFor: ['Festive', 'Events', 'Rewards', 'Client gifting'],
     image: new URL('../assets/range/curated-kits.webp', import.meta.url).href,
   },
 ];
@@ -498,6 +514,26 @@ const ProductRange = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
+  // Within a group any selected option matches; across groups all must match
+  const filteredProducts = PRODUCT_RANGES.filter((product) => {
+    const matchesCategory =
+      filters.category.length === 0 ||
+      filters.category.some((c) => product.categories.includes(c));
+
+    const matchesPrice =
+      filters.price.length === 0 ||
+      filters.price.some((label) => {
+        const range = PRICE_RANGES.find((r) => r.label === label);
+        return range && product.price >= range.min && product.price <= range.max;
+      });
+
+    const matchesBestFor =
+      filters.bestFor.length === 0 ||
+      filters.bestFor.some((b) => product.bestFor.includes(b));
+
+    return matchesCategory && matchesPrice && matchesBestFor;
+  });
+
   // Count active filters
   const activeFilterCount = 
     filters.category.length + filters.price.length + filters.bestFor.length;
@@ -640,11 +676,24 @@ const ProductRange = () => {
                 {/* PRODUCT GRID - Full width on mobile */}
                 <div>
                   <div className="mb-8 text-sm text-gray-600">
-                    Show {PRODUCT_RANGES.length} products
+                    Show {filteredProducts.length} products
                   </div>
 
+                  {filteredProducts.length === 0 && (
+                    <div className="py-16 text-center">
+                      <p className="text-gray-600 mb-4">No products match these filters.</p>
+                      <button
+                        type="button"
+                        onClick={clearFilters}
+                        className="min-h-11 text-orange-500 text-sm font-bold hover:underline"
+                      >
+                        Clear All Filters
+                      </button>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-                    {PRODUCT_RANGES.map((product) => (
+                    {filteredProducts.map((product) => (
                       <ProductCard
                         key={product.id}
                         product={product}
