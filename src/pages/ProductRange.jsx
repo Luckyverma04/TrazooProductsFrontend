@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import FormModal from "../components/FormModal";
@@ -504,12 +504,16 @@ const ProductCard = ({ product, isShortlisted, onShortlist }) => {
 };
 
 /* ================= MAIN COMPONENT ================= */
+// Read ?category= / ?bestFor= (e.g. from footer links), ignoring unknown values
+const filtersFromParams = (params) => ({
+  category: params.getAll('category').filter((c) => CATEGORIES.includes(c)),
+  price: [],
+  bestFor: params.getAll('bestFor').filter((b) => BEST_FOR.includes(b)),
+});
+
 const ProductRange = () => {
-  const [filters, setFilters] = useState({
-    category: [],
-    price: [],
-    bestFor: [],
-  });
+  const [searchParams] = useSearchParams();
+  const [filters, setFilters] = useState(() => filtersFromParams(searchParams));
   const [shortlist, setShortlist] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -541,6 +545,11 @@ const ProductRange = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Footer links change the query while this page stays mounted
+  useEffect(() => {
+    setFilters(filtersFromParams(searchParams));
+  }, [searchParams]);
 
   const toggle = (key) => (value) =>
     setFilters((prev) => ({

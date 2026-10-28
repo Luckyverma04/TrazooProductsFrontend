@@ -10,23 +10,31 @@ import {
 import { Link } from "react-router-dom";
 import logoImage from "../assets/branding/logo.webp";
 
+// Each footer link opens /products with the matching filter pre-selected
 const GIFTING_EVENTS = [
-  "Employee Onboarding",
-  "Festive Gifting",
-  "Rewards & Recognition",
-  "Events & Conferences",
-  "Client & Partner Gifting",
-  "Institutional Gifting",
+  { label: "Employee Onboarding", bestFor: "Onboarding" },
+  { label: "Festive Gifting", bestFor: "Festive" },
+  { label: "Rewards & Recognition", bestFor: "Rewards" },
+  { label: "Events & Conferences", bestFor: "Events" },
+  { label: "Client & Partner Gifting", bestFor: "Client gifting" },
+  { label: "Institutional Gifting", bestFor: null },
 ];
 
 const PRODUCTS = [
-  "Apparel & Wearables",
-  "Drinkware",
-  "Bags & Travel",
-  "Stationery & Desk",
-  "Tech & Accessories",
-  "Gourmet & Packaging",
+  { label: "Apparel & Wearables", category: "Apparel" },
+  { label: "Drinkware", category: "Drinkware" },
+  { label: "Bags & Travel", category: "Bags" },
+  { label: "Stationery & Desk", category: "Stationery" },
+  { label: "Tech & Accessories", category: "Electronics & Tech" },
+  { label: "Gourmet & Packaging", category: "Food & Hampers" },
 ];
+
+const productsLink = (key, value) =>
+  value ? `/products?${key}=${encodeURIComponent(value)}` : "/products";
+
+// Also covers clicking a link to the page you are already on
+const scrollToTop = () =>
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 
 const SOCIAL_LINKS = [
   {
@@ -110,13 +118,14 @@ const Footer = () => {
               </p>
 
               <ul className="space-y-2.5">
-                {GIFTING_EVENTS.map((item) => (
-                  <li key={item}>
+                {GIFTING_EVENTS.map(({ label, bestFor }) => (
+                  <li key={label}>
                     <Link
-                      to="/"
+                      to={productsLink("bestFor", bestFor)}
+                      onClick={scrollToTop}
                       className="text-[13px] font-medium text-white/80 transition-colors duration-200 hover:text-white"
                     >
-                      {item}
+                      {label}
                     </Link>
                   </li>
                 ))}
@@ -135,13 +144,14 @@ const Footer = () => {
               </p>
 
               <ul className="space-y-2.5">
-                {PRODUCTS.map((item) => (
-                  <li key={item}>
+                {PRODUCTS.map(({ label, category }) => (
+                  <li key={label}>
                     <Link
-                      to="/products"
+                      to={productsLink("category", category)}
+                      onClick={scrollToTop}
                       className="text-[13px] font-medium text-white/80 transition-colors duration-200 hover:text-white"
                     >
-                      {item}
+                      {label}
                     </Link>
                   </li>
                 ))}
@@ -262,6 +272,7 @@ const Footer = () => {
 
               <Link
                 to="/privacy"
+                onClick={scrollToTop}
                 className="transition-colors duration-200 hover:text-white"
               >
                 Privacy
@@ -271,6 +282,7 @@ const Footer = () => {
 
               <Link
                 to="/terms"
+                onClick={scrollToTop}
                 className="transition-colors duration-200 hover:text-white"
               >
                 Terms

@@ -127,7 +127,7 @@ function ScrollHandler() {
       left: 0,
       behavior: "instant",
     });
-  }, [location.pathname, location.hash]);
+  }, [location.pathname, location.search, location.hash]);
 
   return null;
 }
