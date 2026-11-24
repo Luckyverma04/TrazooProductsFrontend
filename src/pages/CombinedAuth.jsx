@@ -3,22 +3,18 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import storageUtils from "../utils/storageUtils";
-
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CombinedAuth = () => {
   const navigate = useNavigate();
-
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
-
   // ✅ CHECK IF ALREADY LOGGED IN - Redirect to dashboard/home
   useEffect(() => {
     const token = storageUtils.getItem("token");
